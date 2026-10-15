@@ -1,19 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { JsonPipe } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-
-import { SupabaseService } from './supabase';
+import { Component } from '@angular/core';
+import { Home } from './home/home';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, JsonPipe],
+  imports: [Home],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App implements OnInit {
-  readonly dbService = inject(SupabaseService);
-
-  ngOnInit(): void {
-    void this.dbService.getProducts();
-  }
-}
+export class App {}

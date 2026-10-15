@@ -1,0 +1,30 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 20px;
+  padding: 2px 10px;
+  background: var(--color-filter-background);
+  color: var(--color-primary-purple);
+  font-family: 'Nokora', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 21px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+:host([aria-pressed='true']) {
+  background: var(--color-primary-orange);
+}
+
+:host(:focus-visible) {
+  outline: 2px solid var(--color-text);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) {
+  :host(:hover:not([aria-pressed='true']):not(:disabled)) {
+    background: var(--color-secondary-orange);
+  }
+}

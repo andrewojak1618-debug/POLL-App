@@ -1,0 +1,20 @@
+<div class="category-dropdown" (keydown.escape)="close(trigger)" (focusout)="onFocusOut($event)">
+  <button #trigger class="category-trigger" type="button"
+    [class.is-active]="isOpen || selectedCategory !== 'All Surveys'"
+    [attr.aria-expanded]="isOpen" aria-controls="survey-category-options" (click)="toggle()">
+    <span>Sort by categories</span>
+    <span class="arrow" [class.is-open]="isOpen" aria-hidden="true">
+      <img src="icons/arrow_drop_down.svg" width="15" height="8" alt="" />
+    </span>
+  </button>
+  @if (selectedCategory !== 'All Surveys') {
+    <p class="selected-category" aria-live="polite">{{ selectedCategory }}</p>
+  }
+  <div id="survey-category-options" class="category-options" [hidden]="!isOpen"
+    role="group" aria-label="Categories">
+    @for (category of categories; track category) {
+      <button class="category-option" type="button" [attr.aria-pressed]="selectedCategory === category"
+        (click)="select(category, trigger)">{{ category }}</button>
+    }
+  </div>
+</div>

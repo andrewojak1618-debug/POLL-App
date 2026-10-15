@@ -1,0 +1,13 @@
+<section class="survey-highlights" aria-labelledby="surveys-title">
+  <h2 id="surveys-title">Your surveys</h2>
+  <div class="ending-soon">
+    <h3>Ending soon surveys</h3>
+    <div class="highlight-cards" tabindex="0" role="group" aria-label="Ending soon surveys">
+      @for (survey of endingSoonSurveys; track survey.id) {
+        <app-highlight-card [survey]="survey" />
+      } @empty {
+        <p class="empty-state" role="status">No surveys ending within the next 24 hours.</p>
+      }
+    </div>
+  </div>
+</section>
