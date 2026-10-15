@@ -1,0 +1,38 @@
+<header class="home-header">
+  <a class="logo" href="/" aria-label="Poll App home"><img src="images/pool_logo.svg" width="69" height="50" alt="" /><span>Poll<br />App</span></a>
+</header>
+
+<main class="home-content">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__content">
+      <h1 id="hero-title">Collect Feedback,<br />Unlock Ideas</h1>
+      <p>
+        Create and share surveys in minutes – from team events to workplace culture.
+        Collect opinions, engage your audience, and turn feedback into action.
+      </p>
+      <!-- Visual-only first step; survey creation follows in a later work package. -->
+      <button appPrimaryButton type="button" aria-disabled="true">
+        New survey
+        <img buttonIcon src="icons/add_circle.svg" width="20" height="20" alt="" />
+      </button>
+    </div>
+    <div class="hero__visual" aria-hidden="true">
+      <div class="illustration">
+        <img class="illustration__phone" src="images/handy_illustration.png" width="520" height="520" alt="" />
+        <div class="illustration__state illustration__state--rest">
+          <img class="illustration__message" src="images/messag_illustration.svg" width="168" height="111" alt="" />
+          <img class="illustration__question" src="images/questionmark_illustration.svg" width="92" height="94" alt="" />
+          <img class="illustration__star" src="images/star_illustration.svg" width="94" height="94" alt="" />
+        </div>
+        <div class="illustration__state illustration__state--hover">
+          <img class="illustration__message" src="images/messag_illustration.svg" width="168" height="111" alt="" />
+          <img class="illustration__question" src="images/questionmark_illustration.svg" width="92" height="94" alt="" />
+          <img class="illustration__star" src="images/star_illustration.svg" width="94" height="94" alt="" />
+          <img class="illustration__check" src="images/check_illustration.svg" width="97" height="97" alt="" />
+        </div>
+      </div>
+    </div>
+  </section>
+  <app-survey-highlights [surveys]="surveys" [now]="now()" />
+  <app-survey-list [surveys]="surveys" [now]="now()" />
+</main>
