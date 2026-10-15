@@ -1,0 +1,240 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--color-primary-purple);
+  color: var(--color-text);
+}
+
+.home-header,
+.home-content {
+  width: min(1218px, calc(100% - 64px));
+  margin-inline: auto;
+}
+
+.home-header {
+  padding-top: 40px;
+  height: 177px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary-orange);
+  text-decoration: none;
+  font-family: 'Nerko One', cursive;
+  font-size: 24px;
+  line-height: 0.85;
+
+  img { display: block; }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-text);
+    outline-offset: 6px;
+  }
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  gap: 64px;
+  padding-bottom: 90px;
+}
+
+.hero__content {
+  flex: 0 1 712px;
+  min-width: 0;
+}
+
+h1 {
+  margin: 0;
+  color: var(--color-primary-orange);
+  font-family: 'Nerko One', cursive;
+  font-size: 100px;
+  font-weight: 400;
+  line-height: 89px;
+}
+
+p {
+  max-width: 680px;
+  margin: 32px 0 40px;
+  font-size: 24px;
+  font-weight: 600;
+  // Provisional until the exact paragraph line-height can be verified.
+  line-height: 1.3;
+}
+
+.hero__visual {
+  flex: 0 0 442px;
+  min-height: 400px;
+}
+
+.illustration {
+  position: relative;
+  width: 442px;
+  height: 442px;
+
+
+  img {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+    animation: illustration-drift var(--drift-duration, 8s) ease-in-out var(--drift-delay, 0s) infinite;
+  }
+}
+
+.illustration__phone {
+  width: 442px;
+  height: auto;
+  inset: 0;
+}
+
+// Figma: Components > Visual, Variant3 -> 02.
+// On hover, dissolve with ease-in-out over 250 ms.
+.illustration__state {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease-in-out;
+}
+
+.illustration__state--hover { opacity: 0; }
+
+.illustration__message { left: 0; top: 60px; }
+.illustration__question { right: 25px; top: 0; }
+.illustration__star { left: 5px; bottom: 15px; }
+.illustration__check { right: -10px; bottom: 70px; }
+
+.illustration__state--rest {
+  .illustration__message {
+    transform: translate(24px, 32px) scale(0.65);
+  }
+
+  .illustration__star { transform: scale(0.85); }
+}
+
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .illustration:hover {
+    img { animation-play-state: paused; }
+    .illustration__state--rest { opacity: 0; }
+    .illustration__state--hover { opacity: 1; }
+  }
+}
+
+// Individual translate/rotate leave the resting variant's transform intact.
+.illustration__phone {
+  --drift-x: 2px;
+  --drift-y: -4px;
+  --drift-angle: 0.5deg;
+  --drift-duration: 9s;
+}
+
+.illustration__message {
+  --drift-x: -5px;
+  --drift-y: -8px;
+  --drift-angle: -2deg;
+  --drift-duration: 6s;
+  --drift-delay: -2s;
+}
+
+.illustration__question {
+  --drift-x: 4px;
+  --drift-y: -6px;
+  --drift-angle: 3deg;
+  --drift-duration: 7s;
+  --drift-delay: -4s;
+}
+
+.illustration__star {
+  --drift-x: -4px;
+  --drift-y: 6px;
+  --drift-angle: -4deg;
+  --drift-duration: 8s;
+  --drift-delay: -1s;
+}
+
+.illustration__check {
+  --drift-x: 3px;
+  --drift-y: -5px;
+  --drift-angle: 2deg;
+  --drift-duration: 7s;
+  --drift-delay: -3s;
+}
+
+@keyframes illustration-drift {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% {
+    translate: var(--drift-x) var(--drift-y);
+    rotate: var(--drift-angle);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .illustration img { animation: none; }
+  .illustration__state { transition: none; }
+}
+@media (min-width: 901px) and (max-width: 1350px) {
+  .hero { gap: 24px; }
+  h1 { font-size: 76px; line-height: 0.95; }
+}
+
+@media (max-width: 900px) {
+  .home-header, .home-content {
+    width: calc(100% - 32px);
+  }
+
+  .home-header {
+    height: auto;
+    padding-top: 48px;
+    padding-bottom: 54px;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-bottom: 80px;
+  }
+
+  .hero__content {
+    display: contents;
+  }
+
+  h1 {
+    grid-row: 1;
+    font-size: clamp(48px, 16.53vw, 62px);
+    line-height: 50px;
+  }
+
+  .hero__visual {
+    grid-row: 2;
+    position: relative;
+    min-height: 250px;
+    height: 250px;
+  }
+
+  .illustration {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -221px;
+    transform: scale(0.5656);
+    transform-origin: top center;
+  }
+
+  .illustration__state--rest { opacity: 0; }
+  .illustration__state--hover { opacity: 1; }
+
+  p {
+    grid-row: 3;
+    margin: 0;
+    max-width: none;
+    font-size: 18px;
+    line-height: 23px;
+  }
+
+  button[appPrimaryButton] {
+    grid-row: 4;
+    justify-self: center;
+    margin-top: 30px;
+  }
+}
