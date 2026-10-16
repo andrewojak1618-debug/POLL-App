@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  background: var(--color-page-background);
+}
+
+.create-survey {
+  min-height: 100dvh;
+  padding: 72px 24px;
+}
+
+.survey-shell {
+  max-width: 1166px;
+  min-height: 844px;
+  margin-inline: auto;
+  padding: 40px 54px;
+  border-radius: 5px 100px 5px 5px;
+  background: var(--color-primary-purple);
+}
+
+.survey-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.survey-heading {
+  min-width: 0;
+}
+
+.draft-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 5px;
+  background: var(--color-secondary-orange);
+  color: var(--color-primary-purple);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+h1 {
+  margin: 8px 0 0;
+  color: var(--color-survey-heading);
+  font-family: 'Nerko One', cursive;
+  font-size: 56px;
+  font-weight: 400;
+  line-height: 61px;
+}
+
+.cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 10px;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--color-secondary-button-background);
+  color: var(--color-page-background);
+  font-family: 'Nokora', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+}
+
+.cancel-button:hover {
+  background: var(--color-secondary-button-hover);
+}
+
+.cancel-button:focus-visible {
+  outline: 2px solid var(--color-primary-orange);
+  outline-offset: 4px;
+}
+
+.survey-form-surface {
+  min-height: 549px;
+  border-radius: 5px 80px 5px 5px;
+  background: var(--color-form-background);
+}
+
+@media (max-width: 600px) {
+  .create-survey {
+    padding: 24px 16px;
+  }
+
+  .survey-shell {
+    min-height: calc(100dvh - 48px);
+    padding: 24px 16px;
+    border-top-right-radius: 60px;
+  }
+
+  .survey-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  h1 {
+    font-size: 40px;
+    line-height: 44px;
+  }
+
+  .survey-form-surface {
+    min-height: 400px;
+    border-top-right-radius: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cancel-button {
+    transition: none;
+  }
+}
