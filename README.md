@@ -2,7 +2,7 @@
 
 Poll-App ist eine Webanwendung zum Erstellen, Teilen und Beantworten von Umfragen. Sie soll Feedback zu unterschiedlichen Themen sammeln und Ergebnisse übersichtlich darstellen.
 
-Das Projekt befindet sich in Entwicklung. Die Home-Seite zeigt aktuell lokale Beispielumfragen; die Ansicht zum Erstellen einer Umfrage ist als Grundlayout vorbereitet.
+Das Projekt befindet sich in Entwicklung. Die Home-Seite zeigt aktuell lokale Beispielumfragen; die Ansicht zum Erstellen einer Umfrage enthält die ersten Eingabefelder.
 
 ## Funktionen
 
@@ -21,7 +21,7 @@ Das Projekt befindet sich in Entwicklung. Die Home-Seite zeigt aktuell lokale Be
 
 Auf der Home-Seite können Umfragen nach Status und Kategorie gefiltert werden. „Ending soon surveys“ hebt aktive Umfragen hervor, deren Endzeit innerhalb der nächsten 24 Stunden liegt.
 
-Über „New survey“ öffnet sich die Ansicht „Create Survey“. Aktuell enthält sie den Entwurfsstatus, die Überschrift, eine vorbereitete Formularfläche und den Cancel-Button. Eingabefelder, mehrere Fragen, Mehrfachauswahl und Veröffentlichung folgen in weiteren Schritten.
+Über „New survey“ öffnet sich die Ansicht „Create Survey“. Sie enthält die Umfragedaten, eine erste Frage mit zwei Antwortfeldern und den Cancel-Button. Eingaben lassen sich bearbeiten und leeren. Dynamische Fragen und Antworten sowie die Veröffentlichung folgen in weiteren Schritten.
 
 ## Technologien
 
@@ -76,7 +76,7 @@ Die Anwendung wird schrittweise erweitert. Die folgenden Punkte zeigen den aktue
 - [x] Kategorieauswahl funktional machen
 - [x] Innerhalb von 24 Stunden endende Umfragen hervorheben
 - [x] Create-Survey-Grundlayout und Cancel-Navigation umsetzen
-- [ ] Formularfelder und erste Frage ergänzen
+- [x] Formularfelder und erste Frage ergänzen
 - [ ] Mehrere Fragen und dynamische Antwortmöglichkeiten ermöglichen
 - [ ] Mehrfachauswahl je Frage ergänzen
 - [ ] Eingaben validieren und Veröffentlichung umsetzen
