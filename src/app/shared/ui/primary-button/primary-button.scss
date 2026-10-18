@@ -17,12 +17,12 @@
   transition: background-color 300ms ease-out;
 }
 
-.button-label {
+.button_label {
   min-width: 106px;
   white-space: nowrap;
 }
 
-.button-icon {
+.button_icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -40,7 +40,7 @@
   background: var(--color-primary-orange);
 }
 
-:host(:focus-visible) .button-icon:not(:empty) {
+:host(:focus-visible) .button_icon:not(:empty) {
   width: 24px;
   margin-left: 10px;
   opacity: 1;
@@ -51,7 +51,7 @@
     background: var(--color-primary-orange);
   }
 
-  :host(:hover:not(:disabled)) .button-icon:not(:empty) {
+  :host(:hover:not(:disabled)) .button_icon:not(:empty) {
     width: 24px;
     margin-left: 10px;
     opacity: 1;
@@ -64,13 +64,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :host, .button-icon {
+  :host, .button_icon {
     transition: none;
   }
 }
 
 @media (max-width: 900px) {
-  .button-icon:not(:empty) {
+  .button_icon:not(:empty) {
     width: 24px;
     margin-left: 10px;
     opacity: 1;

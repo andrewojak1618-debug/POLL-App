@@ -3,12 +3,12 @@
   background: var(--color-page-background);
 }
 
-.create-survey {
+.create_survey {
   min-height: 100dvh;
   padding: 72px 24px;
 }
 
-.survey-shell {
+.survey_shell {
   max-width: 1166px;
   min-height: 844px;
   margin-inline: auto;
@@ -17,7 +17,7 @@
   background: var(--color-primary-purple);
 }
 
-.survey-header {
+.survey_header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25,11 +25,11 @@
   margin-bottom: 32px;
 }
 
-.survey-heading {
+.survey_heading {
   min-width: 0;
 }
 
-.draft-badge {
+.draft_badge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 5px;
@@ -48,7 +48,7 @@ h1 {
   line-height: 61px;
 }
 
-.cancel-button {
+.cancel_button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -67,33 +67,33 @@ h1 {
   transition: background-color 150ms ease;
 }
 
-.cancel-button:hover {
+.cancel_button:hover {
   background: var(--color-secondary-button-hover);
 }
 
-.cancel-button:focus-visible {
+.cancel_button:focus-visible {
   outline: 2px solid var(--color-primary-orange);
   outline-offset: 4px;
 }
 
-.survey-form-surface {
+.survey_form_surface {
   min-height: 549px;
   border-radius: 5px 80px 5px 5px;
   background: var(--color-form-background);
 }
 
 @media (max-width: 600px) {
-  .create-survey {
+  .create_survey {
     padding: 24px 16px;
   }
 
-  .survey-shell {
+  .survey_shell {
     min-height: calc(100dvh - 48px);
     padding: 24px 16px;
     border-top-right-radius: 60px;
   }
 
-  .survey-header {
+  .survey_header {
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 16px;
@@ -104,14 +104,14 @@ h1 {
     line-height: 44px;
   }
 
-  .survey-form-surface {
+  .survey_form_surface {
     min-height: 400px;
     border-top-right-radius: 48px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cancel-button {
+  .cancel_button {
     transition: none;
   }
 }

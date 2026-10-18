@@ -27,7 +27,7 @@ describe('App navigation', () => {
 
   it('should return home using Cancel after opening the route directly', async () => {
     const harness = await RouterTestingHarness.create('/create-survey');
-    const cancel = harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.cancel-button');
+    const cancel = harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.cancel_button');
     cancel?.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/');

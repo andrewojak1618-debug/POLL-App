@@ -1,17 +1,17 @@
-<section class="survey-list" aria-label="Survey overview">
+<section class="survey_list" aria-label="Survey overview">
 
-  <div class="survey-toolbar">
-    <div class="survey-filters" role="group" aria-label="Survey status">
+  <div class="survey_toolbar">
+    <div class="survey_filters" role="group" aria-label="Survey status">
       <button appFilterButton type="button" [attr.aria-pressed]="selectedStatus === 'active'" (click)="selectedStatus = 'active'">Active survey</button>
       <button appFilterButton type="button" [attr.aria-pressed]="selectedStatus === 'past'" (click)="selectedStatus = 'past'">Past survey</button>
     </div>
     <app-category-dropdown [(selectedCategory)]="selectedCategory" />
   </div>
-  <ul class="survey-grid" tabindex="0" aria-label="Filtered surveys">
+  <ul class="survey_grid" tabindex="0" aria-label="Filtered surveys">
     @for (survey of visibleSurveys; track survey.id) {
       <li><app-survey-list-card [survey]="survey" /></li>
     } @empty {
-      <li class="empty-state" role="status">
+      <li class="empty_state" role="status">
         No {{ selectedStatus === 'active' ? 'active' : 'past' }} surveys{{ selectedCategory === 'All Surveys' ? '' : ' in this category' }} yet.
       </li>
     }

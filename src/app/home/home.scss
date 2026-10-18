@@ -5,13 +5,13 @@
   color: var(--color-text);
 }
 
-.home-header,
-.home-content {
+.home_header,
+.home_content {
   width: min(1218px, calc(100% - 64px));
   margin-inline: auto;
 }
 
-.home-header {
+.home_header {
   padding-top: 40px;
   height: 177px;
 }
@@ -98,14 +98,14 @@ p {
   transition: opacity 250ms ease-in-out;
 }
 
-.illustration__state--hover { opacity: 0; }
+.illustration__state__hover { opacity: 0; }
 
 .illustration__message { left: 0; top: 60px; }
 .illustration__question { right: 25px; top: 0; }
 .illustration__star { left: 5px; bottom: 15px; }
 .illustration__check { right: -10px; bottom: 70px; }
 
-.illustration__state--rest {
+.illustration__state__rest {
   .illustration__message {
     transform: translate(24px, 32px) scale(0.65);
   }
@@ -116,8 +116,8 @@ p {
 @media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
   .illustration:hover {
     img { animation-play-state: paused; }
-    .illustration__state--rest { opacity: 0; }
-    .illustration__state--hover { opacity: 1; }
+    .illustration__state__rest { opacity: 0; }
+    .illustration__state__hover { opacity: 1; }
   }
 }
 
@@ -178,11 +178,11 @@ p {
 }
 
 @media (max-width: 900px) {
-  .home-header, .home-content {
+  .home_header, .home_content {
     width: calc(100% - 32px);
   }
 
-  .home-header {
+  .home_header {
     height: auto;
     padding-top: 48px;
     padding-bottom: 54px;
@@ -221,8 +221,8 @@ p {
     transform-origin: top center;
   }
 
-  .illustration__state--rest { opacity: 0; }
-  .illustration__state--hover { opacity: 1; }
+  .illustration__state__rest { opacity: 0; }
+  .illustration__state__hover { opacity: 1; }
 
   p {
     grid-row: 3;
