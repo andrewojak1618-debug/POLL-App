@@ -65,6 +65,12 @@ npm run build
 
 Die Build-Dateien werden unter `dist/poll-app` abgelegt.
 
+## Supabase-Zugriff
+
+Die Anwendung verwendet einen öffentlichen Supabase-Publishable-Key. Er ist im Browser sichtbar und kein Geheimnis. Der Datenzugriff wird durch Row Level Security (RLS) und die zugehörigen Policies geregelt. Für die Umfragetabellen ist RLS aktiviert; die benötigten Zugriffsregeln werden in einem weiteren Schritt ergänzt.
+
+Ein `service_role`-Key umgeht RLS und darf niemals im Frontend oder im Repository hinterlegt werden.
+
 ## Projektstatus
 
 Die Anwendung wird schrittweise erweitert. Die folgenden Punkte zeigen den aktuellen Funktionsumfang und die nächsten Schritte.
