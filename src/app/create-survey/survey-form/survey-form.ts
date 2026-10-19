@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { SURVEY_CATEGORIES } from '../../home/survey-list/category-dropdown/survey-categories';
+import { SurveyQuestion } from '../survey_question/survey_question_model';
+import { SurveyQuestionComponent } from '../survey_question/survey_question';
 import type { SurveyCategory } from '../../home/survey-list/category-dropdown/survey-categories';
 
 @Component({
   selector: 'app-survey-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, SurveyQuestionComponent],
   templateUrl: './survey-form.html',
   styleUrl: './survey-form.scss',
 })
@@ -18,38 +20,23 @@ export class SurveyForm {
     endDate: new FormControl('', { nonNullable: true }),
     category: new FormControl<SurveyCategory | ''>('', { nonNullable: true }),
     description: new FormControl('', { nonNullable: true }),
-    question: new FormControl('', { nonNullable: true }),
-    multipleAnswers: new FormControl(false, { nonNullable: true }),
   };
-  readonly answers = new FormArray<FormControl<string>>([
-    new FormControl('', { nonNullable: true }),
-    new FormControl('', { nonNullable: true }),
-  ]);
-  readonly form = new FormGroup({ ...this.fields, answers: this.answers });
+  readonly questions = new FormArray<SurveyQuestion>([new SurveyQuestion()]);
+  readonly form = new FormGroup({ ...this.fields, questions: this.questions });
 
-  /** Ergänzt eine leere Antwortmöglichkeit. */
-  addAnswer(): void {
-    this.answers.push(new FormControl('', { nonNullable: true }));
+  /** Ergänzt eine unabhängige Frage mit zwei Antworten. */
+  addQuestion(): void {
+    this.questions.push(new SurveyQuestion());
   }
 
-  /** Entfernt eine Antwort; bei zwei verbleibenden Feldern wird nur der Inhalt geleert. */
-  removeAnswer(index: number): void {
-    if (this.answers.length <= 2) {
-      this.answers.at(index).setValue('');
+  /** Leert die erste Frage oder entfernt eine zusätzliche Frage vollständig. */
+  removeQuestion(index: number): void {
+    if (index === 0) {
+      this.questions.at(0).controls.question.setValue('');
       return;
     }
-    this.answers.removeAt(index);
+    this.questions.removeAt(index);
   }
-
-  /** Erzeugt fortlaufende Buchstaben auch nach Z (AA, AB, ...). */
-  answerLabel(index: number): string {
-    let label: string = '';
-    for (let number: number = index + 1; number > 0; number = Math.floor((number - 1) / 26)) {
-      label = String.fromCharCode(65 + (number - 1) % 26) + label;
-    }
-    return label;
-  }
-
   /** Leert ein Textfeld und setzt den Fokus zur weiteren Eingabe zurück. */
   clear(control: FormControl<string>, input: HTMLInputElement | HTMLTextAreaElement): void {
     control.setValue('');

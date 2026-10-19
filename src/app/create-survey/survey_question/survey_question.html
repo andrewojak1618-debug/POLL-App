@@ -1,0 +1,32 @@
+    <fieldset [formGroup]="question()">
+      <legend class="visually_hidden">Question {{ number() }} and answers</legend>
+      <div class="question_heading">
+        <label [for]="'survey_question_' + number()">{{ number() }}. Question</label>
+        <button type="button" class="clear_button" [attr.aria-label]="number() === 1 ? 'Clear first question' : 'Remove question ' + number()" (click)="remove.emit()">
+          <img src="icons/delete.svg" width="18" height="20" alt="" />
+        </button>
+      </div>
+      <input #questionInput [id]="'survey_question_' + number()" formControlName="question" [placeholder]="number() === 1 ? 'Which date would work best for you?' : 'Choose the activities you prefer?'" />
+      <div class="answers_heading">
+        <span>Answers</span>
+        <label class="multiple_answers">
+          <input type="checkbox" formControlName="multipleAnswers" />
+          Allow multiple answers.
+        </label>
+      </div>
+      @for (answer of question().answers.controls; track answer; let index = $index) {
+        <div class="input_row answer_row">
+          <label [for]="'survey_answer_' + number() + '_' + index">{{ question().answerLabel(index) }}.</label>
+          <input #answerInput [id]="'survey_answer_' + number() + '_' + index" [attr.aria-label]="'Answer ' + question().answerLabel(index)" [formControl]="answer" />
+          <button type="button" class="clear_button"
+            [attr.aria-label]="(question().answers.length > 2 ? 'Remove answer ' : 'Clear answer ') + question().answerLabel(index)"
+            (click)="removeAnswer(index)">
+            <img src="icons/delete.svg" width="18" height="20" alt="" />
+          </button>
+        </div>
+      }
+      <button type="button" class="add_answer" (click)="question().addAnswer()">
+        Add answer
+        <span class="add_answer_icon"><img src="icons/add_circle_white.svg" width="16" height="16" alt="" /></span>
+      </button>
+    </fieldset>

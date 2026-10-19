@@ -1,4 +1,4 @@
-import type { SurveyListItem } from './survey-list-item';
+import type { Survey } from '../../shared/models/survey';
 
 export type SurveyStatus = 'active' | 'past';
 
@@ -8,12 +8,12 @@ export type SurveyStatus = 'active' | 'past';
  * @param now - Aktueller Zeitpunkt in Millisekunden.
  * @returns Passende Umfragen in ihrer ursprünglichen Reihenfolge.
  */
-export function filterSurveysByStatus(
-  surveys: readonly SurveyListItem[],
+export function filterSurveysByStatus<T extends Pick<Survey, 'endsAt'>>(
+  surveys: readonly T[],
   status: SurveyStatus,
   now: number,
-): readonly SurveyListItem[] {
-  return surveys.filter((survey: SurveyListItem): boolean => {
+): readonly T[] {
+  return surveys.filter((survey: T): boolean => {
     const isPast: boolean = survey.endsAt !== null && survey.endsAt <= now;
     return status === 'past' ? isPast : !isPast;
   });

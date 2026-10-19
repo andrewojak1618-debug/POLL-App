@@ -1,0 +1,99 @@
+label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+label span {
+  font-size: 16px;
+}
+
+.input_row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+input:not([type='checkbox']),
+textarea {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 5px 20px 5px 5px;
+  background: var(--color-page-background);
+  color: var(--color-primary-purple);
+  font: inherit;
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 108px;
+  resize: vertical;
+}
+
+.description_row {
+  align-items: flex-start;
+}
+
+.clear_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 28px;
+  padding: 3px 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.clear_button:hover {
+  background: var(--color-delete-button-hover);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-primary-orange);
+  outline-offset: 3px;
+}
+
+
+textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  margin-block: 10px 0;
+  border-radius: 10px;
+  background: var(--color-scrollbar-track);
+}
+
+textarea::-webkit-scrollbar-thumb {
+  min-height: 24px;
+  border-radius: 10px;
+  background: var(--color-primary-orange);
+  box-shadow: 3px 3px 3.2px rgb(0 0 0 / 25%);
+}
+
+textarea::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+textarea::-webkit-scrollbar-corner {
+  background: var(--color-page-background);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  textarea {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary-orange) var(--color-scrollbar-track);
+  }
+}

@@ -3,9 +3,9 @@
     <header class="survey_header">
       <div class="survey_heading">
         <span class="draft_badge">Draft</span>
-        <h1 id="create_survey_title">Create new survey</h1>
+        <h1 #surveyHeading id="create_survey_title" tabindex="-1">Create new survey</h1>
       </div>
-      <a class="cancel_button" routerLink="/">
+      <a class="cancel_button" routerLink="/" [info]="'focus_new_survey'">
         Cancel
         <img src="icons/cancel.svg" width="14" height="14" alt="" />
       </a>

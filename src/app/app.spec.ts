@@ -18,19 +18,41 @@ describe('App navigation', () => {
 
   it('should open Create Survey using New survey', async () => {
     const harness = await RouterTestingHarness.create('/');
-    const button = harness.routeNativeElement?.querySelector<HTMLButtonElement>('[appPrimaryButton]');
-    button?.click();
+    const link = harness.routeNativeElement?.querySelector<HTMLAnchorElement>('a[appPrimaryButton]');
+    expect(link?.getAttribute('href')).toBe('/create-survey');
+    link?.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/create-survey');
+    expect(document.activeElement).toBe(harness.routeNativeElement?.querySelector('h1'));
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Create new survey');
   });
 
+  it('should focus the heading when opening Create Survey directly', async () => {
+    const harness = await RouterTestingHarness.create('/create-survey');
+    const heading = harness.routeNativeElement?.querySelector('h1');
+    expect(document.activeElement).toBe(heading);
+    expect(heading?.getAttribute('tabindex')).toBe('-1');
+  });
+  it('should restore focus after New survey and Cancel', async () => {
+    const harness = await RouterTestingHarness.create('/');
+    harness.routeNativeElement?.querySelector<HTMLAnchorElement>('a[appPrimaryButton]')?.click();
+    await harness.fixture.whenStable();
+    harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.cancel_button')?.click();
+    await harness.fixture.whenStable();
+    expect(document.activeElement).toBe(harness.routeNativeElement?.querySelector('a[appPrimaryButton]'));
+  });
+
+  it('should not focus New survey on a normal Home visit', async () => {
+    const harness = await RouterTestingHarness.create('/');
+    expect(document.activeElement).not.toBe(harness.routeNativeElement?.querySelector('a[appPrimaryButton]'));
+  });
   it('should return home using Cancel after opening the route directly', async () => {
     const harness = await RouterTestingHarness.create('/create-survey');
     const cancel = harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.cancel_button');
     cancel?.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/');
+    expect(document.activeElement).toBe(harness.routeNativeElement?.querySelector('a[appPrimaryButton]'));
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Collect Feedback,');
   });
 });

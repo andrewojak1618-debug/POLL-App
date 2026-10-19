@@ -21,7 +21,7 @@ Das Projekt befindet sich in Entwicklung. Die Home-Seite zeigt aktuell lokale Be
 
 Auf der Home-Seite können Umfragen nach Status und Kategorie gefiltert werden. „Ending soon surveys“ hebt aktive Umfragen hervor, deren Endzeit innerhalb der nächsten 24 Stunden liegt.
 
-Über „New survey“ öffnet sich die Ansicht „Create Survey“. Sie enthält die Umfragedaten, eine erste Frage mit zwei Antwortfeldern und den Cancel-Button. Eingaben lassen sich bearbeiten und leeren. Weitere Antwortmöglichkeiten lassen sich hinzufügen und entfernen. Dynamische Fragen sowie die Veröffentlichung folgen in weiteren Schritten.
+Über „New survey“ öffnet sich die Ansicht „Create Survey“. Sie enthält die Umfragedaten, eine erste Frage mit zwei Antwortfeldern und den Cancel-Button. Eingaben lassen sich bearbeiten und leeren. Weitere Antwortmöglichkeiten lassen sich hinzufügen und entfernen. Weitere Fragen lassen sich hinzufügen und entfernen. Die Veröffentlichung folgt in einem weiteren Schritt.
 
 ## Technologien
 
@@ -78,7 +78,7 @@ Die Anwendung wird schrittweise erweitert. Die folgenden Punkte zeigen den aktue
 - [x] Create-Survey-Grundlayout und Cancel-Navigation umsetzen
 - [x] Formularfelder und erste Frage ergänzen
 - [x] Antwortmöglichkeiten dynamisch hinzufügen und entfernen
-- [ ] Mehrere Fragen ermöglichen
+- [x] Mehrere Fragen hinzufügen und entfernen
 - [ ] Mehrfachauswahl je Frage ergänzen
 - [ ] Eingaben validieren und Veröffentlichung umsetzen
 - [ ] Umfragen dauerhaft in Supabase speichern und laden
