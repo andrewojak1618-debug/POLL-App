@@ -12,6 +12,15 @@ describe('App navigation', () => {
     }).compileComponents();
   });
 
+  it('should open a survey detail URL directly with its page title and heading', async () => {
+    const url: string = '/surveys/00000000-0000-4000-8000-000000000001';
+    const harness: RouterTestingHarness = await RouterTestingHarness.create(url);
+    expect(TestBed.inject(Router).url).toBe(url);
+    expect(document.title).toBe('Survey details | Poll App');
+    expect(harness.routeNativeElement?.querySelector('main')?.getAttribute('aria-labelledby'))
+      .toBe('survey_detail_title');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Survey details');
+  });
   it('should create the app', () => {
     expect(TestBed.createComponent(App).componentInstance).toBeTruthy();
   });

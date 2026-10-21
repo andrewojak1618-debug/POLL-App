@@ -1,0 +1,12 @@
+.survey_detail {
+  min-height: 100dvh;
+  padding: clamp(24px, 5vw, 80px);
+  background: var(--color-page-background);
+  color: var(--color-primary-purple);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 48px);
+  overflow-wrap: anywhere;
+}
