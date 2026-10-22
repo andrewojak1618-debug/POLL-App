@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, inject, Input, output } from '@angular/core';
-import type { CategorySelection } from './survey-categories';
+import type { SurveyCategoryData } from '../../../shared/models/survey_category_data';
 import type { OutputEmitterRef } from '@angular/core';
-import { SURVEY_CATEGORIES } from './survey-categories';
+
 
 @Component({
   selector: 'app-category-dropdown',
@@ -10,10 +10,17 @@ import { SURVEY_CATEGORIES } from './survey-categories';
 })
 export class CategoryDropdown {
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
-  readonly categories: readonly CategorySelection[] = SURVEY_CATEGORIES;
+  @Input({ required: true }) categories: readonly SurveyCategoryData[] = [];
   isOpen: boolean = false;
-  @Input() selectedCategory: CategorySelection = 'All Surveys';
-  readonly selectedCategoryChange: OutputEmitterRef<CategorySelection> = output<CategorySelection>();
+  @Input() selectedCategory: string | null = null;
+  readonly selectedCategoryChange: OutputEmitterRef<string | null> = output<string | null>();
+
+  /** Returns the loaded name for the selected category ID.
+   * @returns Display name, or an empty string when the category is unavailable.
+   */
+  get selectedCategoryName(): string {
+    return this.categories.find((category: SurveyCategoryData): boolean => category.id === this.selectedCategory)?.name ?? '';
+  }
 
   /** Öffnet oder schließt die Kategorieauswahl. */
   toggle(): void {
@@ -21,7 +28,7 @@ export class CategoryDropdown {
   }
 
   /** Übernimmt die Kategorie und setzt den Fokus auf den Auslöser zurück. */
-  select(category: CategorySelection, trigger: HTMLButtonElement): void {
+  select(category: string | null, trigger: HTMLButtonElement): void {
     this.selectedCategoryChange.emit(category);
     this.close(trigger);
   }

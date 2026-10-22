@@ -1,6 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { createClient } from '@supabase/supabase-js';
-import { environment } from '../environments/environment';
+import { inject, Injectable, signal } from '@angular/core';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { SUPABASE_CLIENT } from './shared/data/supabase_client';
 
 interface Product {
   id: number;
@@ -13,10 +13,7 @@ interface Product {
   providedIn: 'root',
 })
 export class SupabaseService {
-  private readonly supabase = createClient(
-    environment.supabase.url,
-    environment.supabase.publishableKey,
-  );
+  private readonly supabase: SupabaseClient = inject(SUPABASE_CLIENT);
 
   readonly products = signal<Product[]>([]);
 

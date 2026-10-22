@@ -1,7 +1,9 @@
-<article class="survey_card">
-  <div class="card_heading">
-    <p class="category">{{ survey().category }}</p>
-    <h3>{{ survey().title }}</h3>
-  </div>
-  <p class="deadline">{{ survey().deadlineLabel }}</p>
+<article>
+  <a class="survey_card" [routerLink]="['/surveys', survey().id]">
+    <div class="card_heading">
+      <p class="category">{{ survey().category.name }}</p>
+      <h3>{{ survey().title }}</h3>
+    </div>
+    <p class="deadline">{{ deadlineLabel() }}</p>
+  </a>
 </article>

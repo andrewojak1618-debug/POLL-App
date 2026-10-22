@@ -1,18 +1,19 @@
-<section class="survey_list" aria-label="Survey overview">
+<section class="survey_list" aria-labelledby="survey_list_title">
+  <h2 id="survey_list_title" class="visually_hidden">Survey overview</h2>
 
   <div class="survey_toolbar">
     <div class="survey_filters" role="group" aria-label="Survey status">
       <button appFilterButton type="button" [attr.aria-pressed]="filters.status() === 'active'" (click)="filters.status.set('active')">Active survey</button>
       <button appFilterButton type="button" [attr.aria-pressed]="filters.status() === 'past'" (click)="filters.status.set('past')">Past survey</button>
     </div>
-    <app-category-dropdown [selectedCategory]="filters.category()" (selectedCategoryChange)="filters.category.set($event)" />
+    <app-category-dropdown [categories]="store.categories()" [selectedCategory]="selectedCategoryId()" (selectedCategoryChange)="selectCategory($event)" />
   </div>
   <ul class="survey_grid" tabindex="0" aria-label="Filtered surveys">
-    @for (survey of visibleSurveys; track survey.id) {
-      <li><app-survey-list-card [survey]="survey" /></li>
+    @for (survey of visibleSurveys(); track survey.id) {
+      <li><app-survey-list-card [survey]="survey" [now]="store.now()" /></li>
     } @empty {
       <li class="empty_state" role="status">
-        No {{ filters.status() === 'active' ? 'active' : 'past' }} surveys{{ filters.category() === 'All Surveys' ? '' : ' in this category' }} yet.
+        No {{ filters.status() === 'active' ? 'active' : 'past' }} surveys{{ selectedCategoryId() === null ? '' : ' in this category' }} yet.
       </li>
     }
   </ul>

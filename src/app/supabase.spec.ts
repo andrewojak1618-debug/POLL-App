@@ -1,22 +1,26 @@
+import { SUPABASE_CLIENT } from './shared/data/supabase_client';
+import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { SupabaseService } from './supabase';
 
-const { select } = vi.hoisted(() => ({ select: vi.fn() }));
-vi.mock('@supabase/supabase-js', () => ({
-  createClient: () => ({ from: () => ({ select }) }),
-}));
+const select = vi.fn();
 
 describe('Supabase request state', () => {
-  beforeEach(() => { select.mockReset(); });
+  beforeEach(() => {
+    select.mockReset();
+    TestBed.configureTestingModule({ providers: [
+      { provide: SUPABASE_CLIENT, useValue: { from: () => ({ select }) } },
+    ] });
+  });
 
   it('starts without a loading or error state', () => {
-    const service = new SupabaseService();
+    const service = TestBed.inject(SupabaseService);
     expect(service.isLoading()).toBe(false);
     expect(service.errorMessage()).toBeNull();
   });
 
   it.each(['response', 'rejection'])('handles a %s failure and allows retry', async (failure: string) => {
-    const service = new SupabaseService();
+    const service = TestBed.inject(SupabaseService);
     if (failure === 'response') select.mockResolvedValueOnce({ data: null, error: { message: 'internal detail' } });
     else select.mockRejectedValueOnce(new Error('internal detail'));
     await service.getProducts();
@@ -29,7 +33,7 @@ describe('Supabase request state', () => {
   });
 
   it('exposes loading and avoids duplicate concurrent requests', async () => {
-    const service = new SupabaseService();
+    const service = TestBed.inject(SupabaseService);
     select.mockResolvedValue({ data: [], error: null });
     const pending = service.getProducts();
     expect(service.isLoading()).toBe(true);
@@ -40,7 +44,7 @@ describe('Supabase request state', () => {
   });
 
   it('keeps previously loaded data when a later request fails', async () => {
-    const service = new SupabaseService();
+    const service = TestBed.inject(SupabaseService);
     const products = [{ id: 1, name: 'Test', count: 0, created_at: '2026-10-19T00:00:00Z' }];
     select.mockResolvedValueOnce({ data: products, error: null });
     await service.getProducts();
