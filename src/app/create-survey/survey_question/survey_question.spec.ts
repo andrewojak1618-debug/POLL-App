@@ -5,7 +5,7 @@ import { SurveyForm } from '../survey-form/survey-form';
 
 describe('Survey questions', () => {
   it('keeps answers and multiple selection independent between questions', () => {
-    const survey = new SurveyForm();
+    const survey = TestBed.runInInjectionContext((): SurveyForm => new SurveyForm());
     survey.questions.at(0).answers.at(0).setValue('Monday');
     survey.addQuestion();
     survey.questions.at(1).controls.multipleAnswers.setValue(true);
@@ -16,7 +16,7 @@ describe('Survey questions', () => {
   });
 
   it('removes an additional question while preserving other question content', () => {
-    const survey = new SurveyForm();
+    const survey = TestBed.runInInjectionContext((): SurveyForm => new SurveyForm());
     survey.addQuestion();
     survey.addQuestion();
     survey.questions.at(2).controls.question.setValue('Last question');
@@ -26,7 +26,7 @@ describe('Survey questions', () => {
   });
 
   it('only clears the first question text and keeps its answers', () => {
-    const survey = new SurveyForm();
+    const survey = TestBed.runInInjectionContext((): SurveyForm => new SurveyForm());
     survey.questions.at(0).controls.question.setValue('First question');
     survey.questions.at(0).answers.at(0).setValue('Monday');
     survey.removeQuestion(0);
@@ -55,5 +55,78 @@ describe('Answer removal focus', () => {
     await fixture.whenStable();
     expect(question.answers.getRawValue()).toEqual(values);
     expect(document.activeElement).toBe(root.querySelectorAll('.answer_row input')[focused]);
+  });
+});
+describe('Question validation', () => {
+  it.each(['', '   ', '\t\n', '\u00a0'])('rejects empty text in questions and answers: %j', (value: string): void => {
+    const question: SurveyQuestion = new SurveyQuestion();
+    question.controls.question.setValue(value);
+    question.answers.setValue(['Monday', value]);
+    expect(question.controls.question.invalid).toBe(true);
+    expect(question.answers.invalid).toBe(true);
+    expect(question.invalid).toBe(true);
+  });
+
+  it('requires at least two answers even when the array is changed directly', (): void => {
+    const question: SurveyQuestion = new SurveyQuestion();
+    question.controls.question.setValue('When?');
+    question.answers.setValue(['Monday', 'Tuesday']);
+    expect(question.valid).toBe(true);
+    question.answers.removeAt(1);
+    expect(question.answers.hasError('minlength')).toBe(true);
+    question.answers.clear();
+    expect(question.answers.hasError('required')).toBe(true);
+  });
+
+  it('validates added answers and keeps the existing removal behavior', (): void => {
+    const question: SurveyQuestion = new SurveyQuestion();
+    question.controls.question.setValue(' When? ');
+    question.answers.setValue([' Monday ', 'Tuesday']);
+    question.addAnswer();
+    expect(question.invalid).toBe(true);
+    question.answers.at(2).setValue('  ');
+    expect(question.invalid).toBe(true);
+    question.removeAnswer(2);
+    expect(question.valid).toBe(true);
+    expect(question.answers.at(0).value).toBe(' Monday ');
+    question.removeAnswer(0);
+    expect(question.answers.length).toBe(2);
+    expect(question.invalid).toBe(true);
+  });
+
+  it('propagates errors from a further question to the complete form', (): void => {
+    const survey: SurveyForm = TestBed.runInInjectionContext((): SurveyForm => new SurveyForm());
+    survey.fields.name.setValue('Team meeting');
+    survey.fields.category.setValue('category-id');
+    survey.questions.at(0).controls.question.setValue('When?');
+    survey.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
+    expect(survey.form.valid).toBe(true);
+    survey.addQuestion();
+    expect(survey.form.invalid).toBe(true);
+    survey.questions.at(1).controls.question.setValue('Where?');
+    survey.questions.at(1).answers.setValue(['Office', 'Online']);
+    expect(survey.form.valid).toBe(true);
+    survey.questions.at(1).answers.at(1).setValue('  ');
+    expect(survey.form.invalid).toBe(true);
+  });
+});
+describe('Required question fields', () => {
+  it('marks initial and added question and answer inputs as required', (): void => {
+    const fixture = TestBed.createComponent(SurveyForm);
+    fixture.componentInstance.addQuestion();
+    fixture.componentInstance.questions.at(1).addAnswer();
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement;
+    const groups: NodeListOf<HTMLFieldSetElement> = root.querySelectorAll('fieldset');
+    expect(groups.length).toBe(2);
+    groups.forEach((group: HTMLFieldSetElement): void => {
+      expect(group.querySelector('.question_heading label')?.textContent).toContain('(required)');
+      expect(group.querySelector('.answers_heading')?.textContent).toContain('Answers (required)');
+      group.querySelectorAll<HTMLInputElement>('input:not([type="checkbox"])').forEach((input: HTMLInputElement): void => {
+        expect(input.required).toBe(true);
+      });
+      expect(group.querySelector<HTMLInputElement>('input[type="checkbox"]')?.required).toBe(false);
+    });
+    expect(root.querySelectorAll('.answer_row input').length).toBe(5);
   });
 });

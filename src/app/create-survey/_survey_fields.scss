@@ -97,3 +97,10 @@ textarea::-webkit-scrollbar-corner {
     scrollbar-color: var(--color-primary-orange) var(--color-scrollbar-track);
   }
 }
+.field_error {
+  margin: 6px 0 12px;
+  color: var(--color-primary-orange);
+  font-size: 14px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}

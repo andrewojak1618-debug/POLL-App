@@ -146,3 +146,40 @@ h1:focus-visible {
     min-height: calc(100dvh - 48px);
   }
 }
+.survey_actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1052px;
+  margin-top: 48px;
+}
+
+.publish_button {
+  --primary-button-min-width: 95px;
+  --primary-button-label-width: 63px;
+}
+.save_feedback {
+  color: var(--color-page-background);
+  margin: 16px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.retry_button {
+  margin-block: 8px 16px;
+  border: 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--color-secondary-orange);
+  color: var(--color-button-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.retry_button:hover {
+  background: var(--color-primary-orange);
+}
+
+.retry_button:focus-visible {
+  outline: 2px solid var(--color-page-background);
+  outline-offset: 3px;
+}

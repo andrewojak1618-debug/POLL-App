@@ -1,9 +1,9 @@
 <article class="highlight_card">
   <div class="card_content">
     <div class="card_heading">
-      <p class="category">{{ survey().category }}</p>
+      <p class="category">{{ survey().category.name }}</p>
       <h4>{{ survey().title }}</h4>
     </div>
-    <p class="deadline">{{ survey().deadlineLabel }}</p>
+    <p class="deadline">{{ deadlineLabel() }}</p>
   </div>
 </article>

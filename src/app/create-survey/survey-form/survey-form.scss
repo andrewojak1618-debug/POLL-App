@@ -123,3 +123,12 @@ option {
     grid-template-columns: 470px 470px;
   }
 }
+.category_field {
+  min-width: 0;
+}
+
+.category_requirement {
+  display: block;
+  padding-left: 40px;
+  font-size: 16px;
+}

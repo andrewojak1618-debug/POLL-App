@@ -1,3 +1,4 @@
+import { showFieldError } from '../show_field_error';
 import { Component, ElementRef, input, output, viewChildren } from '@angular/core';
 import type { Signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -10,6 +11,7 @@ import { SurveyQuestion } from './survey_question_model';
   styleUrl: './survey_question.scss',
 })
 export class SurveyQuestionComponent {
+  readonly showError = showFieldError;
   private readonly answerInputs: Signal<readonly ElementRef<HTMLInputElement>[]> =
     viewChildren<ElementRef<HTMLInputElement>>('answerInput');
 

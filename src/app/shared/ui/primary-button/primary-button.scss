@@ -2,7 +2,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 138px;
+  min-width: var(--primary-button-min-width, 138px);
   min-height: 48px;
   border: 0;
   border-radius: 10px;
@@ -19,7 +19,7 @@
 }
 
 .button_label {
-  min-width: 106px;
+  min-width: var(--primary-button-label-width, 106px);
   white-space: nowrap;
 }
 

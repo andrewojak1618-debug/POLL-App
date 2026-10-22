@@ -18,8 +18,6 @@ import type { SurveyDetail } from '../../shared/models/survey_detail';
 export class SurveyList {
   readonly store: SurveyStore = inject(SurveyStore);
 
-  /** Loads surveys and categories through the existing shared store. */
-  constructor() { void this.store.load(); }
 
   readonly filters: HomeFilterState = inject(HomeFilterState);
   readonly selectedCategoryId: Signal<string | null> = computed((): string | null =>

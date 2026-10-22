@@ -1,4 +1,4 @@
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
 export class SurveyQuestion extends FormGroup<{
   question: FormControl<string>;
@@ -8,12 +8,12 @@ export class SurveyQuestion extends FormGroup<{
   /** Erstellt eine Frage mit zwei unabhängigen Antwortfeldern. */
   constructor() {
     super({
-      question: new FormControl('', { nonNullable: true }),
+      question: createRequiredTextControl(),
       multipleAnswers: new FormControl(false, { nonNullable: true }),
       answers: new FormArray([
-        new FormControl('', { nonNullable: true }),
-        new FormControl('', { nonNullable: true }),
-      ]),
+        createRequiredTextControl(),
+        createRequiredTextControl(),
+      ], [Validators.required, Validators.minLength(2)]),
     });
   }
 
@@ -23,7 +23,7 @@ export class SurveyQuestion extends FormGroup<{
   }
   /** Ergänzt eine leere Antwortmöglichkeit. */
   addAnswer(): void {
-    this.answers.push(new FormControl('', { nonNullable: true }));
+    this.answers.push(createRequiredTextControl());
   }
 
   /** Entfernt eine Antwort; bei zwei verbleibenden Feldern wird nur der Inhalt geleert. */
@@ -44,4 +44,14 @@ export class SurveyQuestion extends FormGroup<{
     return label;
   }
 
+}
+
+/** Creates a text control that rejects empty and whitespace-only values.
+ * @returns A non-nullable control requiring at least one non-whitespace character.
+ */
+function createRequiredTextControl(): FormControl<string> {
+  return new FormControl('', {
+    nonNullable: true,
+    validators: [Validators.required, Validators.pattern(/\S/)],
+  });
 }

@@ -10,6 +10,20 @@
         <img src="icons/cancel.svg" width="14" height="14" alt="" />
       </a>
     </header>
-    <app-survey-form class="survey_form_surface" />
+    @if (store.isCreating()) {
+      <p class="save_feedback" role="status">Publishing survey…</p>
+    } @else if (store.isLoading()) {
+      <p class="save_feedback" role="status">Loading survey data and categories…</p>
+    } @else if (store.error() && !saveResult()) {
+      <p class="save_feedback" role="alert">Could not load survey data and categories. Your entries have been kept. Please try again.</p>
+      <button type="button" class="retry_button" (click)="store.load()">Try again</button>
+    }
+    <app-survey-form class="survey_form_surface" [categories]="store.categories()" (validatedSurvey)="saveSurvey($event)" />
+    @if (saveResult(); as result) {
+      <p class="save_feedback" role="status">{{ result.success ? 'Survey published.' : 'Could not publish the survey. Your entries have been kept. Please try again.' }}</p>
+    }
+    <div class="survey_actions">
+      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish</button>
+    </div>
   </section>
 </main>

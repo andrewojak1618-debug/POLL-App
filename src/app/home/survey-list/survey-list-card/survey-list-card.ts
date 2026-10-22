@@ -1,5 +1,5 @@
 import { RouterLink } from '@angular/router';
-import { formatSurveyDeadline } from '../survey_deadline';
+import { formatSurveyDeadline } from '../../../shared/data/survey_deadline';
 import { Component, computed, input } from '@angular/core';
 import type { InputSignal, Signal } from '@angular/core';
 import type { SurveyDetail } from '../../../shared/models/survey_detail';
