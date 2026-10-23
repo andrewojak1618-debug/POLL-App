@@ -37,7 +37,8 @@
 
 :host(:focus-visible) {
   outline: 3px solid var(--color-text);
-  outline-offset: 5px;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 8px var(--color-primary-purple);
   background: var(--color-primary-orange);
 }
 

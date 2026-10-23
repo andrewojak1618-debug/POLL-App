@@ -1,3 +1,96 @@
 <main class="survey_detail" aria-labelledby="survey_detail_title">
-  <h1 id="survey_detail_title">Survey details</h1>
+  <a class="home_link" routerLink="/">Back to Home</a>
+  @if (!survey()) { <h1 id="survey_detail_title">Survey details</h1> }
+  <p class="vote_status" role="status" aria-live="polite" aria-atomic="true">{{ announcement() }}</p>
+  @if (survey(); as loadedSurvey) {
+    <div class="detail_columns">
+    <div class="voting_panel">
+    <h1 id="survey_detail_title">{{ loadedSurvey.title }}</h1>
+    @if (isEnded()) {
+      <p class="survey_ended">Survey ended</p>
+    }
+    <p class="survey_category">Category: {{ loadedSurvey.category.name }}</p>
+    @if (loadedSurvey.description) {
+      <p class="survey_description">{{ loadedSurvey.description }}</p>
+    }
+    @if (deadline(); as end) {
+      <p class="survey_deadline">Deadline: <time [attr.datetime]="end.iso">{{ end.label }}</time></p>
+    }
+    <div class="survey_questions">
+      @for (question of loadedSurvey.questions; track question.id; let index = $index) {
+        <section class="survey_question" role="group" [attr.aria-labelledby]="'question_' + question.id">
+          <h2 [id]="'question_' + question.id">{{ index + 1 }}. {{ question.text }}</h2>
+
+          <form #answerForm (submit)="submitQuestion(question, answerForm, $event)">
+            <ul class="answer_options">
+              @for (option of question.options; track option.id) {
+                <li>
+                  <label class="answer_label">
+                    <input
+                      [type]="question.allowsMultipleAnswers ? 'checkbox' : 'radio'"
+                      [name]="'question_' + question.id"
+                      [value]="option.id"
+                      [disabled]="isEnded()"
+                    />
+                    <span class="answer_text">{{ option.text }}</span>
+                  </label>
+                </li>
+              }
+            </ul>
+            @if (failedQuestionId() === question.id) {
+              <p class="vote_error" [id]="'vote_error_' + question.id">
+                Your vote could not be saved. Your selection is still here. Press Vote to try again.
+              </p>
+            }
+            <button appPrimaryButton type="submit" class="submit_question" [disabled]="isVoting() || isEnded()"
+              [attr.aria-describedby]="failedQuestionId() === question.id ? 'vote_error_' + question.id : null">Vote</button>
+          </form>
+        </section>
+      }
+    </div>
+    </div>
+    <section class="results_panel" aria-labelledby="results_title">
+      <button type="button" class="results_toggle" aria-controls="results_content"
+        [attr.aria-expanded]="resultsExpanded()" (click)="resultsExpanded.set(!resultsExpanded())">
+        {{ resultsExpanded() ? 'Close results' : 'Show results' }}
+      </button>
+      <div id="results_content" class="results_content" [class.results_collapsed]="!resultsExpanded()">
+      <h2 id="results_title">Survey results</h2>
+      @for (question of loadedSurvey.questions; track question.id; let index = $index) {
+        <section class="question_results" [attr.aria-labelledby]="'result_' + question.id">
+          <h3 [id]="'result_' + question.id">{{ index + 1 }}. {{ question.text }}</h3>
+          <p class="question_vote_total">Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}</p>
+          <ul class="answer_results">
+            @for (option of question.options; track option.id) {
+              <li>
+                <span>{{ option.text }}</span>
+                <span class="answer_votes"> — {{ option.voteCount }} {{ option.voteCount === 1 ? 'vote' : 'votes' }}</span>
+                <div class="result_bar_row">
+                  <span class="result_track" aria-hidden="true">
+                    <span class="result_fill" [style.width.%]="answerPercentages().get(option.id) ?? 0"></span>
+                  </span>
+                  <span class="answer_percentage">{{ answerPercentages().get(option.id) ?? 0 }} %</span>
+                </div>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+          </div>
+    </section>
+    </div>
+  }
+  @if (loadResult(); as result) {
+    @if (!result.success) {
+      <p class="detail_feedback" role="alert">
+        {{ result.error === 'invalid_id'
+          ? 'This survey link is invalid. Please check the URL.'
+          : 'Could not load this survey. Please try reloading the page.' }}
+      </p>
+    } @else if (result.data === null) {
+      <p class="detail_feedback" role="status">Survey not found. It may no longer be available.</p>
+    }
+  } @else {
+    <p class="detail_feedback" role="status">Loading survey…</p>
+  }
 </main>
