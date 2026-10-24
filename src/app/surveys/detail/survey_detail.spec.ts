@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
-import type { SurveyDetail as SurveyData } from '../../shared/models/survey_detail';
+import type { SurveyDetail as SurveyData, SurveyQuestionDetail } from '../../shared/models/survey_detail';
 import type { RepositoryResult } from '../../shared/data/repository_result';
 import { SurveyStore } from '../../shared/data/survey_store';
 import { SurveyRepository } from '../../shared/data/survey_repository';
@@ -213,7 +213,7 @@ it('retries only unsaved questions after a partial failure', async (): Promise<v
   const survey: SurveyData = {
     id: 'retry', title: 'Retry', categoryId: 'cat', category: { id: 'cat', name: 'Team', slug: 'team' },
     description: null, endsAt: null, createdAt: 0,
-    questions: ['q1', 'q2'].map((id: string, position: number) => ({
+    questions: ['q1', 'q2'].map((id: string, position: number): SurveyQuestionDetail => ({
       id, surveyId: 'retry', text: id, position, allowsMultipleAnswers: false,
       options: [{ id: id + 'a', questionId: id, text: 'Answer', position: 0, voteCount: 0 }],
     })),
@@ -238,7 +238,7 @@ it('retries only unsaved questions after a partial failure', async (): Promise<v
   expect(navigate).not.toHaveBeenCalled();
   component.validateSurvey(form, new Event('submit'));
   await harness.fixture.whenStable();
-  expect(vote.mock.calls.map((call) => call[0])).toEqual(['q1', 'q2', 'q2']);
+  expect(vote.mock.calls.map((call): string => call[0])).toEqual(['q1', 'q2', 'q2']);
   expect(component.savedQuestionIds()).toEqual(['q1', 'q2']);
   expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
 });

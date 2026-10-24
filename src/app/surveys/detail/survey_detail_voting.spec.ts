@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { ActivatedRoute, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
@@ -42,6 +42,7 @@ it('renders each question with only its own options in the loaded order', async 
     ],
   };
   vi.mocked(TestBed.inject(SurveyRepository).loadSurveyById).mockResolvedValue({ success: true, data: survey });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SurveyDetail);
   fixture.detectChanges();
   await Promise.resolve();
@@ -60,8 +61,8 @@ it('renders each question with only its own options in the loaded order', async 
   expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | null => item.textContent)).toEqual(['Total votes: 4', 'Total votes: 12']);
   expect(sections[0].querySelector('h2')?.textContent).toBe('1. When?');
   expect(sections[1].querySelector('h2')?.textContent).toBe('2. Where?');
-  expect(Array.from(sections[0].querySelectorAll('.answer_text'), (item: Element): string | null => item.textContent)).toEqual(['Monday', 'Tuesday']);
-  expect(Array.from(sections[1].querySelectorAll('.answer_text'), (item: Element): string | null => item.textContent)).toEqual(['Office', 'Online']);
+  expect(Array.from(sections[0].querySelectorAll('.answer_text'), (item: Element): string | null => item.textContent)).toEqual(['A. Monday', 'B. Tuesday']);
+  expect(Array.from(sections[1].querySelectorAll('.answer_text'), (item: Element): string | null => item.textContent)).toEqual(['A. Office', 'B. Online']);
   expect(Array.from(root.querySelectorAll('.answer_votes'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['— 3 votes', '— 1 vote', '— 12 votes', '— 0 votes']);
   expect(sections[1].getAttribute('aria-labelledby')).toBe(sections[1].querySelector('h2')?.id);
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('.answer_label input');
@@ -84,18 +85,21 @@ it('renders each question with only its own options in the loaded order', async 
   expect(TestBed.inject(SurveyRepository).voteForQuestion).not.toHaveBeenCalled();
   expect(survey.questions[0].options[0].voteCount).toBe(3);
   const submitted = vi.mocked(TestBed.inject(SurveyStore).voteForQuestion);
-  const forms: NodeListOf<HTMLFormElement> = root.querySelectorAll('.survey_question form');
-  const submission: Event = new Event('submit', { bubbles: true, cancelable: true });
-  forms[0].dispatchEvent(submission);
-  expect(submission.defaultPrevented).toBe(true);
-  expect(submitted).toHaveBeenLastCalledWith('q1', ['a2']);
-  inputs[2].click();
-  forms[1].dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-  expect(submitted).toHaveBeenLastCalledWith('q2', ['a3', 'a4']);
+  const form: HTMLFormElement = root.querySelector('form')!;
+  expect(root.querySelectorAll('form')).toHaveLength(1);
+  expect(root.querySelectorAll('.complete_survey')).toHaveLength(1);
+  inputs[3].click();
+  form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+  expect(submitted).not.toHaveBeenCalled();
+  expect(root.querySelector<HTMLInputElement>('input[name="question_q2"]')?.checked).toBe(false);
   inputs[2].click();
   inputs[3].click();
-  forms[1].dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-  expect(submitted).toHaveBeenCalledTimes(2);
+  const submission: Event = new Event('submit', { bubbles: true, cancelable: true });
+  form.dispatchEvent(submission);
+  expect(submission.defaultPrevented).toBe(true);
+  await fixture.whenStable();
+  expect(submitted.mock.calls).toEqual([['q1', ['a2']], ['q2', ['a3', 'a4']]]);
+  expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
   expect(TestBed.inject(SurveyRepository).voteForQuestion).not.toHaveBeenCalled();
   params.next(convertToParamMap({ id: 'missing-id' }));
   fixture.detectChanges();
@@ -124,6 +128,7 @@ it.each([true, false])('blocks repeated submissions until the vote completes: su
     })),
   };
   vi.mocked(TestBed.inject(SurveyRepository).loadSurveyById).mockResolvedValue({ success: true, data: survey });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SurveyDetail);
   fixture.detectChanges();
   await Promise.resolve();
@@ -132,27 +137,35 @@ it.each([true, false])('blocks repeated submissions until the vote completes: su
   const root: HTMLElement = fixture.nativeElement;
   expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | null => item.textContent)).toEqual(['Total votes: 0', 'Total votes: 0']);
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['0 %', '0 %']);
-  const forms: NodeListOf<HTMLFormElement> = root.querySelectorAll('form');
-  const buttons: NodeListOf<HTMLButtonElement> = root.querySelectorAll('.submit_question');
+  const form: HTMLFormElement = root.querySelector('form')!;
+  const button: HTMLButtonElement = root.querySelector('.complete_survey')!;
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('input');
   inputs.forEach((input: HTMLInputElement): void => input.click());
-  buttons[0].click();
-  forms[0].dispatchEvent(new Event('submit', { cancelable: true }));
-  forms[1].dispatchEvent(new Event('submit', { cancelable: true }));
+  button.click();
+  form.dispatchEvent(new Event('submit', { cancelable: true }));
   expect(vote).toHaveBeenCalledExactlyOnceWith('q1', ['q1_option']);
   fixture.detectChanges();
-  expect(Array.from(buttons, (button: HTMLButtonElement): boolean => button.disabled)).toEqual([true, true]);
-  buttons[1].click();
+  expect(button.disabled).toBe(true);
+  expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.disabled)).toEqual([true, true]);
+  button.click();
   expect(vote).toHaveBeenCalledTimes(1);
   finish(success ? { success: true, data: undefined } : { success: false, error: 'request_failed' });
+  await vi.waitFor((): void => { expect(fixture.componentInstance.isCompleting()).toBe(false); });
   await fixture.whenStable();
   fixture.detectChanges();
-  expect(Array.from(buttons, (button: HTMLButtonElement): boolean => button.disabled)).toEqual([false, false]);
+  expect(button.disabled).toBe(success);
   expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.checked)).toEqual([true, true]);
-  buttons[1].click();
-  await fixture.whenStable();
+  expect(vote).toHaveBeenCalledTimes(success ? 2 : 1);
+  if (!success) {
+    expect(navigate).not.toHaveBeenCalled();
+    vote.mockResolvedValue({ success: true, data: undefined });
+    button.click();
+    await vi.waitFor((): void => { expect(fixture.componentInstance.isCompleting()).toBe(false); });
+    await fixture.whenStable();
+    expect(vote).toHaveBeenCalledTimes(3);
+  }
   expect(vote).toHaveBeenLastCalledWith('q2', ['q2_option']);
-  expect(vote).toHaveBeenCalledTimes(2);
+  expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
 });
 
 it('rounds thirds independently for a multiple-choice question', async (): Promise<void> => {
@@ -194,10 +207,12 @@ it.each([true, false])('updates displayed results only after a successful own vo
   ] }] };
   let finish!: (result: RepositoryResult<void>) => void;
   const pending = new Promise<RepositoryResult<void>>((resolve: (value: RepositoryResult<void> | PromiseLike<RepositoryResult<void>>) => void): void => { finish = resolve; });
+  const storedSurveys = signal<readonly SurveyData[]>([survey]);
   TestBed.overrideProvider(SurveyStore, { useValue: {
-    load: vi.fn().mockResolvedValue(undefined), now: signal(Date.now()), isVoting: signal(false), surveys: signal([updated]), voteForQuestion: vi.fn().mockReturnValue(pending),
+    load: vi.fn().mockResolvedValue(undefined), now: signal(Date.now()), isVoting: signal(false), surveys: storedSurveys, voteForQuestion: vi.fn().mockReturnValue(pending),
   } });
   vi.mocked(TestBed.inject(SurveyRepository).loadSurveyById).mockResolvedValue({ success: true, data: survey });
+  const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SurveyDetail);
   fixture.detectChanges();
   await Promise.resolve();
@@ -205,38 +220,36 @@ it.each([true, false])('updates displayed results only after a successful own vo
   fixture.detectChanges();
   const root: HTMLElement = fixture.nativeElement;
   root.querySelector<HTMLInputElement>('input')!.click();
-  const submitting: Promise<void> = fixture.componentInstance.submitQuestion(survey.questions[0], root.querySelector('form')!, new Event('submit'));
+  const button: HTMLButtonElement = root.querySelector('.complete_survey')!;
+  button.click();
   expect(fixture.componentInstance.questionVoteTotals().get('q')).toBe(2);
   fixture.detectChanges();
-  expect(root.querySelector('.vote_status')?.textContent).toContain('Submitting your vote');
+  expect(root.querySelector('.completion_status')?.textContent).toBe('Saving your answers…');
+  if (success) storedSurveys.set([updated]);
   finish(success ? { success: true, data: undefined } : { success: false, error: 'request_failed' });
-  await submitting;
+  await vi.waitFor((): void => { expect(fixture.componentInstance.isCompleting()).toBe(false); });
+  await fixture.whenStable();
   fixture.detectChanges();
-  expect(root.querySelector('.vote_status')?.textContent).toBe(success ? 'Your vote has been saved.' : 'Your vote could not be saved. Please try again.');
-  expect(root.querySelector('.vote_status')?.getAttribute('role')).toBe('status');
+  expect(root.querySelector('.completion_status')?.getAttribute('role')).toBe('status');
   expect(root.querySelector('.question_vote_total')?.textContent).toBe(success ? 'Total votes: 3' : 'Total votes: 2');
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(success ? ['67 %', '33 %'] : ['50 %', '50 %']);
-  expect(root.querySelector('.answer_votes')?.textContent).toContain(success ? '2 votes' : '1 vote');
   expect(root.querySelector<HTMLInputElement>('input')?.checked).toBe(true);
-  expect(TestBed.inject(SurveyRepository).loadSurveyById).toHaveBeenCalledTimes(1);
   const vote = vi.mocked(TestBed.inject(SurveyStore).voteForQuestion);
-  expect(vote).toHaveBeenCalledTimes(1);
-  if (success) {
-    expect(root.querySelector('.vote_error')).toBeNull();
-  } else {
-    expect(root.querySelector('.vote_error')?.textContent).toContain('Press Vote to try again.');
-    expect(root.querySelector('.submit_question')?.getAttribute('aria-describedby')).toBe('vote_error_q');
-    expect(root.querySelector<HTMLButtonElement>('.submit_question')?.disabled).toBe(false);
+  expect(vote).toHaveBeenCalledExactlyOnceWith('q', ['a']);
+  if (!success) {
+    expect(navigate).not.toHaveBeenCalled();
+    expect(root.querySelector('.completion_status')?.textContent).toContain('Press Complete survey to retry the remaining questions.');
+    expect(button.disabled).toBe(false);
     vote.mockResolvedValueOnce({ success: true, data: undefined });
-    root.querySelector<HTMLButtonElement>('.submit_question')!.click();
+    button.click();
+    await vi.waitFor((): void => { expect(fixture.componentInstance.isCompleting()).toBe(false); });
     await fixture.whenStable();
     fixture.detectChanges();
     expect(vote).toHaveBeenCalledTimes(2);
     expect(vote).toHaveBeenLastCalledWith('q', ['a']);
-    expect(root.querySelector('.vote_error')).toBeNull();
-    expect(root.querySelector('.submit_question')?.hasAttribute('aria-describedby')).toBe(false);
-    expect(root.querySelector<HTMLInputElement>('input')?.checked).toBe(true);
   }
+  expect(root.querySelector('.completion_status')?.textContent).toBe('Your survey answers have been saved.');
+  expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
   params.next(convertToParamMap({ id: 'other' }));
   fixture.detectChanges();
   expect(fixture.componentInstance.survey()).toBeNull();

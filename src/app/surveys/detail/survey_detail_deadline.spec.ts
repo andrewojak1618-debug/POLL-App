@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 
 import { SurveyDetail } from './survey_detail';
@@ -27,6 +27,7 @@ it.each([null, 2001, 2000, 1999, 0])('checks real time before voting with deadli
       load: vi.fn().mockResolvedValue(undefined), voteForQuestion: vote } },
     { provide: SurveyRepository, useValue: { loadSurveyById: vi.fn().mockResolvedValue({ success: true, data: survey }) } },
   ] });
+  vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SurveyDetail);
   fixture.detectChanges();
   await Promise.resolve();
@@ -35,7 +36,7 @@ it.each([null, 2001, 2000, 1999, 0])('checks real time before voting with deadli
   const root: HTMLElement = fixture.nativeElement;
   expect(fixture.componentInstance.isEnded()).toBe(false);
   root.querySelector<HTMLInputElement>('input')!.click();
-  root.querySelector<HTMLButtonElement>('.submit_question')!.click();
+  root.querySelector<HTMLButtonElement>('.complete_survey')!.click();
   await fixture.whenStable();
   fixture.detectChanges();
   if (endsAt === null || endsAt > 2000) {
