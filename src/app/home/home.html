@@ -32,6 +32,12 @@
       </div>
     </div>
   </section>
-  <app-survey-highlights />
-  <app-survey-list />
+  <p class="loading_state" role="status">{{ store.isLoading() ? 'Loading surveys and categories…' : '' }}</p>
+  @if (!store.isLoading() && store.error()) {
+    <p class="loading_state" role="alert">Could not load surveys and categories. Please try again.</p>
+    <button appPrimaryButton class="retry_button" type="button" (click)="store.load()">Try again</button>
+  } @else if (!store.isLoading()) {
+    <app-survey-highlights />
+    <app-survey-list />
+  }
 </main>

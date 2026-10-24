@@ -16,6 +16,9 @@
 
 :host([aria-pressed='true']) {
   background: var(--color-primary-orange);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 :host(:focus-visible) {

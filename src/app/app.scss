@@ -1,0 +1,13 @@
+.realtime_notice {
+  margin: 0;
+  padding: 16px 24px;
+  background: var(--color-secondary-orange);
+  color: var(--color-primary-purple);
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.realtime_notice:empty {
+  padding: 0;
+}

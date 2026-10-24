@@ -13,8 +13,9 @@ import { PrimaryButton } from '../shared/ui/primary-button/primary-button';
   styleUrl: './home.scss',
 })
 export class Home implements AfterViewInit {
+  readonly store: SurveyStore = inject(SurveyStore);
   /** Loads shared data for both the highlights and the survey lists. */
-  constructor() { void inject(SurveyStore).load(); }
+  constructor() { void this.store.load(); }
 
   private readonly focusNewSurvey: boolean =
     inject(Router).currentNavigation()?.extras.info === 'focus_new_survey';

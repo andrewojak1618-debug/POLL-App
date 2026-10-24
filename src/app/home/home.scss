@@ -238,3 +238,16 @@ p {
     margin-top: 30px;
   }
 }
+
+.loading_state {
+  margin: 0;
+  padding-bottom: 40px;
+}
+
+.loading_state:empty {
+  padding: 0;
+}
+
+.retry_button {
+  margin-bottom: 40px;
+}

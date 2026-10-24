@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { SurveyRealtime } from './shared/data/survey_realtime';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -7,4 +8,6 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  readonly realtime: SurveyRealtime = inject(SurveyRealtime);
+}
