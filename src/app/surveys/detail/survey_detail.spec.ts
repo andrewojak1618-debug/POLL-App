@@ -158,6 +158,11 @@ it('renders each question with only its own options in the loaded order', async 
   const root: HTMLElement = fixture.nativeElement;
   const sections: NodeListOf<HTMLElement> = root.querySelectorAll('.survey_question');
   expect(sections.length).toBe(2);
+  expect(Array.from(root.querySelectorAll('form fieldset legend'), (legend: Element): string | null => legend.textContent))
+    .toEqual(['1. When?', '2. Where?']);
+  expect(Array.from(root.querySelectorAll('form fieldset'), (group: Element): number => group.querySelectorAll('input').length))
+    .toEqual([2, 2]);
+  expect(sections[0].hasAttribute('role')).toBe(false);
   expect(Array.from(root.querySelectorAll<HTMLElement>('.result_fill'), (bar: HTMLElement): string => bar.style.width)).toEqual(['75%', '25%', '100%', '0%']);
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['75 %', '25 %', '100 %', '0 %']);
   expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | null => item.textContent)).toEqual(['Total votes: 4', 'Total votes: 12']);
@@ -169,6 +174,10 @@ it('renders each question with only its own options in the loaded order', async 
   expect(sections[1].getAttribute('aria-labelledby')).toBe(sections[1].querySelector('h2')?.id);
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('.answer_label input');
   expect(Array.from(inputs, (input: HTMLInputElement): string => input.type)).toEqual(['radio', 'radio', 'checkbox', 'checkbox']);
+  expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.required)).toEqual([true, true, false, false]);
+  expect(sections[0].querySelector('.answer_requirement')?.textContent).toContain('Choose one answer (required).');
+  expect(sections[1].querySelector('.answer_requirement')?.textContent).toContain('Choose at least one answer (required).');
+  expect(sections[1].querySelector('fieldset')?.getAttribute('aria-describedby')).toBe('answer_requirement_q2');
   expect(inputs[0].name).toBe(inputs[1].name);
   expect(inputs[0].name).not.toBe(inputs[2].name);
   expect(inputs[0].value).toBe('a1');
@@ -325,7 +334,7 @@ it.each([true, false])('updates displayed results only after a successful own vo
   await submitting;
   fixture.detectChanges();
   expect(root.querySelector('.vote_status')?.textContent).toBe(success ? 'Your vote has been saved.' : 'Your vote could not be saved. Please try again.');
-  expect(root.querySelector('.vote_status')?.getAttribute('aria-live')).toBe('polite');
+  expect(root.querySelector('.vote_status')?.getAttribute('role')).toBe('status');
   expect(root.querySelector('.question_vote_total')?.textContent).toBe(success ? 'Total votes: 3' : 'Total votes: 2');
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(success ? ['67 %', '33 %'] : ['50 %', '50 %']);
   expect(root.querySelector('.answer_votes')?.textContent).toContain(success ? '2 votes' : '1 vote');
@@ -394,4 +403,25 @@ it.each([null, 0, 2000])('shows ended only at or after an existing deadline: %s'
   params.next(convertToParamMap({ id: 'other' }));
   fixture.detectChanges();
   expect(root.querySelector('.survey_ended')).toBeNull();
+});
+it.each([false, true])('sets initial focus unless the user already moved it (interacted: %s)', async (interacted: boolean): Promise<void> => {
+  const params = new BehaviorSubject(convertToParamMap({ id: 'focus-id' }));
+  TestBed.overrideProvider(ActivatedRoute, { useValue: { paramMap: params, snapshot: { paramMap: params.value } } });
+  let finish!: (value: RepositoryResult<SurveyData | null>) => void;
+  vi.mocked(TestBed.inject(SurveyRepository).loadSurveyById).mockReturnValue(new Promise((resolve): void => { finish = resolve; }));
+  const fixture = TestBed.createComponent(SurveyDetail);
+  await fixture.whenStable();
+  const root: HTMLElement = fixture.nativeElement;
+  const home: HTMLAnchorElement = root.querySelector('.home_link')!;
+  if (interacted) home.focus();
+  finish({ success: true, data: { id: 'focus-id', title: 'Loaded heading', categoryId: 'cat',
+    category: { id: 'cat', name: 'Team', slug: 'team' }, description: null, endsAt: null, createdAt: 0, questions: [] } });
+  await fixture.whenStable();
+  await Promise.resolve();
+  await fixture.whenStable();
+  expect(document.activeElement).toBe(interacted ? home : root.querySelector('h1'));
+  home.focus();
+  fixture.componentInstance.resultsExpanded.set(false);
+  await fixture.whenStable();
+  expect(document.activeElement).toBe(home);
 });

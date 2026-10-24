@@ -29,7 +29,7 @@ export class CreateSurvey implements AfterViewInit {
     this.saveResult.set(result);
     if (!result.success) return;
     this.surveyForm().resetAfterSave();
-    await this.router.navigate(['/']);
+    await this.router.navigate(['/'], { info: 'focus_home_heading' });
   }
 
   /** Loads categories even when opening the creation route directly. */

@@ -103,3 +103,5 @@ button:focus-visible {
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
+
+.selected_category:empty { margin: 0; }

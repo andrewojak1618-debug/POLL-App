@@ -65,3 +65,15 @@ describe('App navigation', () => {
     expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Collect Feedback,');
   });
 });
+
+it('focuses the Home heading after returning from a direct detail entry', async (): Promise<void> => {
+  TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
+  const harness: RouterTestingHarness = await RouterTestingHarness.create('/surveys/invalid');
+  harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.home_link')?.click();
+  await harness.fixture.whenStable();
+  expect(TestBed.inject(Router).url).toBe('/');
+  const heading: HTMLHeadingElement | null | undefined = harness.routeNativeElement?.querySelector('h1');
+  expect(heading?.getAttribute('tabindex')).toBe('-1');
+  expect(document.activeElement).toBe(heading);
+  expect(heading?.textContent).toContain('Collect Feedback,');
+});

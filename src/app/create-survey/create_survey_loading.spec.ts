@@ -15,6 +15,7 @@ it('shows loading, retry and saving feedback without discarding entered values',
   const fixture = TestBed.createComponent(CreateSurvey);
   fixture.detectChanges();
   const root: HTMLElement = fixture.nativeElement;
+  const status: Element | null = root.querySelector('[role="status"]');
   const title: HTMLInputElement = root.querySelector<HTMLInputElement>('#survey_name')!;
   title.value = 'My draft';
   title.dispatchEvent(new Event('input'));
@@ -30,12 +31,14 @@ it('shows loading, retry and saving feedback without discarding entered values',
   error.set(null);
   isCreating.set(true);
   fixture.detectChanges();
+  expect(root.querySelector('[role="status"]')).toBe(status);
   expect(root.textContent).toContain('Publishing survey');
   expect(root.querySelector('[role="alert"]')).toBeNull();
   isCreating.set(false);
   fixture.componentInstance.saveResult.set({ success: false, error: 'request_failed' });
   error.set('request_failed');
   fixture.detectChanges();
+  expect(root.querySelector('[role="status"]')).toBe(status);
   expect(root.textContent).toContain('Could not publish');
   expect(root.textContent).not.toContain('Could not load');
   expect(title.value).toBe('My draft');

@@ -36,7 +36,7 @@ describe('Creation persistence', () => {
     expect(fixture.componentInstance.saveResult()).toEqual(result);
     expect(form.fields.name.value).toBe(success ? '' : 'Meeting');
     if (success) {
-      expect(navigate).toHaveBeenCalledExactlyOnceWith(['/']);
+      expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
       expect(form.form.pristine).toBe(true);
       expect(form.form.untouched).toBe(true);
       expect(form.questions.length).toBe(1);

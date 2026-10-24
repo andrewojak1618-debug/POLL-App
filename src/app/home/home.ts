@@ -17,15 +17,23 @@ export class Home implements AfterViewInit {
   /** Loads shared data for both the highlights and the survey lists. */
   constructor() { void this.store.load(); }
 
+  private readonly focusHomeHeading: boolean =
+    inject(Router).currentNavigation()?.extras.info === 'focus_home_heading' ||
+    inject(Router).currentNavigation()?.trigger === 'popstate';
+  private readonly homeHeading: Signal<ElementRef<HTMLHeadingElement>> =
+    viewChild.required<ElementRef<HTMLHeadingElement>>('homeHeading');
+
   private readonly focusNewSurvey: boolean =
     inject(Router).currentNavigation()?.extras.info === 'focus_new_survey';
   private readonly newSurveyLink: Signal<ElementRef<HTMLAnchorElement>> =
     viewChild.required<unknown, ElementRef<HTMLAnchorElement>>('newSurveyLink', { read: ElementRef });
 
 
-  /** Returns focus to the creation link after Cancel navigation. */
+  /** Places focus on the requested return target after navigation. */
   ngAfterViewInit(): void {
-    if (this.focusNewSurvey) {
+    if (this.focusHomeHeading) {
+      this.homeHeading().nativeElement.focus({ preventScroll: true });
+    } else if (this.focusNewSurvey) {
       this.newSurveyLink().nativeElement.focus();
     }
   }

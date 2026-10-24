@@ -7,9 +7,7 @@
       <img src="icons/arrow_drop_down.svg" width="15" height="8" alt="" />
     </span>
   </button>
-  @if (selectedCategory !== null) {
-    <p class="selected_category" aria-live="polite">{{ selectedCategoryName }}</p>
-  }
+  <p class="selected_category" role="status">{{ selectedCategoryName }}</p>
   <div id="survey_category_options" class="category_options" [hidden]="!isOpen"
     role="group" aria-label="Categories">
     <button class="category_option" type="button" [attr.aria-pressed]="selectedCategory === null"

@@ -35,6 +35,8 @@ it('loads categories on direct creation entry and stores the selected ID', (): v
   const root: HTMLElement = fixture.nativeElement;
   const select: HTMLSelectElement = root.querySelector<HTMLSelectElement>('#survey_category')!;
   expect(load).toHaveBeenCalledOnce();
+  expect(select.labels?.[0].textContent).toBe('Choose category');
+  expect(select.hasAttribute('aria-label')).toBe(false);
   expect(select.options[1].text).toBe('Team');
   expect(select.options[1].value).toBe('team-id');
   select.value = 'team-id';
@@ -44,6 +46,7 @@ it('loads categories on direct creation entry and stores the selected ID', (): v
   expect(form.fields.category.valid).toBe(true);
   categories.set([{ id: 'team-id', name: 'Renamed team', slug: 'team' }]);
   fixture.detectChanges();
+  expect(select.labels?.[0].textContent).toBe('Choose category');
   expect(select.options[1].text).toBe('Renamed team');
   expect(form.fields.category.value).toBe('team-id');
 });

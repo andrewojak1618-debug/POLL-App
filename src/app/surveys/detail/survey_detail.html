@@ -1,11 +1,11 @@
 <main class="survey_detail" aria-labelledby="survey_detail_title">
-  <a class="home_link" routerLink="/">Back to Home</a>
-  @if (!survey()) { <h1 id="survey_detail_title">Survey details</h1> }
-  <p class="vote_status" role="status" aria-live="polite" aria-atomic="true">{{ announcement() }}</p>
+  <a class="home_link" routerLink="/" [info]="'focus_home_heading'">Back to Home</a>
+  @if (!survey()) { <h1 #surveyHeading id="survey_detail_title" tabindex="-1">Survey details</h1> }
+  <p class="vote_status" role="status">{{ announcement() }}</p>
   @if (survey(); as loadedSurvey) {
     <div class="detail_columns">
     <div class="voting_panel">
-    <h1 id="survey_detail_title">{{ loadedSurvey.title }}</h1>
+    <h1 #surveyHeading id="survey_detail_title" tabindex="-1">{{ loadedSurvey.title }}</h1>
     @if (isEnded()) {
       <p class="survey_ended">Survey ended</p>
     }
@@ -18,10 +18,13 @@
     }
     <div class="survey_questions">
       @for (question of loadedSurvey.questions; track question.id; let index = $index) {
-        <section class="survey_question" role="group" [attr.aria-labelledby]="'question_' + question.id">
+        <section class="survey_question" [attr.aria-labelledby]="'question_' + question.id">
           <h2 [id]="'question_' + question.id">{{ index + 1 }}. {{ question.text }}</h2>
 
           <form #answerForm (submit)="submitQuestion(question, answerForm, $event)">
+            <fieldset class="answer_group" [attr.aria-describedby]="'answer_requirement_' + question.id">
+              <legend class="visually_hidden">{{ index + 1 }}. {{ question.text }}</legend>
+              <p class="answer_requirement" [id]="'answer_requirement_' + question.id">{{ question.allowsMultipleAnswers ? 'Choose at least one answer (required).' : 'Choose one answer (required).' }}</p>
             <ul class="answer_options">
               @for (option of question.options; track option.id) {
                 <li>
@@ -30,6 +33,7 @@
                       [type]="question.allowsMultipleAnswers ? 'checkbox' : 'radio'"
                       [name]="'question_' + question.id"
                       [value]="option.id"
+                      [required]="!question.allowsMultipleAnswers"
                       [disabled]="isEnded()"
                     />
                     <span class="answer_text">{{ option.text }}</span>
@@ -37,6 +41,7 @@
                 </li>
               }
             </ul>
+            </fieldset>
             @if (failedQuestionId() === question.id) {
               <p class="vote_error" [id]="'vote_error_' + question.id">
                 Your vote could not be saved. Your selection is still here. Press Vote to try again.

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { afterRenderEffect, Component, computed, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
 import type { Signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -32,6 +32,19 @@ type SurveyResult = RepositoryResult<SurveyData | null>;
   styleUrl: './survey_detail.scss',
 })
 export class SurveyDetail {
+  private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('surveyHeading');
+  private focusedSurveyId: string | null | undefined = undefined;
+  private readonly initialFocus = afterRenderEffect((): void => {
+    if (this.loadResult() === null || !this.heading()) return;
+    const id: string | null = this.surveyId();
+    if (this.focusedSurveyId === id) return;
+    this.focusedSurveyId = id;
+    const active: Element | null = this.host.nativeElement.ownerDocument.activeElement;
+    if (active && this.host.nativeElement.contains(active)) return;
+    this.heading()?.nativeElement.focus({ preventScroll: true });
+  });
+
   readonly resultsExpanded: WritableSignal<boolean> = signal(true);
   private readonly store: SurveyStore = inject(SurveyStore);
   private readonly repository: SurveyRepository = inject(SurveyRepository);
