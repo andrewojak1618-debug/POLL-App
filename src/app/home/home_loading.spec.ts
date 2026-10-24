@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+
 import { Home } from './home';
 import { SurveyStore } from '../shared/data/survey_store';
 import type { RepositoryError } from '../shared/data/repository_result';

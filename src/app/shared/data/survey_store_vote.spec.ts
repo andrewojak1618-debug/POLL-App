@@ -1,7 +1,8 @@
 import { EMPTY } from 'rxjs';
-import { SurveyRealtime } from './survey_realtime';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
 import type { RepositoryResult } from './repository_result';
@@ -13,12 +14,12 @@ const SURVEY: SurveyDetail = { id: 'survey', categoryId: 'category', title: 'Tea
     options: [{ id: 'option', questionId: 'question', text: 'Walk', position: 0, voteCount: 1 }],
   }] };
 
-describe('SurveyStore voting', () => {
+describe('SurveyStore voting', (): void => {
   const voteForQuestion = vi.fn();
   const loadSurveys = vi.fn();
   let store: SurveyStore;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     voteForQuestion.mockReset().mockResolvedValue({ success: true, data: undefined });
     loadSurveys.mockReset().mockResolvedValue({ success: true, data: [SURVEY] });
     TestBed.configureTestingModule({ providers: [{ provide: SurveyRealtime, useValue: { inserts: EMPTY, voteUpdates: EMPTY, start: (): void => {} } }, { provide: SurveyRepository, useValue: {
@@ -27,7 +28,7 @@ describe('SurveyStore voting', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  it('refreshes vote counts and retains category selections', async () => {
+  it('refreshes vote counts and retains category selections', async (): Promise<void> => {
     store.selectActiveCategory('category');
     store.selectPastCategory('other');
     const pending = store.voteForQuestion('question', ['option']);
@@ -40,9 +41,9 @@ describe('SurveyStore voting', () => {
     expect(store.isVoting()).toBe(false);
   });
 
-  it('shares concurrent calls without sending duplicate votes', async () => {
+  it('shares concurrent calls without sending duplicate votes', async (): Promise<void> => {
     let finish!: (value: RepositoryResult<void>) => void;
-    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve) => { finish = resolve; }));
+    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve: (value: RepositoryResult<void> | PromiseLike<RepositoryResult<void>>) => void): void => { finish = resolve; }));
     const first = store.voteForQuestion('question', ['option']);
     expect(store.voteForQuestion('question', ['option'])).toBe(first);
     expect(voteForQuestion).toHaveBeenCalledTimes(1);
@@ -51,7 +52,7 @@ describe('SurveyStore voting', () => {
     expect(store.isVoting()).toBe(false);
   });
 
-  it('preserves data after rejection and clears the error for a later submission', async () => {
+  it('preserves data after rejection and clears the error for a later submission', async (): Promise<void> => {
     await store.load();
     voteForQuestion.mockResolvedValueOnce({ success: false, error: 'request_failed' });
     expect(await store.voteForQuestion('question', [])).toEqual({ success: false, error: 'request_failed' });
@@ -62,7 +63,7 @@ describe('SurveyStore voting', () => {
     expect(store.error()).toBeNull();
   });
 
-  it('keeps vote success when refreshing fails', async () => {
+  it('keeps vote success when refreshing fails', async (): Promise<void> => {
     loadSurveys.mockResolvedValue({ success: false, error: 'request_failed' });
     expect(await store.voteForQuestion('question', ['option'])).toEqual({ success: true, data: undefined });
     expect(store.error()).toBe('request_failed');
@@ -70,7 +71,7 @@ describe('SurveyStore voting', () => {
     expect(store.isVoting()).toBe(false);
   });
 
-  it('handles unexpected rejection without retrying', async () => {
+  it('handles unexpected rejection without retrying', async (): Promise<void> => {
     voteForQuestion.mockRejectedValue(new Error('offline'));
     expect(await store.voteForQuestion('question', ['option'])).toEqual({ success: false, error: 'request_failed' });
     expect(store.isVoting()).toBe(false);
@@ -78,9 +79,9 @@ describe('SurveyStore voting', () => {
     expect(voteForQuestion).toHaveBeenCalledTimes(1);
   });
 
-  it('waits for an older load before refreshing vote counts', async () => {
+  it('waits for an older load before refreshing vote counts', async (): Promise<void> => {
     let finish!: (value: RepositoryResult<readonly SurveyDetail[]>) => void;
-    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve) => { finish = resolve; }));
+    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve: (value: RepositoryResult<readonly SurveyDetail[]> | PromiseLike<RepositoryResult<readonly SurveyDetail[]>>) => void): void => { finish = resolve; }));
     const older = store.load();
     const voting = store.voteForQuestion('question', ['option']);
     await Promise.resolve();

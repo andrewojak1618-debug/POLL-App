@@ -1,6 +1,10 @@
 import { requireData } from './data_checks';
 
-/** Converts an explicit-offset timestamp to Unix milliseconds; truncates microseconds. */
+/**
+ * Converts an explicit-offset timestamp to Unix milliseconds; truncates microseconds.
+ * @param value - Timestamp string containing an explicit timezone offset.
+ * @returns Unix milliseconds for the instant; sub-millisecond precision is discarded.
+ */
 export function readTimestamp(value: unknown): number {
   requireData(typeof value === 'string', 'timestamp');
   const match: RegExpMatchArray | null = (value as string).match(
@@ -15,7 +19,11 @@ export function readTimestamp(value: unknown): number {
   requireData(Number.isFinite(result), 'timestamp');
   return result;
 }
-/** Normalizes PostgreSQL and ISO offsets without choosing a user timezone. */
+/**
+ * Normalizes PostgreSQL and ISO offsets without choosing a user timezone.
+ * @param offset - UTC marker or signed offset extracted from the timestamp.
+ * @returns Z or an offset in signed HH:MM form.
+ */
 function normalizeOffset(offset: string): string {
   if (offset === 'Z') return offset;
   const digits: string = offset.slice(1).replace(':', '');
@@ -24,11 +32,19 @@ function normalizeOffset(offset: string): string {
   requireData(hours <= 23 && minutes <= 59, 'timezone offset');
   return `${offset[0]}${digits.slice(0, 2)}:${digits.slice(2) || '00'}`;
 }
-/** Preserves an absent deadline; missing or invalid values are rejected. */
+/**
+ * Preserves an absent deadline; missing or invalid values are rejected.
+ * @param value - Database deadline timestamp, or null when absent.
+ * @returns Unix milliseconds, or null when no deadline is stored.
+ */
 export function readDeadline(value: unknown): number | null {
   return value === null ? null : readTimestamp(value);
 }
-/** Serializes an existing instant for persistence; does not convert a calendar date. */
+/**
+ * Serializes an existing instant for persistence; does not convert a calendar date.
+ * @param value - Unix milliseconds, or null for no deadline.
+ * @returns An ISO timestamp in UTC, or null when no instant is supplied.
+ */
 export function writeTimestamp(value: number | null): string | null {
   if (value === null) return null;
   requireData(Number.isSafeInteger(value) && Number.isFinite(new Date(value).getTime()), 'timestamp milliseconds');

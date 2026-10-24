@@ -1,10 +1,11 @@
-import { SurveyStore } from '../shared/data/survey_store';
 import { Component, ElementRef, inject, viewChild } from '@angular/core';
 import type { AfterViewInit, Signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { SurveyList } from './survey-list/survey-list';
-import { SurveyHighlights } from './survey-highlights/survey-highlights';
-import { PrimaryButton } from '../shared/ui/primary-button/primary-button';
+
+import { SurveyStore } from '../shared/data/survey_store';
+import { SurveyList } from './survey_list/survey_list';
+import { SurveyHighlights } from './survey_highlights/survey_highlights';
+import { PrimaryButton } from '../shared/ui/primary_button/primary_button';
 
 @Component({
   selector: 'app-home',

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+
 import { App } from './app';
 import { SurveyRealtime } from './shared/data/survey_realtime';
 import type { SurveyRealtimeError } from './shared/data/survey_realtime';

@@ -1,24 +1,30 @@
 import { EMPTY } from 'rxjs';
-import { SurveyRealtime } from './survey_realtime';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
 import type { SurveyDetail } from '../models/survey_detail';
 
 const NOW: number = Date.parse('2026-10-21T12:00:00Z');
 
-/** Builds a survey model for testing deadline-based state. */
+/**
+ * Builds a survey model for testing deadline-based state.
+ * @param id - Identifier of the test survey.
+ * @param endsAt - Deadline in Unix milliseconds, or null for an unlimited survey.
+ * @returns A survey fixture with the requested identity, category and deadline.
+ */
 function survey(id: string, endsAt: number | null): SurveyDetail {
   return { id, endsAt, categoryId: 'category', title: 'Team activities', description: null,
     createdAt: NOW - 10000, category: { id: 'category', name: 'Team', slug: 'team' }, questions: [] };
 }
 
-describe('SurveyStore survey status', () => {
+describe('SurveyStore survey status', (): void => {
   const loadSurveys = vi.fn();
   let store: SurveyStore;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
     loadSurveys.mockReset();
@@ -28,12 +34,12 @@ describe('SurveyStore survey status', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  afterEach(() => {
+  afterEach((): void => {
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
 
-  it('keeps future and absent deadlines and excludes reached deadlines', async () => {
+  it('keeps future and absent deadlines and excludes reached deadlines', async (): Promise<void> => {
     const rows: readonly SurveyDetail[] = [survey('future', NOW + 1000), survey('past', NOW - 1),
       survey('equal', NOW), survey('open', null)];
     loadSurveys.mockResolvedValue({ success: true, data: rows });
@@ -50,7 +56,7 @@ describe('SurveyStore survey status', () => {
     expect(loadSurveys).toHaveBeenCalledTimes(1);
   });
 
-  it('recomputes after loading replacement data including an empty list', async () => {
+  it('recomputes after loading replacement data including an empty list', async (): Promise<void> => {
     loadSurveys.mockResolvedValueOnce({ success: true, data: [survey('first', null)] });
     await store.load();
     expect(store.activeSurveys()).toHaveLength(1);
@@ -63,7 +69,7 @@ describe('SurveyStore survey status', () => {
     expect(store.pastSurveys()).toEqual([]);
   });
 
-  it('replaces past results on reload without retaining removed surveys', async () => {
+  it('replaces past results on reload without retaining removed surveys', async (): Promise<void> => {
     loadSurveys.mockResolvedValueOnce({ success: true, data: [survey('old', NOW - 1000)] });
     await store.load();
     expect(store.pastSurveys()[0].id).toBe('old');
@@ -76,7 +82,7 @@ describe('SurveyStore survey status', () => {
     expect(store.pastSurveys()).toEqual([]);
   });
 
-  it('derives the sorted 24-hour window without changing the source list', async () => {
+  it('derives the sorted 24-hour window without changing the source list', async (): Promise<void> => {
     const day: number = 24 * 60 * 60 * 1000;
     const rows: readonly SurveyDetail[] = [survey('boundary', NOW + day), survey('open', null),
       survey('expired', NOW), survey('soon', NOW + 1000), survey('outside', NOW + day + 1000)];
@@ -91,7 +97,7 @@ describe('SurveyStore survey status', () => {
     expect(loadSurveys).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes the ending-soon list after reloading data', async () => {
+  it('refreshes the ending-soon list after reloading data', async (): Promise<void> => {
     loadSurveys.mockResolvedValueOnce({ success: true, data: [survey('soon', NOW + 5000)] });
     await store.load();
     expect(store.endingSoonSurveys()).toHaveLength(1);

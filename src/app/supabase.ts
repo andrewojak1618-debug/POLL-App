@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
 import { SUPABASE_CLIENT } from './shared/data/supabase_client';
 
 interface Product {

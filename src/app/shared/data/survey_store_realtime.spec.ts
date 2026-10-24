@@ -1,7 +1,8 @@
-import type { SurveyOption } from '../models/survey_option';
 import { TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
+
+import type { SurveyOption } from '../models/survey_option';
 import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
@@ -12,7 +13,7 @@ import type { RepositoryResult } from './repository_result';
 const ROW: SurveyDetail = { id: 'survey', title: 'Team', description: null, categoryId: 'team',
   createdAt: 0, endsAt: null, category: { id: 'team', name: 'Team', slug: 'team' }, questions: [] };
 
-describe('SurveyStore realtime refresh', () => {
+describe('SurveyStore realtime refresh', (): void => {
   let inserts: Subject<SurveyInsertTable>;
   let votes: Subject<SurveyOption | null>;
   let store: SurveyStore;
@@ -20,7 +21,7 @@ describe('SurveyStore realtime refresh', () => {
   const start = vi.fn();
   const voteForQuestion = vi.fn();
 
-  beforeEach(() => {
+  beforeEach((): void => {
     vi.useFakeTimers();
     inserts = new Subject<SurveyInsertTable>();
     votes = new Subject<SurveyOption | null>();
@@ -35,12 +36,12 @@ describe('SurveyStore realtime refresh', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  afterEach(() => {
+  afterEach((): void => {
     TestBed.resetTestingModule();
     vi.useRealTimers();
   });
 
-  it('bundles inserts and vote updates, reloads data and preserves filters', async () => {
+  it('bundles inserts and vote updates, reloads data and preserves filters', async (): Promise<void> => {
     await store.load();
     expect(start).toHaveBeenCalled();
     store.selectActiveCategory('team');
@@ -56,9 +57,9 @@ describe('SurveyStore realtime refresh', () => {
     expect(store.pastCategoryId()).toBe('other');
   });
 
-  it('performs a follow-up read for an event arriving during a load', async () => {
+  it('performs a follow-up read for an event arriving during a load', async (): Promise<void> => {
     let finish!: (result: RepositoryResult<readonly SurveyDetail[]>) => void;
-    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve) => { finish = resolve; }));
+    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve: (value: RepositoryResult<readonly SurveyDetail[]> | PromiseLike<RepositoryResult<readonly SurveyDetail[]>>) => void): void => { finish = resolve; }));
     const pending = store.load();
     votes.next(null);
     await vi.advanceTimersByTimeAsync(50);
@@ -70,7 +71,7 @@ describe('SurveyStore realtime refresh', () => {
     expect(store.surveys()).toEqual([ROW]);
   });
 
-  it('preserves data on refresh failure and recovers on the next event', async () => {
+  it('preserves data on refresh failure and recovers on the next event', async (): Promise<void> => {
     loadSurveys.mockResolvedValueOnce({ success: true, data: [ROW] });
     await store.load();
     loadSurveys.mockResolvedValueOnce({ success: false, error: 'request_failed' });
@@ -84,7 +85,7 @@ describe('SurveyStore realtime refresh', () => {
     expect(store.surveys()).toEqual([]);
   });
 
-  it('cancels buffered notifications on destruction', async () => {
+  it('cancels buffered notifications on destruction', async (): Promise<void> => {
     await store.load();
     votes.next(null);
     TestBed.resetTestingModule();
@@ -93,13 +94,13 @@ describe('SurveyStore realtime refresh', () => {
     expect(loadSurveys).toHaveBeenCalledTimes(1);
   });
 
-  it('absorbs own events before and after refresh but still reloads another vote', async () => {
+  it('absorbs own events before and after refresh but still reloads another vote', async (): Promise<void> => {
     const option: SurveyOption = { id: 'option', questionId: 'question', text: 'Walk', position: 0, voteCount: 1 };
     const updated: SurveyDetail = { ...ROW, questions: [{ id: 'question', surveyId: ROW.id,
       text: 'Activity?', position: 0, allowsMultipleAnswers: false, options: [option] }] };
     await store.load();
     let finish!: (result: RepositoryResult<void>) => void;
-    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve) => { finish = resolve; }));
+    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve: (value: RepositoryResult<void> | PromiseLike<RepositoryResult<void>>) => void): void => { finish = resolve; }));
     const pending = store.voteForQuestion('question', ['option']);
     votes.next(option);
     await vi.advanceTimersByTimeAsync(50);
@@ -118,10 +119,10 @@ describe('SurveyStore realtime refresh', () => {
     expect(voteForQuestion).toHaveBeenCalledTimes(1);
   });
 
-  it('retains external events when the own vote is rejected', async () => {
+  it('retains external events when the own vote is rejected', async (): Promise<void> => {
     await store.load();
     let finish!: (result: RepositoryResult<void>) => void;
-    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve) => { finish = resolve; }));
+    voteForQuestion.mockReturnValue(new Promise<RepositoryResult<void>>((resolve: (value: RepositoryResult<void> | PromiseLike<RepositoryResult<void>>) => void): void => { finish = resolve; }));
     const pending = store.voteForQuestion('question', []);
     votes.next(null);
     await vi.advanceTimersByTimeAsync(50);

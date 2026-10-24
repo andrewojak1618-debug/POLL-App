@@ -1,0 +1,125 @@
+.hero__visual {
+  flex: 0 0 442px;
+  min-height: 400px;
+}
+
+.illustration {
+  position: relative;
+  width: 442px;
+  height: 442px;
+
+  img {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+    animation: illustration-drift var(--drift-duration, 8s) ease-in-out var(--drift-delay, 0s) infinite;
+  }
+}
+
+.illustration__phone {
+  width: 442px;
+  height: auto;
+  inset: 0;
+  --drift-x: 2px;
+  --drift-y: -4px;
+  --drift-angle: 0.5deg;
+  --drift-duration: 9s;
+}
+
+// Figma: Components > Visual, Variant3 -> 02.
+// On hover, dissolve with ease-in-out over 250 ms.
+.illustration__state {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease-in-out;
+}
+
+.illustration__state__hover { opacity: 0; }
+
+.illustration__message {
+  left: 0;
+  top: 60px;
+  --drift-x: -5px;
+  --drift-y: -8px;
+  --drift-angle: -2deg;
+  --drift-duration: 6s;
+  --drift-delay: -2s;
+}
+.illustration__question {
+  right: 25px;
+  top: 0;
+  --drift-x: 4px;
+  --drift-y: -6px;
+  --drift-angle: 3deg;
+  --drift-duration: 7s;
+  --drift-delay: -4s;
+}
+.illustration__star {
+  left: 5px;
+  bottom: 15px;
+  --drift-x: -4px;
+  --drift-y: 6px;
+  --drift-angle: -4deg;
+  --drift-duration: 8s;
+  --drift-delay: -1s;
+}
+.illustration__check {
+  right: -10px;
+  bottom: 70px;
+  --drift-x: 3px;
+  --drift-y: -5px;
+  --drift-angle: 2deg;
+  --drift-duration: 7s;
+  --drift-delay: -3s;
+}
+
+.illustration__state__rest {
+  .illustration__message {
+    transform: translate(24px, 32px) scale(0.65);
+  }
+
+  .illustration__star { transform: scale(0.85); }
+}
+
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .illustration:hover {
+    img { animation-play-state: paused; }
+    .illustration__state__rest { opacity: 0; }
+    .illustration__state__hover { opacity: 1; }
+  }
+}
+
+// Individual translate/rotate preserve the resting variant's transform.
+@keyframes illustration-drift {
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  50% {
+    translate: var(--drift-x) var(--drift-y);
+    rotate: var(--drift-angle);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .illustration img { animation: none; }
+  .illustration__state { transition: none; }
+}
+
+@media (max-width: 900px) {
+  .hero__visual {
+    grid-row: 2;
+    position: relative;
+    min-height: 250px;
+    height: 250px;
+  }
+
+  .illustration {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -221px;
+    transform: scale(0.5656);
+    transform-origin: top center;
+  }
+
+  .illustration__state__rest { opacity: 0; }
+  .illustration__state__hover { opacity: 1; }
+}

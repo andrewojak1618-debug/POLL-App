@@ -1,17 +1,18 @@
 import { EMPTY } from 'rxjs';
-import { SurveyRealtime } from './survey_realtime';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
 
 const ACTIVE_CATEGORY: string = '00000000-0000-4000-8000-000000000001';
 const PAST_CATEGORY: string = '00000000-0000-4000-8000-000000000002';
 
-describe('SurveyStore category selections', () => {
+describe('SurveyStore category selections', (): void => {
   let store: SurveyStore;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     TestBed.configureTestingModule({ providers: [{ provide: SurveyRealtime, useValue: { inserts: EMPTY, voteUpdates: EMPTY, start: (): void => {} } }, { provide: SurveyRepository, useValue: {
       loadSurveys: vi.fn().mockResolvedValue({ success: true, data: [] }),
       loadCategories: vi.fn().mockResolvedValue({ success: true, data: [] }),
@@ -19,12 +20,12 @@ describe('SurveyStore category selections', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  it('starts with all categories selected for both lists', () => {
+  it('starts with all categories selected for both lists', (): void => {
     expect(store.activeCategoryId()).toBeNull();
     expect(store.pastCategoryId()).toBeNull();
   });
 
-  it('changes and resets each selection independently', () => {
+  it('changes and resets each selection independently', (): void => {
     store.selectActiveCategory(ACTIVE_CATEGORY);
     expect(store.pastCategoryId()).toBeNull();
     store.selectPastCategory(PAST_CATEGORY);
@@ -38,7 +39,7 @@ describe('SurveyStore category selections', () => {
     expect(store.pastCategoryId()).toBeNull();
   });
 
-  it('retains both selections across loading and access by another consumer', async () => {
+  it('retains both selections across loading and access by another consumer', async (): Promise<void> => {
     store.selectActiveCategory(ACTIVE_CATEGORY);
     store.selectPastCategory(PAST_CATEGORY);
     await store.load();

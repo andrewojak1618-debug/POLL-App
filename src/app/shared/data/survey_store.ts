@@ -1,16 +1,21 @@
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { auditTime, interval, merge, tap } from 'rxjs';
+import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import type { Signal, WritableSignal } from '@angular/core';
+
 import type { SurveyOption } from '../models/survey_option';
 import { SurveyRealtime } from './survey_realtime';
 import type { CreateSurveyData } from '../models/create_survey_data';
 import { getEndingSoonSurveys } from './ending_soon';
 import { filterSurveysByStatus } from './survey_status';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { auditTime, interval, merge, tap } from 'rxjs';
 import { SurveyRepository } from './survey_repository';
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import type { Signal, WritableSignal } from '@angular/core';
 import type { SurveyDetail, SurveyQuestionDetail } from '../models/survey_detail';
 import type { SurveyCategoryData } from '../models/survey_category_data';
+import { REPOSITORY_ERROR } from './repository_result';
 import type { RepositoryError, RepositoryResult } from './repository_result';
+
+const REALTIME_BATCH_WINDOW_MS: number = 50;
+const CLOCK_UPDATE_INTERVAL_MS: number = 1000;
 
 /** Owns shared survey state and exposes read-only signals to consumers. */
 @Injectable({ providedIn: 'root' })
@@ -58,17 +63,17 @@ export class SurveyStore {
 
   readonly filteredPastSurveys: Signal<readonly SurveyDetail[]> = computed((): readonly SurveyDetail[] =>
     this.filterByCategory(this.pastSurveys(), this.pastCategoryId()));
-  /** Updates wall-clock time every second and stops when the store is destroyed. */
+  /** Keeps deadline-derived lists current and batches Realtime refreshes; both subscriptions end with the store. */
   constructor() {
     merge(
       this.realtime.inserts.pipe(tap((): void => { this.unknownChange = true; })),
       this.realtime.voteUpdates.pipe(tap((option: SurveyOption | null): void => this.queueOption(option))),
     ).pipe(
-      auditTime(50), takeUntilDestroyed(),
+      auditTime(REALTIME_BATCH_WINDOW_MS), takeUntilDestroyed(),
     ).subscribe((): void => {
       this.refreshRealtime();
     });
-    interval(1000).pipe(takeUntilDestroyed()).subscribe((): void => {
+    interval(CLOCK_UPDATE_INTERVAL_MS).pipe(takeUntilDestroyed()).subscribe((): void => {
       this.currentTimeState.set(Date.now());
     });
   }
@@ -107,7 +112,7 @@ export class SurveyStore {
     try {
       await this.loadData();
     } catch {
-      this.errorState.set('request_failed');
+      this.errorState.set(REPOSITORY_ERROR.REQUEST_FAILED);
     } finally {
       this.loadingState.set(false);
     }
@@ -119,19 +124,31 @@ export class SurveyStore {
       this.repository.loadSurveys(), this.repository.loadCategories(),
     ]);
     if (surveys.status === 'rejected' || categories.status === 'rejected') {
-      this.errorState.set('request_failed');
+      this.errorState.set(REPOSITORY_ERROR.REQUEST_FAILED);
       return;
     }
-    if (!surveys.value.success) {
-      this.errorState.set(surveys.value.error);
+    this.applyLoadedData(surveys.value, categories.value);
+  }
+
+  /**
+   * Applies validated results together, preserving existing data if either request failed.
+   * @param surveys - Completed survey request result.
+   * @param categories - Completed category request result.
+   */
+  private applyLoadedData(
+    surveys: RepositoryResult<readonly SurveyDetail[]>,
+    categories: RepositoryResult<readonly SurveyCategoryData[]>,
+  ): void {
+    if (!surveys.success) {
+      this.errorState.set(surveys.error);
       return;
     }
-    if (!categories.value.success) {
-      this.errorState.set(categories.value.error);
+    if (!categories.success) {
+      this.errorState.set(categories.error);
       return;
     }
-    this.surveyState.set(surveys.value.data);
-    this.categoryState.set(categories.value.data);
+    this.surveyState.set(surveys.data);
+    this.categoryState.set(categories.data);
   }
 
   /**
@@ -173,8 +190,8 @@ export class SurveyStore {
       else this.errorState.set(result.error);
       return result;
     } catch {
-      this.errorState.set('request_failed');
-      return { success: false, error: 'request_failed' };
+      this.errorState.set(REPOSITORY_ERROR.REQUEST_FAILED);
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 
@@ -210,8 +227,8 @@ export class SurveyStore {
       else this.errorState.set(result.error);
       return result;
     } catch {
-      this.errorState.set('request_failed');
-      return { success: false, error: 'request_failed' };
+      this.errorState.set(REPOSITORY_ERROR.REQUEST_FAILED);
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 

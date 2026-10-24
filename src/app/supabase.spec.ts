@@ -1,25 +1,26 @@
-import { SUPABASE_CLIENT } from './shared/data/supabase_client';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SUPABASE_CLIENT } from './shared/data/supabase_client';
 import { SupabaseService } from './supabase';
 
 const select = vi.fn();
 
-describe('Supabase request state', () => {
-  beforeEach(() => {
+describe('Supabase request state', (): void => {
+  beforeEach((): void => {
     select.mockReset();
     TestBed.configureTestingModule({ providers: [
-      { provide: SUPABASE_CLIENT, useValue: { from: () => ({ select }) } },
+      { provide: SUPABASE_CLIENT, useValue: { from: (): { select: typeof select } => ({ select }) } },
     ] });
   });
 
-  it('starts without a loading or error state', () => {
+  it('starts without a loading or error state', (): void => {
     const service = TestBed.inject(SupabaseService);
     expect(service.isLoading()).toBe(false);
     expect(service.errorMessage()).toBeNull();
   });
 
-  it.each(['response', 'rejection'])('handles a %s failure and allows retry', async (failure: string) => {
+  it.each(['response', 'rejection'])('handles a %s failure and allows retry', async (failure: string): Promise<void> => {
     const service = TestBed.inject(SupabaseService);
     if (failure === 'response') select.mockResolvedValueOnce({ data: null, error: { message: 'internal detail' } });
     else select.mockRejectedValueOnce(new Error('internal detail'));
@@ -32,7 +33,7 @@ describe('Supabase request state', () => {
     expect(service.products()).toEqual([]);
   });
 
-  it('exposes loading and avoids duplicate concurrent requests', async () => {
+  it('exposes loading and avoids duplicate concurrent requests', async (): Promise<void> => {
     const service = TestBed.inject(SupabaseService);
     select.mockResolvedValue({ data: [], error: null });
     const pending = service.getProducts();
@@ -43,7 +44,7 @@ describe('Supabase request state', () => {
     expect(service.isLoading()).toBe(false);
   });
 
-  it('keeps previously loaded data when a later request fails', async () => {
+  it('keeps previously loaded data when a later request fails', async (): Promise<void> => {
     const service = TestBed.inject(SupabaseService);
     const products = [{ id: 1, name: 'Test', count: 0, created_at: '2026-10-19T00:00:00Z' }];
     select.mockResolvedValueOnce({ data: products, error: null });

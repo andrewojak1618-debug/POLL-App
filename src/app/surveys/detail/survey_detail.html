@@ -1,32 +1,42 @@
+<header class="detail_header">
+  <a class="home_link" routerLink="/" [info]="'focus_home_heading'" aria-label="Back to Home">
+    <img src="images/dark_logo.svg" width="119" height="50" alt="" />
+  </a>
+  <a appPrimaryButton class="create_link" routerLink="/create-survey">Create survey</a>
+</header>
 <main class="survey_detail" aria-labelledby="survey_detail_title">
-  <a class="home_link" routerLink="/" [info]="'focus_home_heading'">Back to Home</a>
   @if (!survey()) { <h1 #surveyHeading id="survey_detail_title" tabindex="-1">Survey details</h1> }
   <p class="vote_status" role="status">{{ announcement() }}</p>
   @if (survey(); as loadedSurvey) {
     <div class="detail_columns">
     <div class="voting_panel">
+    <div class="survey_status_row">
+      <p class="survey_status" [class.survey_ended]="isEnded()">{{ isEnded() ? 'Survey ended' : 'Published' }}</p>
+      <a class="mobile_close_link" routerLink="/" [info]="'focus_home_heading'" aria-label="Close survey and return to Home">
+        <span class="close_icon" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="survey_metadata">
+      @if (deadline(); as end) {
+        <p class="survey_deadline">Ends on <time [attr.datetime]="end.iso">{{ end.label }}</time></p>
+      }
+      <p class="survey_category">Category: {{ loadedSurvey.category.name }}</p>
+    </div>
     <h1 #surveyHeading id="survey_detail_title" tabindex="-1">{{ loadedSurvey.title }}</h1>
-    @if (isEnded()) {
-      <p class="survey_ended">Survey ended</p>
-    }
-    <p class="survey_category">Category: {{ loadedSurvey.category.name }}</p>
     @if (loadedSurvey.description) {
       <p class="survey_description">{{ loadedSurvey.description }}</p>
     }
-    @if (deadline(); as end) {
-      <p class="survey_deadline">Deadline: <time [attr.datetime]="end.iso">{{ end.label }}</time></p>
-    }
+    <form #surveyForm novalidate (submit)="validateSurvey(surveyForm, $event)" (change)="clearSelectionFeedback()">
     <div class="survey_questions">
       @for (question of loadedSurvey.questions; track question.id; let index = $index) {
         <section class="survey_question" [attr.aria-labelledby]="'question_' + question.id">
           <h2 [id]="'question_' + question.id">{{ index + 1 }}. {{ question.text }}</h2>
 
-          <form #answerForm (submit)="submitQuestion(question, answerForm, $event)">
-            <fieldset class="answer_group" [attr.aria-describedby]="'answer_requirement_' + question.id">
+            <fieldset class="answer_group" [attr.aria-describedby]="'answer_requirement_' + question.id + (invalidQuestionIds().includes(question.id) ? ' selection_error_' + question.id : '')">
               <legend class="visually_hidden">{{ index + 1 }}. {{ question.text }}</legend>
               <p class="answer_requirement" [id]="'answer_requirement_' + question.id">{{ question.allowsMultipleAnswers ? 'Choose at least one answer (required).' : 'Choose one answer (required).' }}</p>
             <ul class="answer_options">
-              @for (option of question.options; track option.id) {
+              @for (option of question.options; track option.id; let answerIndex = $index) {
                 <li>
                   <label class="answer_label">
                     <input
@@ -34,43 +44,52 @@
                       [name]="'question_' + question.id"
                       [value]="option.id"
                       [required]="!question.allowsMultipleAnswers"
-                      [disabled]="isEnded()"
+                      [disabled]="isEnded() || isCompleting() || savedQuestionIds().includes(question.id)"
                     />
-                    <span class="answer_text">{{ option.text }}</span>
+                    <span class="answer_text">{{ answerLetter(answerIndex) }}. {{ option.text }}</span>
                   </label>
                 </li>
               }
             </ul>
             </fieldset>
-            @if (failedQuestionId() === question.id) {
-              <p class="vote_error" [id]="'vote_error_' + question.id">
-                Your vote could not be saved. Your selection is still here. Press Vote to try again.
+            @if (savedQuestionIds().includes(question.id)) {
+              <p>Answer saved.</p>
+            }
+            @if (invalidQuestionIds().includes(question.id)) {
+              <p class="vote_error" [id]="'selection_error_' + question.id">
+                {{ question.allowsMultipleAnswers ? 'Please choose at least one answer.' : 'Please choose one answer.' }}
               </p>
             }
-            <button appPrimaryButton type="submit" class="submit_question" [disabled]="isVoting() || isEnded()"
-              [attr.aria-describedby]="failedQuestionId() === question.id ? 'vote_error_' + question.id : null">Vote</button>
-          </form>
         </section>
       }
     </div>
+    <div class="survey_completion">
+      <button appPrimaryButton class="complete_survey" type="submit" [disabled]="isVoting() || isCompleting() || isEnded() || savedQuestionIds().length === loadedSurvey.questions.length"><span class="complete_desktop_label">Complete survey</span><span class="complete_mobile_label">Complete<img src="icons/check.svg" width="18" height="16" alt="" /></span></button>
+    </div>
+    <p class="completion_status" role="status">{{ selectionFeedback() }}</p>
+    </form>
     </div>
     <section class="results_panel" aria-labelledby="results_title">
       <button type="button" class="results_toggle" aria-controls="results_content"
         [attr.aria-expanded]="resultsExpanded()" (click)="resultsExpanded.set(!resultsExpanded())">
-        {{ resultsExpanded() ? 'Close results' : 'Show results' }}
+        <span class="results_toggle_content">
+            {{ resultsExpanded() ? 'Close results' : 'Show results' }}
+            <span class="results_toggle_icon" aria-hidden="true"></span>
+          </span>
       </button>
       <div id="results_content" class="results_content" [class.results_collapsed]="!resultsExpanded()">
-      <h2 id="results_title">Survey results</h2>
+      <h2 id="results_title">Survey results <span class="results_live">LIVE</span></h2>
       @for (question of loadedSurvey.questions; track question.id; let index = $index) {
         <section class="question_results" [attr.aria-labelledby]="'result_' + question.id">
           <h3 [id]="'result_' + question.id">{{ index + 1 }}. {{ question.text }}</h3>
-          <p class="question_vote_total">Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}</p>
+          <p class="question_vote_total visually_hidden">Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}</p>
           <ul class="answer_results">
-            @for (option of question.options; track option.id) {
+            @for (option of question.options; track option.id; let answerIndex = $index) {
               <li>
-                <span>{{ option.text }}</span>
-                <span class="answer_votes"> — {{ option.voteCount }} {{ option.voteCount === 1 ? 'vote' : 'votes' }}</span>
+                <span class="visually_hidden">{{ option.text }}</span>
+                <span class="answer_votes visually_hidden"> — {{ option.voteCount }} {{ option.voteCount === 1 ? 'vote' : 'votes' }}</span>
                 <div class="result_bar_row">
+                  <span class="answer_letter">{{ answerLetter(answerIndex) }}</span>
                   <span class="result_track" aria-hidden="true">
                     <span class="result_fill" [style.width.%]="answerPercentages().get(option.id) ?? 0"></span>
                   </span>

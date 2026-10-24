@@ -1,21 +1,23 @@
+import type { Observable } from 'rxjs';
 import { afterRenderEffect, Component, computed, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
 import type { Signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { ParamMap } from '@angular/router';
 import { catchError, defer, distinctUntilChanged, map, of, startWith, switchMap, tap } from 'rxjs';
+
 import { SurveyStore } from '../../shared/data/survey_store';
 import { SurveyRepository } from '../../shared/data/survey_repository';
+import { REPOSITORY_ERROR } from '../../shared/data/repository_result';
 import type { RepositoryResult } from '../../shared/data/repository_result';
 import type { SurveyDetail as SurveyData, SurveyQuestionDetail } from '../../shared/models/survey_detail';
+import type { SurveyOption } from '../../shared/models/survey_option';
+import { PrimaryButton } from '../../shared/ui/primary_button/primary_button';
 
-const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Europe/Berlin', year: 'numeric', month: 'short', day: 'numeric',
-  hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('de-DE', {
+  timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit',
 });
 
-import type { SurveyOption } from '../../shared/models/survey_option';
-import { PrimaryButton } from '../../shared/ui/primary-button/primary-button';
 
 /** Selected answer IDs belonging to one question. */
 export interface QuestionSubmission {
@@ -32,18 +34,94 @@ type SurveyResult = RepositoryResult<SurveyData | null>;
   styleUrl: './survey_detail.scss',
 })
 export class SurveyDetail {
+  /** Returns spreadsheet-style answer letters, continuing with AA after Z. */
+  answerLetter(index: number): string {
+    const alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let label: string = '';
+    for (let position: number = index + 1; position > 0; position = Math.floor((position - 1) / alphabet.length)) {
+      label = alphabet[(position - 1) % alphabet.length] + label;
+    }
+    return label;
+  }
+
+  private readonly router: Router = inject(Router);
+  readonly isCompleting: WritableSignal<boolean> = signal(false);
+  readonly savedQuestionIds: WritableSignal<readonly string[]> = signal([]);
+  readonly invalidQuestionIds: WritableSignal<readonly string[]> = signal([]);
+  readonly selectionFeedback: WritableSignal<string> = signal('');
+
+  /** Validates all remaining questions before starting the sequential vote submission. */
+  validateSurvey(form: HTMLFormElement, event: Event): void {
+    event.preventDefault();
+    if (!this.canSubmitVote() || this.isVoting() || this.isCompleting()) return;
+    const values: FormData = new FormData(form);
+    const invalid: readonly SurveyQuestionDetail[] = (this.survey()?.questions ?? []).filter(
+      (question: SurveyQuestionDetail): boolean => !this.savedQuestionIds().includes(question.id) && !this.hasValidSelection(question, values));
+    this.invalidQuestionIds.set(invalid.map((question: SurveyQuestionDetail): string => question.id));
+    this.selectionFeedback.set(invalid.length ? 'Please answer every question.' : '');
+    const input: HTMLInputElement | undefined = Array.from(form.querySelectorAll('input')).find(
+      (element: HTMLInputElement): boolean => element.name === 'question_' + invalid[0]?.id);
+    input?.focus();
+    if (!invalid.length) void this.completeSurvey(values);
+  }
+
+  /** Locks the entire sequence, including the gaps between individual repository calls. */
+  private async completeSurvey(values: FormData): Promise<void> {
+    const sourceId: string | null = this.surveyId();
+    const questions: readonly SurveyQuestionDetail[] = this.survey()?.questions ?? [];
+    this.isCompleting.set(true);
+    try {
+      for (const question of questions) {
+        if (this.surveyId() !== sourceId) return;
+        if (this.savedQuestionIds().includes(question.id)) continue;
+        if (!this.canSubmitVote() || !await this.saveSelectedQuestion(question, values, sourceId)) return;
+      }
+      this.selectionFeedback.set('Your survey answers have been saved.');
+      await this.router.navigate(['/'], { info: 'focus_home_heading' });
+    } finally { this.isCompleting.set(false); }
+  }
+
+  /** Remembers only acknowledged writes; retries skip these questions within this view. */
+  private async saveSelectedQuestion(question: SurveyQuestionDetail, values: FormData, sourceId: string | null): Promise<boolean> {
+    const optionIds: string[] = values.getAll('question_' + question.id).filter(
+      (value: FormDataEntryValue): value is string => typeof value === 'string');
+    this.selectionFeedback.set('Saving your answers…');
+    const result: RepositoryResult<void> = await this.store.voteForQuestion(question.id, optionIds);
+    if (this.surveyId() !== sourceId) return false;
+    if (result.success) this.savedQuestionIds.update((ids: readonly string[]): readonly string[] => [...ids, question.id]);
+    else this.selectionFeedback.set('Could not save all answers. Your selection is still here. Press Complete survey to retry the remaining questions.');
+    return result.success;
+  }
+
+  /** Validates cardinality and membership within the question's own answer options. */
+  private hasValidSelection(question: SurveyQuestionDetail, values: FormData): boolean {
+    const selected: FormDataEntryValue[] = values.getAll('question_' + question.id);
+    return selected.length > 0 && (question.allowsMultipleAnswers || selected.length === 1)
+      && selected.every((value: FormDataEntryValue): boolean => question.options.some(
+        (option: SurveyOption): boolean => option.id === value));
+  }
+
+  /** Clears feedback when the user changes the selection, so a previous result cannot become stale. */
+  clearSelectionFeedback(): void {
+    this.invalidQuestionIds.set([]);
+    this.selectionFeedback.set('');
+  }
+
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('surveyHeading');
   private focusedSurveyId: string | null | undefined = undefined;
-  private readonly initialFocus = afterRenderEffect((): void => {
-    if (this.loadResult() === null || !this.heading()) return;
-    const id: string | null = this.surveyId();
-    if (this.focusedSurveyId === id) return;
-    this.focusedSurveyId = id;
-    const active: Element | null = this.host.nativeElement.ownerDocument.activeElement;
-    if (active && this.host.nativeElement.contains(active)) return;
-    this.heading()?.nativeElement.focus({ preventScroll: true });
-  });
+  /** Registers route-heading focus without interrupting a user who already moved focus. */
+  private registerInitialFocus(): void {
+    afterRenderEffect((): void => {
+      if (this.loadResult() === null || !this.heading()) return;
+      const id: string | null = this.surveyId();
+      if (this.focusedSurveyId === id) return;
+      this.focusedSurveyId = id;
+      const active: Element | null = this.host.nativeElement.ownerDocument.activeElement;
+      if (active && this.host.nativeElement.contains(active)) return;
+      this.heading()?.nativeElement.focus({ preventScroll: true });
+    });
+  }
 
   readonly resultsExpanded: WritableSignal<boolean> = signal(true);
   private readonly store: SurveyStore = inject(SurveyStore);
@@ -64,10 +142,10 @@ export class SurveyDetail {
     this.route.paramMap.pipe(
       map((params: ParamMap): string | null => params.get('id')),
       distinctUntilChanged(),
-      switchMap((id: string | null) => id === null
-        ? of<SurveyResult>({ success: false, error: 'invalid_id' })
-        : defer(() => this.repository.loadSurveyById(id)).pipe(
-          catchError(() => of<SurveyResult>({ success: false, error: 'request_failed' })),
+      switchMap((id: string | null): Observable<SurveyResult | null> => id === null
+        ? of<SurveyResult>({ success: false, error: REPOSITORY_ERROR.INVALID_ID })
+        : defer((): Promise<RepositoryResult<SurveyData | null>> => this.repository.loadSurveyById(id)).pipe(
+          catchError((): Observable<SurveyResult> => of<SurveyResult>({ success: false, error: REPOSITORY_ERROR.REQUEST_FAILED })),
           tap((): void => this.initialStoreData.set(this.store.surveys())),
           startWith(null),
         )),
@@ -98,12 +176,12 @@ export class SurveyDetail {
         option.id, total === 0 ? 0 : Math.round((option.voteCount / total) * 100),
       ]);
     })));
-  /** A missing deadline stays active; the deadline itself is already expired. */
+  /** No deadline means active; equality with the current time already counts as ended. */
   readonly isEnded: Signal<boolean> = computed((): boolean => {
     const endsAt: number | null = this.survey()?.endsAt ?? null;
     return endsAt !== null && endsAt <= this.store.now();
   });
-  readonly deadline: Signal<{ readonly label: string; readonly iso: string } | null> = computed(() => {
+  readonly deadline: Signal<{ readonly label: string; readonly iso: string } | null> = computed((): { label: string; iso: string; } | null => {
     const endsAt: number | null = this.survey()?.endsAt ?? null;
     return endsAt === null ? null : {
       label: DEADLINE_FORMAT.format(endsAt),
@@ -111,8 +189,9 @@ export class SurveyDetail {
     };
   });
 
-  /** Starts shared loading and the existing singleton Realtime channel on direct entry. */
+  /** Loads shared data on direct entry and announces external vote changes without repeating own-vote feedback. */
   constructor() {
+    this.registerInitialFocus();
     void this.store.load();
     let previous: string = '';
     let previousId: string | null = null;
@@ -121,6 +200,8 @@ export class SurveyDetail {
       const counts: string = JSON.stringify(survey?.questions.map((question: SurveyQuestionDetail): number[] =>
         question.options.map((option: SurveyOption): number => option.voteCount)) ?? []);
       if (survey?.id !== previousId) {
+        this.savedQuestionIds.set([]);
+        this.clearSelectionFeedback();
         this.announcementState.set('');
         this.failedQuestionState.set(null);
       }

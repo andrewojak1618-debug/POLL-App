@@ -1,7 +1,8 @@
 import { EMPTY } from 'rxjs';
-import { SurveyRealtime } from './survey_realtime';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
 import type { CreateSurveyData } from '../models/create_survey_data';
@@ -13,13 +14,13 @@ const INPUT: CreateSurveyData = { categoryId: 'category', title: 'Team', descrip
 const SAVED: SurveyDetail = { id: 'created', categoryId: 'category', title: 'Team', description: null,
   endsAt: null, createdAt: 0, category: { id: 'category', name: 'Team', slug: 'team' }, questions: [] };
 
-describe('SurveyStore creation', () => {
+describe('SurveyStore creation', (): void => {
   const createSurvey = vi.fn();
   const loadSurveys = vi.fn();
   const loadCategories = vi.fn();
   let store: SurveyStore;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     createSurvey.mockReset().mockResolvedValue({ success: true, data: SAVED.id });
     loadSurveys.mockReset().mockResolvedValue({ success: true, data: [SAVED] });
     loadCategories.mockReset().mockResolvedValue({ success: true, data: [SAVED.category] });
@@ -28,7 +29,7 @@ describe('SurveyStore creation', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  it('refreshes after creation and retains filter selections', async () => {
+  it('refreshes after creation and retains filter selections', async (): Promise<void> => {
     store.selectActiveCategory('category');
     store.selectPastCategory('other');
     const pending = store.createSurvey(INPUT);
@@ -42,9 +43,9 @@ describe('SurveyStore creation', () => {
     expect(store.isCreating()).toBe(false);
   });
 
-  it('shares a pending creation instead of sending a second write', async () => {
+  it('shares a pending creation instead of sending a second write', async (): Promise<void> => {
     let finish!: (value: RepositoryResult<string>) => void;
-    createSurvey.mockReturnValue(new Promise<RepositoryResult<string>>((resolve) => { finish = resolve; }));
+    createSurvey.mockReturnValue(new Promise<RepositoryResult<string>>((resolve: (value: RepositoryResult<string> | PromiseLike<RepositoryResult<string>>) => void): void => { finish = resolve; }));
     const first = store.createSurvey(INPUT);
     expect(store.createSurvey(INPUT)).toBe(first);
     expect(createSurvey).toHaveBeenCalledTimes(1);
@@ -53,7 +54,7 @@ describe('SurveyStore creation', () => {
     expect(store.isCreating()).toBe(false);
   });
 
-  it('keeps existing data on a rejected creation and permits a later attempt', async () => {
+  it('keeps existing data on a rejected creation and permits a later attempt', async (): Promise<void> => {
     await store.load();
     createSurvey.mockResolvedValueOnce({ success: false, error: 'invalid_input' });
     expect(await store.createSurvey(INPUT)).toEqual({ success: false, error: 'invalid_input' });
@@ -64,7 +65,7 @@ describe('SurveyStore creation', () => {
     expect(store.error()).toBeNull();
   });
 
-  it('preserves creation success when refreshing fails', async () => {
+  it('preserves creation success when refreshing fails', async (): Promise<void> => {
     loadSurveys.mockResolvedValue({ success: false, error: 'request_failed' });
     expect(await store.createSurvey(INPUT)).toEqual({ success: true, data: SAVED.id });
     expect(store.error()).toBe('request_failed');
@@ -72,7 +73,7 @@ describe('SurveyStore creation', () => {
     expect(store.isCreating()).toBe(false);
   });
 
-  it('handles unexpected write rejection without automatic retries', async () => {
+  it('handles unexpected write rejection without automatic retries', async (): Promise<void> => {
     createSurvey.mockRejectedValue(new Error('offline'));
     expect(await store.createSurvey(INPUT)).toEqual({ success: false, error: 'request_failed' });
     expect(store.error()).toBe('request_failed');
@@ -80,9 +81,9 @@ describe('SurveyStore creation', () => {
     expect(loadSurveys).not.toHaveBeenCalled();
   });
 
-  it('waits for an older load before refreshing the newly created survey', async () => {
+  it('waits for an older load before refreshing the newly created survey', async (): Promise<void> => {
     let finish!: (value: RepositoryResult<readonly SurveyDetail[]>) => void;
-    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve) => { finish = resolve; }));
+    loadSurveys.mockReturnValueOnce(new Promise<RepositoryResult<readonly SurveyDetail[]>>((resolve: (value: RepositoryResult<readonly SurveyDetail[]> | PromiseLike<RepositoryResult<readonly SurveyDetail[]>>) => void): void => { finish = resolve; }));
     const older = store.load();
     const creation = store.createSurvey(INPUT);
     await Promise.resolve();

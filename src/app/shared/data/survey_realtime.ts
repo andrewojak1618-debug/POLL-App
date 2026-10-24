@@ -1,10 +1,11 @@
 import type { Signal, WritableSignal } from '@angular/core';
-import type { SurveyOption } from '../models/survey_option';
-import { mapOption } from './survey_rows';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import type { RealtimeChannel, RealtimePostgresUpdatePayload, SupabaseClient } from '@supabase/supabase-js';
 import { Subject } from 'rxjs';
 import type { Observable } from 'rxjs';
+
+import type { SurveyOption } from '../models/survey_option';
+import { mapOption } from './survey_rows';
 import { SUPABASE_CLIENT } from './supabase_client';
 
 export type SurveyInsertTable = 'surveys' | 'survey_questions' | 'survey_options';

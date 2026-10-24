@@ -1,0 +1,127 @@
+.survey_questions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.survey_question {
+  min-width: 0;
+}
+
+.survey_question h2 {
+  margin: 0;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.answer_options {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.answer_options li + li {
+  margin-top: 8px;
+}
+
+.answer_label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.answer_label input {
+  appearance: none;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  margin: 3px;
+  border: 1.5px solid var(--color-primary-purple);
+  border-radius: 3px;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.answer_label input:checked {
+  border-color: var(--color-primary-orange);
+  background: var(--color-primary-orange) url('/icons/check.svg') center / 10px 9px no-repeat;
+}
+
+.answer_label input:disabled {
+  cursor: default;
+}
+
+.answer_label input:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+.answer_label:has(input:disabled) {
+  cursor: default;
+}
+
+.answer_text {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.answer_group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.answer_requirement {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (hover: hover) {
+  .answer_label:hover input:not(:checked):not(:disabled) {
+    background-color: var(--color-secondary-orange);
+  }
+}
+
+@media (forced-colors: active) {
+  .answer_label input {
+    appearance: auto;
+  }
+}
+
+@media (max-width: 1106px) {
+  .survey_questions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .survey_questions {
+    gap: 40px;
+    margin-top: 40px;
+  }
+
+  .answer_label {
+    align-items: center;
+    min-height: 32px;
+    line-height: 1.25;
+  }
+
+  .survey_question h2 {
+    line-height: 1.25;
+  }
+}

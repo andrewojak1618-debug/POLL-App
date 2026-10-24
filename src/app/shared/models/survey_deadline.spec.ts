@@ -1,5 +1,5 @@
-import { filterSurveysByStatus } from '../../home/survey-list/survey-status';
-import { getEndingSoonSurveys } from '../../home/survey-highlights/ending-soon';
+import { filterSurveysByStatus } from '../../home/survey_list/survey_status';
+import { getEndingSoonSurveys } from '../../home/survey_highlights/ending_soon';
 import type { Survey } from './survey';
 
 const NOW: number = 1_000_000;
@@ -17,31 +17,35 @@ const SURVEYS: readonly Survey[] = Object.freeze([
   Object.freeze({ ...BASE, id: 'next', endsAt: NOW + 1 }),
 ]);
 
-/** Returns IDs for readable comparisons without changing survey objects. */
+/**
+ * Returns IDs for readable comparisons without changing survey objects.
+ * @param surveys - Survey models in the order to compare.
+ * @returns Survey identifiers in the original list order.
+ */
 function ids(surveys: readonly Survey[]): readonly string[] {
   return surveys.map((survey: Survey): string => survey.id);
 }
 
-describe('Survey model deadline rules', () => {
-  it('keeps missing deadlines and future deadlines active', () => {
+describe('Survey model deadline rules', (): void => {
+  it('keeps missing deadlines and future deadlines active', (): void => {
     const active: readonly Survey[] = filterSurveysByStatus(SURVEYS, 'active', NOW);
     expect(ids(active)).toEqual(['unlimited', 'outside', 'limit', 'next']);
     expect(active[0]).toBe(SURVEYS[0]);
     expect(active[0].categoryId).toBe('category');
   });
 
-  it('considers the exact deadline expired', () => {
+  it('considers the exact deadline expired', (): void => {
     expect(ids(filterSurveysByStatus(SURVEYS, 'past', NOW))).toEqual(['now', 'past']);
   });
 
-  it('sorts highlights and includes exactly 24 hours without mutating input', () => {
+  it('sorts highlights and includes exactly 24 hours without mutating input', (): void => {
     const highlights: readonly Survey[] = getEndingSoonSurveys(SURVEYS, NOW);
     expect(ids(highlights)).toEqual(['next', 'limit']);
     expect(highlights[0]).toBe(SURVEYS[5]);
     expect(ids(SURVEYS)).toEqual(['unlimited', 'outside', 'limit', 'now', 'past', 'next']);
   });
 
-  it('preserves input order when deadlines are equal', () => {
+  it('preserves input order when deadlines are equal', (): void => {
     const tied: readonly Survey[] = [
       { ...BASE, id: 'first', endsAt: NOW + 1 },
       { ...BASE, id: 'second', endsAt: NOW + 1 },

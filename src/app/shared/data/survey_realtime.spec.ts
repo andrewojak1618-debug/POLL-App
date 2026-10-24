@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
 import { SUPABASE_CLIENT } from './supabase_client';
 import { SurveyRealtime } from './survey_realtime';
 import type { SurveyInsertTable } from './survey_realtime';
@@ -14,20 +15,20 @@ class RealtimeConsumer {
     this.realtime.start();
   }
 }
-describe('SurveyRealtime inserts', () => {
+describe('SurveyRealtime inserts', (): void => {
   const callbacks: Map<string, (payload?: { new: unknown }) => void> = new Map();
   let reportStatus: (status: string, error?: Error) => void;
   const subscribe = vi.fn((callback: (status: string, error?: Error) => void): void => { reportStatus = callback; });
-  const on = vi.fn((_event: string, filter: { table: string; event: string }, callback: (payload?: { new: unknown }) => void): void => {
+  const on = vi.fn((eventType: string, filter: { table: string; event: string }, callback: (payload?: { new: unknown }) => void): void => {
     callbacks.set(filter.event + ':' + filter.table, callback);
   });
   const teardown = vi.fn();
   const channel = { on, subscribe, teardown };
-  const createChannel = vi.fn(() => channel);
+  const createChannel = vi.fn((): typeof channel => channel);
   const removeChannel = vi.fn();
   let realtime: SurveyRealtime;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     callbacks.clear();
     vi.clearAllMocks();
     removeChannel.mockResolvedValue('ok');
@@ -36,7 +37,7 @@ describe('SurveyRealtime inserts', () => {
     realtime = TestBed.inject(SurveyRealtime);
   });
 
-  it('subscribes to exactly the three INSERT sources once across consumers', () => {
+  it('subscribes to exactly the three INSERT sources once across consumers', (): void => {
     realtime.start();
     TestBed.inject(SurveyRealtime).start();
     expect(createChannel).toHaveBeenCalledExactlyOnceWith('survey_changes');
@@ -48,7 +49,7 @@ describe('SurveyRealtime inserts', () => {
     expect(on).toHaveBeenCalledTimes(4);
   });
 
-  it('forwards insert notifications from each table', () => {
+  it('forwards insert notifications from each table', (): void => {
     const received: SurveyInsertTable[] = [];
     realtime.inserts.subscribe((table: SurveyInsertTable): void => { received.push(table); });
     realtime.start();
@@ -56,7 +57,7 @@ describe('SurveyRealtime inserts', () => {
     expect(received).toEqual(['surveys', 'survey_questions', 'survey_options']);
   });
 
-  it('removes the channel and completes notifications on destruction', () => {
+  it('removes the channel and completes notifications on destruction', (): void => {
     const complete = vi.fn();
     const votesComplete = vi.fn();
     realtime.voteUpdates.subscribe({ complete: votesComplete });
@@ -70,13 +71,13 @@ describe('SurveyRealtime inserts', () => {
     expect(createChannel).toHaveBeenCalledTimes(1);
   });
 
-  it('does not open or remove an unused channel', () => {
+  it('does not open or remove an unused channel', (): void => {
     TestBed.resetTestingModule();
     expect(createChannel).not.toHaveBeenCalled();
     expect(removeChannel).not.toHaveBeenCalled();
   });
 
-  it('reports option updates independently of inserts without requiring old row data', () => {
+  it('reports option updates independently of inserts without requiring old row data', (): void => {
     const voteChanged = vi.fn();
     const inserted = vi.fn();
     realtime.voteUpdates.subscribe(voteChanged);
@@ -90,7 +91,7 @@ describe('SurveyRealtime inserts', () => {
     expect(inserted).toHaveBeenCalledWith('survey_options');
   });
 
-  it('does not forward late updates after destruction', () => {
+  it('does not forward late updates after destruction', (): void => {
     const voteChanged = vi.fn();
     realtime.voteUpdates.subscribe(voteChanged);
     realtime.start();
@@ -100,7 +101,7 @@ describe('SurveyRealtime inserts', () => {
     expect(voteChanged).not.toHaveBeenCalled();
   });
 
-  it('exposes idle, connecting and subscribed as read-only state', () => {
+  it('exposes idle, connecting and subscribed as read-only state', (): void => {
     expect(realtime.status()).toBe('idle');
     expect(realtime.error()).toBeNull();
     realtime.start();
@@ -111,7 +112,7 @@ describe('SurveyRealtime inserts', () => {
   });
 
   it.each([['CHANNEL_ERROR', 'channel_error'], ['TIMED_OUT', 'timed_out'], ['CLOSED', 'closed']])(
-    'exposes %s and clears its error when the SDK reconnects', (status: string, error: string) => {
+    'exposes %s and clears its error when the SDK reconnects', (status: string, error: string): void => {
       realtime.start();
       reportStatus(status, new Error('internal connection details'));
       expect(realtime.status()).toBe(status);
@@ -123,7 +124,7 @@ describe('SurveyRealtime inserts', () => {
     },
   );
 
-  it('ignores late status callbacks after intentional destruction', () => {
+  it('ignores late status callbacks after intentional destruction', (): void => {
     realtime.start();
     reportStatus('CHANNEL_ERROR');
     expect(realtime.error()).toBe('channel_error');
@@ -133,7 +134,7 @@ describe('SurveyRealtime inserts', () => {
     expect(realtime.error()).toBeNull();
   });
 
-  it.each(['timed out', 'error'])('tears down local resources after removal returns %s', async (result: string) => {
+  it.each(['timed out', 'error'])('tears down local resources after removal returns %s', async (result: string): Promise<void> => {
     removeChannel.mockResolvedValue(result);
     realtime.start();
     TestBed.resetTestingModule();
@@ -144,7 +145,7 @@ describe('SurveyRealtime inserts', () => {
     expect(realtime.error()).toBeNull();
   });
 
-  it('handles a rejected channel removal and stops local resources', async () => {
+  it('handles a rejected channel removal and stops local resources', async (): Promise<void> => {
     removeChannel.mockRejectedValue(new Error('offline'));
     realtime.start();
     TestBed.resetTestingModule();
@@ -154,9 +155,9 @@ describe('SurveyRealtime inserts', () => {
     expect(realtime.status()).toBe('stopped');
   });
 
-  it('leaves successful teardown to the SDK and cannot restart while removal is pending', async () => {
+  it('leaves successful teardown to the SDK and cannot restart while removal is pending', async (): Promise<void> => {
     let finish!: (result: string) => void;
-    removeChannel.mockReturnValue(new Promise<string>((resolve) => { finish = resolve; }));
+    removeChannel.mockReturnValue(new Promise<string>((resolve: (value: string | PromiseLike<string>) => void): void => { finish = resolve; }));
     realtime.start();
     TestBed.resetTestingModule();
     realtime.start();
@@ -169,7 +170,7 @@ describe('SurveyRealtime inserts', () => {
     expect(removeChannel).toHaveBeenCalledTimes(1);
   });
 
-  it('shares one channel across component creation, destruction and recreation', async () => {
+  it('shares one channel across component creation, destruction and recreation', async (): Promise<void> => {
 
     const first = TestBed.createComponent(RealtimeConsumer);
     const second = TestBed.createComponent(RealtimeConsumer);

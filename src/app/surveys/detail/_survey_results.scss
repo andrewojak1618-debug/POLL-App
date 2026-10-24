@@ -1,0 +1,146 @@
+.results_panel {
+  align-self: end;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.results_panel h2 {
+  margin: 0;
+  font-family: 'Nerko One', cursive;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 39px;
+}
+
+.question_results h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 23px;
+}
+
+.answer_results {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  line-height: 1;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.answer_results li + li {
+  margin-top: 16px;
+}
+
+.answer_percentage {
+  font-weight: 800;
+  color: var(--color-result-percentage);
+}
+
+.result_bar_row {
+  display: grid;
+  grid-template-columns: 15px minmax(0, 255px) 31px;
+  align-items: center;
+  gap: 6px;
+}
+
+.results_live {
+  color: var(--color-survey-heading-on-light);
+}
+
+.result_track,
+.result_fill {
+  display: block;
+  height: 14px;
+  border-radius: 0 20px 20px 0;
+}
+
+.result_track {
+  overflow: hidden;
+  background: var(--color-result-track);
+}
+
+.result_fill {
+  background: var(--color-result-fill);
+}
+
+.result_bar_row .answer_percentage {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.results_content {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.results_toggle {
+  display: none;
+}
+
+@media (max-width: 1106px) {
+  .results_panel {
+    align-self: start;
+  }
+}
+
+@media (max-width: 600px) {
+  .question_results h3 {
+    line-height: 1.25;
+  }
+
+  .results_toggle {
+    display: inline-flex;
+    justify-self: start;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .results_toggle_content {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px 4px 10px;
+    border-radius: 6px;
+  }
+
+  .results_toggle_icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .results_toggle_icon::before {
+    content: '';
+    width: 15px;
+    height: 8px;
+    background: currentColor;
+    mask: url('/icons/arrow_drop_down.svg') center / contain no-repeat;
+  }
+
+  .results_toggle[aria-expanded='true'] .results_toggle_icon::before {
+    transform: rotate(180deg);
+  }
+
+  .results_toggle:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .results_collapsed {
+    display: none;
+  }
+}

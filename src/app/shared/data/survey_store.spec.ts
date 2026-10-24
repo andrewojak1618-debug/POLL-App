@@ -1,7 +1,8 @@
 import { EMPTY } from 'rxjs';
-import { SurveyRealtime } from './survey_realtime';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
+
+import { SurveyRealtime } from './survey_realtime';
 import { SurveyRepository } from './survey_repository';
 import { SurveyStore } from './survey_store';
 import type { RepositoryResult } from './repository_result';
@@ -11,12 +12,12 @@ const categories: readonly SurveyCategoryData[] = [{
   id: '00000000-0000-4000-8000-000000000001', name: 'Team', slug: 'team',
 }];
 
-describe('SurveyStore loading', () => {
+describe('SurveyStore loading', (): void => {
   const loadSurveys = vi.fn();
   const loadCategories = vi.fn();
   let store: SurveyStore;
 
-  beforeEach(() => {
+  beforeEach((): void => {
     loadSurveys.mockReset().mockResolvedValue({ success: true, data: [] });
     loadCategories.mockReset().mockResolvedValue({ success: true, data: categories });
     TestBed.configureTestingModule({
@@ -25,7 +26,7 @@ describe('SurveyStore loading', () => {
     store = TestBed.inject(SurveyStore);
   });
 
-  it('loads data and accepts empty lists', async () => {
+  it('loads data and accepts empty lists', async (): Promise<void> => {
     expect(store.isLoading()).toBe(false);
     await store.load();
     expect(store.categories()).toEqual(categories);
@@ -37,9 +38,9 @@ describe('SurveyStore loading', () => {
     expect(store.categories()).toEqual([]);
   });
 
-  it('waits for both requests and prevents duplicate concurrent loads', async () => {
+  it('waits for both requests and prevents duplicate concurrent loads', async (): Promise<void> => {
     let finish!: (result: RepositoryResult<readonly SurveyCategoryData[]>) => void;
-    loadCategories.mockReturnValue(new Promise<RepositoryResult<readonly SurveyCategoryData[]>>((resolve) => {
+    loadCategories.mockReturnValue(new Promise<RepositoryResult<readonly SurveyCategoryData[]>>((resolve: (value: RepositoryResult<readonly SurveyCategoryData[]> | PromiseLike<RepositoryResult<readonly SurveyCategoryData[]>>) => void): void => {
       finish = resolve;
     }));
     const pending: Promise<void> = store.load();
@@ -54,7 +55,7 @@ describe('SurveyStore loading', () => {
     expect(store.isLoading()).toBe(false);
   });
 
-  it.each(['surveys', 'categories'])('preserves both datasets after a %s failure and allows retry', async (source: string) => {
+  it.each(['surveys', 'categories'])('preserves both datasets after a %s failure and allows retry', async (source: string): Promise<void> => {
     await store.load();
     loadCategories.mockResolvedValue({ success: true, data: [] });
     const failing = source === 'surveys' ? loadSurveys : loadCategories;
@@ -69,7 +70,7 @@ describe('SurveyStore loading', () => {
     expect(store.categories()).toEqual([]);
   });
 
-  it('handles unexpected rejection and resets loading', async () => {
+  it('handles unexpected rejection and resets loading', async (): Promise<void> => {
     loadSurveys.mockRejectedValue(new Error('unexpected'));
     await store.load();
     expect(store.error()).toBe('request_failed');

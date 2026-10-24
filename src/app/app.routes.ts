@@ -1,7 +1,7 @@
 import type { Routes } from '@angular/router';
-import { Home } from './home/home';
-import { CreateSurvey } from './create-survey/create-survey';
 
+import { Home } from './home/home';
+import { CreateSurvey } from './create_survey/create_survey';
 import { SurveyDetail } from './surveys/detail/survey_detail';
 
 export const routes: Routes = [

@@ -1,13 +1,15 @@
+import { inject, Injectable } from '@angular/core';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
 import type { CreateSurveyData } from '../models/create_survey_data';
 import { writeTimestamp } from './survey_dates';
 import type { SurveyDetail } from '../models/survey_detail';
 import { mapNestedSurvey } from './survey_nested_mapper';
-import { inject, Injectable } from '@angular/core';
-import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SurveyCategoryData } from '../models/survey_category_data';
 import { readArray, readId, requireData } from './data_checks';
 import { mapCategory } from './survey_rows';
 import { SUPABASE_CLIENT } from './supabase_client';
+import { REPOSITORY_ERROR } from './repository_result';
 import type { RepositoryResult } from './repository_result';
 
 const SURVEY_SELECTION = `
@@ -28,10 +30,10 @@ export class SurveyRepository {
   async loadCategories(): Promise<RepositoryResult<readonly SurveyCategoryData[]>> {
     try {
       const { data, error } = await this.supabase.from('survey_categories').select('id, name, slug');
-      if (error) return { success: false, error: 'request_failed' };
+      if (error) return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
       return this.mapCategories(data);
     } catch {
-      return { success: false, error: 'request_failed' };
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 
@@ -44,7 +46,7 @@ export class SurveyRepository {
     try {
       return { success: true, data: readArray(data).map(mapCategory) };
     } catch {
-      return { success: false, error: 'invalid_data' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_DATA };
     }
   }
   /**
@@ -54,10 +56,10 @@ export class SurveyRepository {
   async loadSurveys(): Promise<RepositoryResult<readonly SurveyDetail[]>> {
     try {
       const { data, error } = await this.supabase.from('surveys').select(SURVEY_SELECTION);
-      if (error) return { success: false, error: 'request_failed' };
+      if (error) return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
       return this.mapSurveys(data);
     } catch {
-      return { success: false, error: 'request_failed' };
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 
@@ -70,7 +72,7 @@ export class SurveyRepository {
     try {
       return { success: true, data: readArray(data).map(mapNestedSurvey) };
     } catch {
-      return { success: false, error: 'invalid_data' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_DATA };
     }
   }
 
@@ -84,7 +86,7 @@ export class SurveyRepository {
     try {
       surveyId = readId(id, 'survey ID');
     } catch {
-      return { success: false, error: 'invalid_id' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_ID };
     }
     return this.requestSurvey(surveyId);
   }
@@ -98,10 +100,10 @@ export class SurveyRepository {
     try {
       const { data, error } = await this.supabase.from('surveys')
         .select(SURVEY_SELECTION).eq('id', id).maybeSingle();
-      if (error) return { success: false, error: 'request_failed' };
+      if (error) return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
       return this.mapSingleSurvey(data, id);
     } catch {
-      return { success: false, error: 'request_failed' };
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 
@@ -118,7 +120,7 @@ export class SurveyRepository {
       requireData(survey.id === id, 'requested survey ID');
       return { success: true, data: survey };
     } catch {
-      return { success: false, error: 'invalid_data' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_DATA };
     }
   }
 
@@ -132,7 +134,7 @@ export class SurveyRepository {
     try {
       deadline = writeTimestamp(survey.endsAt);
     } catch {
-      return { success: false, error: 'invalid_input' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_INPUT };
     }
     return this.requestCreateSurvey(survey, deadline);
   }
@@ -150,10 +152,10 @@ export class SurveyRepository {
         p_description: survey.description, p_deadline: deadline,
         p_questions: survey.questions,
       });
-      if (error) return { success: false, error: 'request_failed' };
+      if (error) return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
       return this.mapCreatedSurveyId(data);
     } catch {
-      return { success: false, error: 'request_failed' };
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 
@@ -166,7 +168,7 @@ export class SurveyRepository {
     try {
       return { success: true, data: readId(data, 'created survey ID') };
     } catch {
-      return { success: false, error: 'invalid_data' };
+      return { success: false, error: REPOSITORY_ERROR.INVALID_DATA };
     }
   }
 
@@ -182,10 +184,10 @@ export class SurveyRepository {
         p_question_id: questionId,
         p_option_ids: [...optionIds],
       });
-      if (error) return { success: false, error: 'request_failed' };
+      if (error) return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
       return { success: true, data: undefined };
     } catch {
-      return { success: false, error: 'request_failed' };
+      return { success: false, error: REPOSITORY_ERROR.REQUEST_FAILED };
     }
   }
 }

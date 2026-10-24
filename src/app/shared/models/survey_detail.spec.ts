@@ -1,5 +1,5 @@
-import { filterSurveysByStatus } from '../../home/survey-list/survey-status';
-import { getEndingSoonSurveys } from '../../home/survey-highlights/ending-soon';
+import { filterSurveysByStatus } from '../../home/survey_list/survey_status';
+import { getEndingSoonSurveys } from '../../home/survey_highlights/ending_soon';
 import type { SurveyDetail, SurveyQuestionDetail } from './survey_detail';
 import type { SurveyOption } from './survey_option';
 
@@ -33,7 +33,10 @@ const EXAMPLE: SurveyDetail = {
   ],
 };
 
-/** Checks the example's option relationships and order, not incoming backend data. */
+/**
+ * Checks the example's option relationships and order, not incoming backend data.
+ * @param question - Example question whose answer relationships and positions are checked.
+ */
 function checkOptions(question: SurveyQuestionDetail): void {
   expect(question.options.length).toBeGreaterThanOrEqual(2);
   question.options.forEach((option: SurveyOption, index: number): void => {
@@ -45,8 +48,8 @@ function checkOptions(question: SurveyQuestionDetail): void {
   });
 }
 
-describe('Complete survey model example', () => {
-  it('represents independent single-choice and multiple-choice questions', () => {
+describe('Complete survey model example', (): void => {
+  it('represents independent single-choice and multiple-choice questions', (): void => {
     expect(EXAMPLE.questions.map((question: SurveyQuestionDetail): boolean => question.allowsMultipleAnswers))
       .toEqual([false, true]);
     expect(EXAMPLE.questions[0].options).not.toBe(EXAMPLE.questions[1].options);
@@ -54,7 +57,7 @@ describe('Complete survey model example', () => {
       .toEqual([2, 3]);
   });
 
-  it('uses unique IDs, correct parent relationships and ordered positions', () => {
+  it('uses unique IDs, correct parent relationships and ordered positions', (): void => {
     expect(EXAMPLE.category.id).toBe(EXAMPLE.categoryId);
     const ids: string[] = [EXAMPLE.id, EXAMPLE.category.id];
     EXAMPLE.questions.forEach((question: SurveyQuestionDetail, index: number): void => {
@@ -67,7 +70,7 @@ describe('Complete survey model example', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('preserves the complete nested data through the existing status and highlight logic', () => {
+  it('preserves the complete nested data through the existing status and highlight logic', (): void => {
     const active: readonly SurveyDetail[] = filterSurveysByStatus([EXAMPLE], 'active', NOW);
     const highlights: readonly SurveyDetail[] = getEndingSoonSurveys(active, NOW);
     expect(highlights[0]).toBe(EXAMPLE);
@@ -76,7 +79,7 @@ describe('Complete survey model example', () => {
     expect(getEndingSoonSurveys([EXAMPLE], NOW + 3_600_000)).toEqual([]);
   });
 
-  it('supports omitted description and deadline without losing questions', () => {
+  it('supports omitted description and deadline without losing questions', (): void => {
     const unlimited: SurveyDetail = { ...EXAMPLE, description: null, endsAt: null };
     expect(filterSurveysByStatus([unlimited], 'active', NOW)[0].questions).toBe(EXAMPLE.questions);
     expect(getEndingSoonSurveys([unlimited], NOW)).toEqual([]);
