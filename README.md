@@ -29,11 +29,11 @@ Die Vorschau zeigt die lokal laufende Anwendung mit Supabase-Daten. Inhalte und 
 
 ## Voraussetzungen
 
-- Node.js und npm in einer mit Angular 22 kompatiblen Version
-- Ein Supabase-Projekt mit den unten aufgeführten Migrationen
+- Node.js **24.15.0**, passend zum GitHub-Actions-Workflow, sowie npm
+- Git zum Klonen des Repositorys und ein eigenes Supabase-Projekt mit den unten aufgeführten Migrationen
 - Internetzugriff für Supabase und die eingebundenen Google Fonts
 
-Die im Projekt hinterlegte Paketmanager-Version ist npm 11.16.0.
+Die im Projekt hinterlegte Paketmanager-Version ist npm 11.16.0. Mit `node --version` und `npm --version` lassen sich die lokal installierten Versionen prüfen. Eine globale Angular-CLI-Installation ist nicht nötig; die npm-Befehle verwenden die Projektversion.
 
 ## Tech Stack
 
@@ -64,7 +64,7 @@ Der Entwicklungsserver öffnet die Anwendung unter `http://localhost:4200/`.
 
 ## Supabase einrichten
 
-In einem neuen Supabase-Projekt die Dateien aus `supabase/migrations` in dieser Reihenfolge im SQL Editor ausführen:
+Im SQL Editor eines neuen Supabase-Projekts mit der Datenbankrolle `postgres` die Dateien aus `supabase/migrations` in dieser Reihenfolge ausführen:
 
 1. `20261019000000_create_survey_tables.sql`
 2. `20261019010000_allow_public_survey_reads.sql`
@@ -72,11 +72,11 @@ In einem neuen Supabase-Projekt die Dateien aus `supabase/migrations` in dieser 
 4. `20261021000000_vote_for_question.sql`
 5. `20261021010000_enable_survey_realtime.sql`
 
-Bereits angewendete Migrationen nicht pauschal erneut ausführen. Danach `supabase/seed.sql` für die drei Kategorien und Beispielumfragen ausführen.
+Die Realtime-Migration setzt die Supabase-Publication `supabase_realtime` voraus und nimmt die drei Tabellen für Umfragen, Fragen und Antwortoptionen auf. Bereits angewendete Migrationen nicht pauschal erneut ausführen. Danach `supabase/seed.sql` für die drei Kategorien und Beispielumfragen ausführen.
 
 Der Seed enthält aktive, bald endende, vergangene und deadlinefreie Beispiele sowie unterschiedliche Stimmenzahlen. Wiederholtes Ausführen erzeugt keine Duplikate und erhält bestehende Stimmen und Deadlines. Relative Deadlines gelten ab der ersten Anlage; ältere Beispiele laufen deshalb mit der Zeit ab und werden durch erneutes Seeding nicht wieder geöffnet.
 
-In `src/environments/environment.ts` die Projekt-URL und den öffentlichen Publishable-Key des eigenen Supabase-Projekts eintragen:
+Die mitgelieferte Konfiguration verweist auf das Demo-Projekt. Für eine eigene Einrichtung vor dem lokalen Start in `src/environments/environment.ts` die Projekt-URL und den öffentlichen Publishable-Key des eigenen Supabase-Projekts eintragen:
 
 ```ts
 supabase: {
