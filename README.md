@@ -4,7 +4,7 @@ Poll-App ist eine responsive Webanwendung zum Erstellen und Beantworten von Umfr
 
 ## Live Demo
 
-Die öffentliche Demo-Adresse wird ergänzt, sobald sie bestätigt ist.
+[Poll-App live öffnen](https://andrewojak1618-debug.github.io/POLL-App/)
 
 ## Preview
 
@@ -147,10 +147,10 @@ Für einen manuellen Realtime-Test dieselbe aktive Testumfrage in zwei getrennte
 Der Workflow `.github/workflows/github_pages.yml` baut und veröffentlicht die App nach einem Push auf `main` oder einem manuellen Start unter **Actions**. Vor dem Build müssen Linter und Tests erfolgreich sein.
 
 1. Im GitHub-Repository **Settings → Pages → Build and deployment → Source → GitHub Actions** auswählen.
-2. Den vorbereiteten Workflow committen und auf `main` pushen.
+2. Änderungen auf `main` pushen oder den Workflow unter **Actions → Deploy Poll-App to GitHub Pages → Run workflow** für `main` starten.
 3. Unter **Actions** den erfolgreichen Lauf prüfen; **Settings → Pages** zeigt anschließend die veröffentlichte Adresse.
 
-Erwartete Adresse ohne eigene Domain: `https://andrewojak1618-debug.github.io/POLL-App/`. Die Veröffentlichung wurde noch nicht live abgenommen.
+Die App ist unter [https://andrewojak1618-debug.github.io/POLL-App/](https://andrewojak1618-debug.github.io/POLL-App/) veröffentlicht. Am 25.10.2026 wurden Home mit Supabase-Daten sowie direkte Aufrufe und Neuladen der Create-Survey- und Detailroute erfolgreich geprüft. Nach der Logo-Korrektur in Commit `323c904` waren Build und Deployment erfolgreich; der Home-Logo-Link wurde live auf das Ziel `/POLL-App/` geprüft. [Deployment-Nachweis](https://github.com/andrewojak1618-debug/POLL-App/actions/runs/40176653202).
 
 Der Workflow verwendet Node.js 24.15.0 und `npm ci`. Der Produktionsbuild erhält `--base-href /POLL-App/`; veröffentlicht wird ausschließlich `dist/poll-app/browser`.
 
