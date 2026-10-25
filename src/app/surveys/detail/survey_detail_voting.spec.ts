@@ -58,7 +58,7 @@ it('renders each question with only its own options in the loaded order', async 
   expect(sections[0].hasAttribute('role')).toBe(false);
   expect(Array.from(root.querySelectorAll<HTMLElement>('.result_fill'), (bar: HTMLElement): string => bar.style.width)).toEqual(['75%', '25%', '100%', '0%']);
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['75 %', '25 %', '100 %', '0 %']);
-  expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | null => item.textContent)).toEqual(['Total votes: 4', 'Total votes: 12']);
+  expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['Total votes: 4', 'Total votes: 12']);
   expect(sections[0].querySelector('h2')?.textContent).toBe('1. When?');
   expect(sections[1].querySelector('h2')?.textContent).toBe('2. Where?');
   expect(Array.from(sections[0].querySelectorAll('.answer_text'), (item: Element): string | null => item.textContent)).toEqual(['A. Monday', 'B. Tuesday']);
@@ -135,8 +135,9 @@ it.each([true, false])('blocks repeated submissions until the vote completes: su
   await fixture.whenStable();
   fixture.detectChanges();
   const root: HTMLElement = fixture.nativeElement;
-  expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | null => item.textContent)).toEqual(['Total votes: 0', 'Total votes: 0']);
+  expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['Total votes: 0', 'Total votes: 0']);
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['0 %', '0 %']);
+  expect(Array.from(root.querySelectorAll<HTMLElement>('.result_fill'), (item: HTMLElement): string => item.style.width)).toEqual(['0%', '0%']);
   const form: HTMLFormElement = root.querySelector('form')!;
   const button: HTMLButtonElement = root.querySelector('.complete_survey')!;
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('input');
@@ -231,7 +232,7 @@ it.each([true, false])('updates displayed results only after a successful own vo
   await fixture.whenStable();
   fixture.detectChanges();
   expect(root.querySelector('.completion_status')?.getAttribute('role')).toBe('status');
-  expect(root.querySelector('.question_vote_total')?.textContent).toBe(success ? 'Total votes: 3' : 'Total votes: 2');
+  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe(success ? 'Total votes: 3' : 'Total votes: 2');
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(success ? ['67 %', '33 %'] : ['50 %', '50 %']);
   expect(root.querySelector<HTMLInputElement>('input')?.checked).toBe(true);
   const vote = vi.mocked(TestBed.inject(SurveyStore).voteForQuestion);

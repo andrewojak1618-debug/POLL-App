@@ -13,7 +13,9 @@
     <div class="detail_columns">
       <div class="voting_panel">
         <div class="survey_status_row">
-          <p class="survey_status" [class.survey_ended]="isEnded()">{{ isEnded() ? 'Survey ended' : 'Published' }}</p>
+          <p class="survey_status" [class.survey_ended]="isEnded()">
+            {{ isEnded() ? 'Survey ended' : 'Published' }}
+          </p>
           <a
             class="mobile_close_link"
             routerLink="/"
@@ -145,7 +147,9 @@
           @for (question of loadedSurvey.questions; track question.id; let index = $index) {
             <section class="question_results" [attr.aria-labelledby]="'result_' + question.id">
               <h3 [id]="'result_' + question.id">{{ index + 1 }}. {{ question.text }}</h3>
-              <p class="question_vote_total visually_hidden">Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}</p>
+              <p class="question_vote_total visually_hidden">
+                Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}
+              </p>
               <ul class="answer_results">
                 @for (option of question.options; track option.id; let answerIndex = $index) {
                   <li>

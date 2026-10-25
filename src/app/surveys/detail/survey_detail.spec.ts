@@ -166,14 +166,14 @@ it.each([null, 0, 2000])('shows ended only at or after an existing deadline: %s'
   await fixture.whenStable();
   fixture.detectChanges();
   const root: HTMLElement = fixture.nativeElement;
-  expect(root.querySelector('.survey_ended')?.textContent ?? null).toBe(endsAt === 0 ? 'Survey ended' : null);
+  expect(root.querySelector('.survey_ended')?.textContent?.trim() ?? null).toBe(endsAt === 0 ? 'Survey ended' : null);
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('input');
   const buttons: NodeListOf<HTMLButtonElement> = root.querySelectorAll('.complete_survey');
   expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.disabled)).toEqual([endsAt === 0, endsAt === 0]);
   expect(Array.from(buttons, (button: HTMLButtonElement): boolean => button.disabled)).toEqual([endsAt === 0]);
   now.set(2000);
   fixture.detectChanges();
-  expect(root.querySelector('.survey_ended')?.textContent ?? null).toBe(endsAt === null ? null : 'Survey ended');
+  expect(root.querySelector('.survey_ended')?.textContent?.trim() ?? null).toBe(endsAt === null ? null : 'Survey ended');
   expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.disabled)).toEqual([endsAt !== null, endsAt !== null]);
   expect(Array.from(buttons, (button: HTMLButtonElement): boolean => button.disabled)).toEqual([endsAt !== null]);
   if (endsAt !== null) {
@@ -230,8 +230,9 @@ it('retries only unsaved questions after a partial failure', async (): Promise<v
     .mockResolvedValueOnce({ success: true, data: undefined });
   const form: HTMLFormElement = harness.routeNativeElement!.querySelector('form')!;
   form.querySelectorAll<HTMLInputElement>('input').forEach((input: HTMLInputElement): void => { input.checked = true; });
-  component.validateSurvey(form, new Event('submit'));
-  component.validateSurvey(form, new Event('submit'));
+  const button: HTMLButtonElement = form.querySelector('.complete_survey')!;
+  button.click();
+  form.dispatchEvent(new Event('submit', { cancelable: true }));
   await harness.fixture.whenStable();
   expect(component.savedQuestionIds()).toEqual(['q1']);
   expect(vote).toHaveBeenCalledTimes(2);

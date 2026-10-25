@@ -44,7 +44,7 @@ it('refreshes the current detail through shared Realtime while retaining selecti
   const input: HTMLInputElement = root.querySelector('input')!;
   input.click();
   expect(root.querySelector('.vote_status')?.textContent).toBe('');
-  expect(root.querySelector('.question_vote_total')?.textContent).toBe('Total votes: 2');
+  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: 2');
   loadSurveys.mockResolvedValue({ success: true, data: [updated] });
   votes.next(updated.questions[0].options[0]);
   await vi.waitFor((): void => {
@@ -52,7 +52,7 @@ it('refreshes the current detail through shared Realtime while retaining selecti
   });
   fixture.detectChanges();
   expect(root.querySelector('.vote_status')?.textContent).toBe('Results updated. Question 1: 3 votes.');
-  expect(root.querySelector('.question_vote_total')?.textContent).toBe('Total votes: 3');
+  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: 3');
   expect(root.querySelector('.answer_percentage')?.textContent).toContain('67 %');
   expect(root.querySelector('.answer_votes')?.textContent).toContain('2 votes');
   expect(root.querySelector('input')).toBe(input);

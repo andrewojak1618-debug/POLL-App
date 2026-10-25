@@ -1,97 +1,187 @@
 # Poll-App
 
-Poll-App ist eine Webanwendung zum Erstellen, Teilen und Beantworten von Umfragen. Sie soll Feedback zu unterschiedlichen Themen sammeln und Ergebnisse übersichtlich darstellen.
+Poll-App ist eine responsive Webanwendung zum Erstellen und Beantworten von Umfragen. Sie verbindet Angular mit Supabase: Umfragen werden dauerhaft gespeichert, nach Status und Kategorie gefiltert und ihre Ergebnisse in Echtzeit aktualisiert.
 
-Das Projekt befindet sich in Entwicklung. Die Home-Seite zeigt aktuell lokale Beispielumfragen; die Ansicht zum Erstellen einer Umfrage enthält die ersten Eingabefelder.
+## Live Demo
 
-## Funktionen
+Die öffentliche Demo-Adresse wird ergänzt, sobald sie bestätigt ist.
 
-- Responsive Home-Seite für Desktop und mobile Geräte
-- Animierte Handy-Illustration mit Berücksichtigung reduzierter Bewegung
-- Übersicht aktiver und vergangener Umfragen
-- Filterung nach sechs Themenkategorien
-- Kombinierbare Status- und Kategoriefilter
-- Highlight-Bereich für Umfragen, die innerhalb der nächsten 24 Stunden enden
-- Regelmäßig aktualisierte zeitabhängige Anzeigen
-- Scrollbare Umfrageliste
-- Hover- und Fokuszustände für interaktive Elemente
-- Navigation zur Ansicht „Create Survey“ und zurück über „Cancel“
+## Preview
 
-## Ablauf
+![Poll-App: Home mit New survey, Highlights und gefilterter Umfragenliste](docs/images/home_preview.png)
 
-Auf der Home-Seite können Umfragen nach Status und Kategorie gefiltert werden. „Ending soon surveys“ hebt aktive Umfragen hervor, deren Endzeit innerhalb der nächsten 24 Stunden liegt.
+Die Vorschau zeigt die lokal laufende Anwendung mit Supabase-Daten. Inhalte und Deadlines ändern sich mit den gespeicherten Umfragen.
 
-Über „New survey“ öffnet sich die Ansicht „Create Survey“. Sie enthält die Umfragedaten, eine erste Frage mit zwei Antwortfeldern und den Cancel-Button. Eingaben lassen sich bearbeiten und leeren. Weitere Antwortmöglichkeiten lassen sich hinzufügen und entfernen. Weitere Fragen lassen sich hinzufügen und entfernen. Die Veröffentlichung folgt in einem weiteren Schritt.
+## Inhaltsverzeichnis
 
-## Technologien
+- [Voraussetzungen](#voraussetzungen)
+- [Tech Stack](#tech-stack)
+- [Quickstart](#quickstart)
+- [Supabase einrichten](#supabase-einrichten)
+- [Bedienung](#bedienung)
+- [Funktionen](#funktionen)
+- [Projektstruktur](#projektstruktur)
+- [Qualität prüfen](#qualität-prüfen)
+- [Deployment](#deployment)
+- [User Stories](#user-stories)
+- [Bekannte Grenzen und Extras](#bekannte-grenzen-und-extras)
+- [Design und Lernziele](#design-und-lernziele)
 
-- Angular
-- TypeScript
-- HTML und SCSS
-- RxJS
-- Supabase für die geplante Datenanbindung
-- Vitest für automatisierte Tests
+## Voraussetzungen
 
-## Aufbau
+- Node.js und npm in einer mit Angular 22 kompatiblen Version
+- Ein Supabase-Projekt mit den unten aufgeführten Migrationen
+- Internetzugriff für Supabase und die eingebundenen Google Fonts
 
-Die Anwendung verwendet Angular-Komponenten und clientseitiges Routing. Die Home-Seite ist unter `/` erreichbar, die Ansicht zum Erstellen einer Umfrage unter `/create-survey`.
+Die im Projekt hinterlegte Paketmanager-Version ist npm 11.16.0.
 
-Die Umfrageübersicht, Kategorieauswahl und Highlight-Karten sind in eigene Komponenten aufgeteilt. Gemeinsam verwendete UI-Elemente liegen unter `src/app/shared/ui`; die Farbvariablen werden zentral in `src/styles/_colors.scss` gepflegt.
+## Tech Stack
 
-## Lokal starten
+| Technologie | Verwendung |
+| --- | --- |
+| Angular 22 und TypeScript | Standalone-Komponenten, Routing, Reactive Forms und Signals |
+| HTML und SCSS | Semantische Struktur, responsive Gestaltung und Fokuszustände |
+| Supabase Postgres | Kategorien, Umfragen, Fragen und Antwortoptionen |
+| Supabase RPC und RLS | Validierte Schreibzugriffe und öffentliche Leserechte |
+| Supabase Realtime und RxJS | Aktualisierung von Umfragen und Ergebnissen |
+| Vitest und ESLint | Automatisierte Tests und Codeprüfung |
 
-Voraussetzung sind Node.js und npm in einer mit Angular 22 kompatiblen Version.
+## Quickstart
 
 ```bash
-npm install
+git clone https://github.com/andrewojak1618-debug/POLL-App.git
+cd POLL-App
+npm ci
+```
+
+Supabase wie im nächsten Abschnitt vorbereiten und die öffentliche Konfiguration eintragen. Anschließend:
+
+```bash
 npm start
 ```
 
-Der Entwicklungsserver startet unter `http://localhost:4200/` und öffnet die Anwendung im Browser.
+Der Entwicklungsserver öffnet die Anwendung unter `http://localhost:4200/`.
+
+## Supabase einrichten
+
+In einem neuen Supabase-Projekt die Dateien aus `supabase/migrations` in dieser Reihenfolge im SQL Editor ausführen:
+
+1. `20261019000000_create_survey_tables.sql`
+2. `20261019010000_allow_public_survey_reads.sql`
+3. `20261019020000_create_survey_with_questions.sql`
+4. `20261021000000_vote_for_question.sql`
+5. `20261021010000_enable_survey_realtime.sql`
+
+Bereits angewendete Migrationen nicht pauschal erneut ausführen. Danach `supabase/seed.sql` für die drei Kategorien und Beispielumfragen ausführen.
+
+Der Seed enthält aktive, bald endende, vergangene und deadlinefreie Beispiele sowie unterschiedliche Stimmenzahlen. Wiederholtes Ausführen erzeugt keine Duplikate und erhält bestehende Stimmen und Deadlines. Relative Deadlines gelten ab der ersten Anlage; ältere Beispiele laufen deshalb mit der Zeit ab und werden durch erneutes Seeding nicht wieder geöffnet.
+
+In `src/environments/environment.ts` die Projekt-URL und den öffentlichen Publishable-Key des eigenen Supabase-Projekts eintragen:
+
+```ts
+supabase: {
+  url: 'https://DEIN_PROJEKT.supabase.co',
+  publishableKey: 'DEIN_OEFFENTLICHER_PUBLISHABLE_KEY',
+}
+```
+
+Der Publishable-Key ist im Browser sichtbar. Auf den vier Umfragetabellen ist RLS aktiv; `anon` und `authenticated` dürfen lesen, aber nicht direkt schreiben. Neue Umfragen und Stimmen werden über `create_survey_with_questions` und `vote_for_question` validiert gespeichert.
+
+Ein `service_role`- oder Secret-Key darf niemals im Frontend oder Repository hinterlegt werden.
+
+## Bedienung
+
+1. Auf Home zwischen **Active survey** und **Past survey** wechseln.
+2. Kategorien für beide Listen unabhängig auswählen; **All Surveys** setzt den jeweiligen Filter zurück.
+3. Über **New survey** das Formular öffnen, Titel und Kategorie wählen und Fragen mit mindestens zwei ausgefüllten Antworten anlegen. Beschreibung und Enddatum sind optional.
+4. Pro Frage Einfach- oder Mehrfachauswahl festlegen. **Publish** speichert die Umfrage und führt zurück zu Home; **Cancel** verlässt die Ansicht ohne Speicherung.
+5. Eine Umfrage öffnen und pro Frage Antworten auswählen. **Complete survey** prüft die Auswahl und speichert die Antworten pro Frage. Nach vollständigem Erfolg öffnet sich Home.
+6. Ergebnisse erscheinen auf Desktop rechts neben der Abstimmung. Mobil lassen sie sich über **Show results** und **Close results** ein- und ausblenden.
+
+Bei einem Speicherfehler bleibt die Auswahl erhalten. Ein erneuter Versuch überspringt in der aktuellen Detailansicht bereits erfolgreich gespeicherte Fragen.
+
+## Funktionen
+
+| Funktion | Verhalten |
+| --- | --- |
+| Active / Past | Ohne Deadline aktiv; ab Erreichen der Deadline vergangen |
+| Ending soon | Aktive Umfragen mit Deadline innerhalb der nächsten 24 Stunden, frühestes Ende zuerst |
+| Kategorien | Team Activities, Gaming & Entertainment, Health & Wellness |
+| Dynamisches Formular | Mehrere Fragen und Antwortoptionen, Pflichtfeldprüfung einschließlich Leerzeichen |
+| Optionale Deadline | Ende des gewählten Tages in Europe/Berlin einschließlich Sommer-/Winterzeit |
+| Abstimmung | Radio-Buttons oder Checkboxen je Frage, gemeinsame Abgabe |
+| Ergebnisse | Stimmen und gerundete Prozentwerte; bei null Stimmen 0 % |
+| Live-Aktualisierung | Neue Umfragen und Stimmen werden über einen gemeinsam verwendeten Realtime-Kanal aktualisiert |
+| Vergangene Umfragen | Inhalte und Ergebnisse bleiben lesbar; Antwortauswahl und Abgabe sind gesperrt |
+| Bedienbarkeit | Tastaturfokus, verknüpfte Fehlermeldungen, Statusmeldungen und reduzierte Bewegung |
+
+## Projektstruktur
+
+```text
+public/                  Logos, Icons und Illustrationen
+src/app/home/            Übersicht, Kategorien und Highlights
+src/app/create_survey/   Formular und Umwandlung der Eingaben
+src/app/surveys/detail/  Abstimmung und Ergebnisanzeige
+src/app/shared/          Datenzugriff, Store, Modelle und gemeinsame UI
+src/environments/       Öffentliche Supabase-Konfiguration
+src/styles/             Gemeinsame Gestaltung
+supabase/migrations/    Tabellen, Rechte, RPCs und Realtime
+supabase/seed.sql        Kategorien und Beispieldaten
+docs/images/            README-Vorschau
+```
 
 ## Qualität prüfen
 
-Automatisierte Tests ausführen:
-
 ```bash
+npm run lint
 npm test -- --watch=false
-```
-
-Produktions-Build erstellen:
-
-```bash
 npm run build
 ```
 
-Die Build-Dateien werden unter `dist/poll-app` abgelegt.
+Prüfstand vom 25.10.2026: 231 Tests in 36 Dateien erfolgreich, Linter ohne Fehler oder Warnungen. Der Produktionsbuild ist erfolgreich, meldet aber Größenwarnungen für das Initial-Bundle (603,87 kB bei 500 kB Warnbudget) und die Detail-Styles (7,87 kB bei 4 kB Warnbudget).
 
-## Supabase-Zugriff
+Für einen manuellen Realtime-Test dieselbe aktive Testumfrage in zwei getrennten Browserfenstern öffnen. Im ersten Fenster Antworten auswählen und über **Complete survey** speichern. Im zweiten Fenster müssen Stimmen, Prozentwerte und Balken ohne Neuladen aktualisiert werden. Dieser Test speichert echte Stimmen im verwendeten Supabase-Projekt.
 
-Die Anwendung verwendet einen öffentlichen Supabase-Publishable-Key. Er ist im Browser sichtbar und kein Geheimnis. Der Datenzugriff wird durch Row Level Security (RLS) und die zugehörigen Policies geregelt. Für die Umfragetabellen ist RLS aktiviert; die benötigten Zugriffsregeln werden in einem weiteren Schritt ergänzt.
+## Deployment
 
-Ein `service_role`-Key umgeht RLS und darf niemals im Frontend oder im Repository hinterlegt werden.
+Der Workflow `.github/workflows/github_pages.yml` baut und veröffentlicht die App nach einem Push auf `main` oder einem manuellen Start unter **Actions**. Vor dem Build müssen Linter und Tests erfolgreich sein.
 
-## Projektstatus
+1. Im GitHub-Repository **Settings → Pages → Build and deployment → Source → GitHub Actions** auswählen.
+2. Den vorbereiteten Workflow committen und auf `main` pushen.
+3. Unter **Actions** den erfolgreichen Lauf prüfen; **Settings → Pages** zeigt anschließend die veröffentlichte Adresse.
 
-Die Anwendung wird schrittweise erweitert. Die folgenden Punkte zeigen den aktuellen Funktionsumfang und die nächsten Schritte.
+Erwartete Adresse ohne eigene Domain: `https://andrewojak1618-debug.github.io/POLL-App/`. Die Veröffentlichung wurde noch nicht live abgenommen.
 
-- [x] Home-Seite nach Figma gestalten
-- [x] Mobile Home-Ansicht umsetzen
-- [x] Illustration, Animationen und Hover-Zustände ergänzen
-- [x] Aktive und vergangene Beispielumfragen filtern
-- [x] Kategorieauswahl funktional machen
-- [x] Innerhalb von 24 Stunden endende Umfragen hervorheben
-- [x] Create-Survey-Grundlayout und Cancel-Navigation umsetzen
-- [x] Formularfelder und erste Frage ergänzen
-- [x] Antwortmöglichkeiten dynamisch hinzufügen und entfernen
-- [x] Mehrere Fragen hinzufügen und entfernen
-- [ ] Mehrfachauswahl je Frage ergänzen
-- [ ] Eingaben validieren und Veröffentlichung umsetzen
-- [ ] Umfragen dauerhaft in Supabase speichern und laden
-- [ ] Einzelansicht und Teilnahme an Umfragen umsetzen
-- [ ] Ergebnisse darstellen
-- [ ] Vollständigen Ablauf auf Desktop und Mobilgeräten prüfen
+Der Workflow verwendet Node.js 24.15.0 und `npm ci`. Der Produktionsbuild erhält `--base-href /POLL-App/`; veröffentlicht wird ausschließlich `dist/poll-app/browser`.
 
-## Design und Assets
+Für direkte Aufrufe und Neuladen von `/POLL-App/create-survey` und `/POLL-App/surveys/:id` wird die gebaute `index.html` als `404.html` mit ausgeliefert. GitHub Pages liefert bei unbekannten Dateipfaden diese App-Datei aus; Angular übernimmt die ursprüngliche Route. Assets werden durch die Basisadresse aus `/POLL-App/` geladen. Der HTTP-Status des ersten direkten Aufrufs bleibt dabei 404, obwohl die App im Browser die richtige Ansicht darstellt. Das ist ein Pages-Fallback, kein serverseitiger 200-Rewrite.
 
-Die Gestaltung orientiert sich am [Figma-Design „Poll-App-Design“](https://www.figma.com/design/yjKdGp9Z612bnRp2iayYe7/Poll-App-Design). Logo, Illustrationen und Icons sind als Projektdateien eingebunden. Für die Typografie werden Nerko One, Mulish und Nokora verwendet.
+Der normale lokale Start und `npm run build` behalten die Basisadresse `/`. Die öffentliche Supabase-Konfiguration wird aus `src/environments/environment.ts` eingebunden; ein Secret- oder service_role-Key wird nicht benötigt.
+
+## User Stories
+
+| User Story | Umsetzung |
+| --- | --- |
+| 1 – Dringende Umfragen | Sortierte Highlights oberhalb der Liste |
+| 2 – Übersicht | Home, Active/Past, Kategorie, Titel, Deadline und getrennte Filter |
+| 3 – Erstellen | New survey, eigenes Formular, Pflichtfelder und Speicherung |
+| 4 – Details | Fragen, Optionen, Zusatzinformationen, Live-Ergebnisse und lesbare Past Surveys |
+| 5 – Teilnehmen | Antwortauswahl, Complete survey und gleichzeitige dynamische Auswertung |
+
+## Bekannte Grenzen und Extras
+
+- Keine Anmeldung und keine Begrenzung auf eine Stimme pro Person.
+- Antworten werden pro Frage gespeichert. Die gesamte Abgabe mehrerer Fragen ist keine gemeinsame Datenbanktransaktion.
+- Das Überspringen bereits gespeicherter Fragen beim erneuten Versuch gilt innerhalb der aktuellen Detailansicht; es ist keine dauerhafte Wiederholungssperre nach Neuladen.
+- Vereinbart nach Figma: **New survey** ist ein Navigationslink zur eigenen Route `/create-survey`; die Erstellung erfolgt in einer eigenen Ansicht.
+- Vereinbart nach Figma: Antwortklicks wählen aus, **Complete survey** speichert. Diese Auslegung ist bei der Abgabe gegenüber dem ursprünglichen Checklistenwortlaut zu berücksichtigen.
+
+### Ergänzungen zum ursprünglichen Checklistenwortlaut
+
+Mehrere Fragen pro Umfrage und Mehrfachauswahl je Frage gehören zum vereinbarten Figma-Umfang. Die animierte Home-Illustration mit Unterstützung für `prefers-reduced-motion` ergänzt die Gestaltung. Weitere Extras werden hier nur ergänzt, wenn sie tatsächlich umgesetzt und vereinbart sind.
+
+## Design und Lernziele
+
+Die Gestaltung folgt dem [Figma-Design Poll-App](https://www.figma.com/design/yjKdGp9Z612bnRp2iayYe7/Poll-App-Design). Logos, Illustrationen und Icons sind als Projektdateien eingebunden. Die verwendeten Schriften sind Nerko One, Mulish und Nokora.
+
+Das Projekt vertieft Angular-Routing, Reactive Forms, Signals, getrennte Verantwortlichkeiten von Repository und Store, Supabase-Rechte, Realtime sowie responsive und zugängliche Bedienung.

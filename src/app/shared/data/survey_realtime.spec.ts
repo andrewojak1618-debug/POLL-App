@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { vi } from 'vitest';
 
 import { SUPABASE_CLIENT } from './supabase_client';
@@ -32,7 +34,10 @@ describe('SurveyRealtime inserts', (): void => {
     callbacks.clear();
     vi.clearAllMocks();
     removeChannel.mockResolvedValue('ok');
-    TestBed.configureTestingModule({ imports: [RealtimeConsumer], providers: [{ provide: SUPABASE_CLIENT,
+    TestBed.configureTestingModule({ imports: [RealtimeConsumer], providers: [provideRouter([
+      { path: '', component: RealtimeConsumer },
+      { path: 'surveys/:id', component: RealtimeConsumer },
+    ]), { provide: SUPABASE_CLIENT,
       useValue: { channel: createChannel, removeChannel } }] });
     realtime = TestBed.inject(SurveyRealtime);
   });
@@ -170,6 +175,19 @@ describe('SurveyRealtime inserts', (): void => {
     expect(removeChannel).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps one channel while navigating repeatedly between routes', async (): Promise<void> => {
+    const harness = await RouterTestingHarness.create();
+    for (const path of ['/', '/surveys/first', '/', '/surveys/second', '/']) {
+      const consumer = await harness.navigateByUrl(path, RealtimeConsumer);
+      expect(consumer.realtime).toBe(realtime);
+      expect(createChannel).toHaveBeenCalledExactlyOnceWith('survey_changes');
+      expect(subscribe).toHaveBeenCalledTimes(1);
+      expect(on).toHaveBeenCalledTimes(4);
+      expect(removeChannel).not.toHaveBeenCalled();
+    }
+    TestBed.resetTestingModule();
+    expect(removeChannel).toHaveBeenCalledExactlyOnceWith(channel);
+  });
   it('shares one channel across component creation, destruction and recreation', async (): Promise<void> => {
 
     const first = TestBed.createComponent(RealtimeConsumer);
