@@ -56,7 +56,7 @@
 
 .answer_label input:checked {
   border-color: var(--color-primary-orange);
-  background: var(--color-primary-orange) url('/icons/check.svg') center / 10px 9px no-repeat;
+  background: var(--color-primary-orange) url('../../../../public/icons/check.svg') center / 10px 9px no-repeat;
 }
 
 .answer_label input:disabled {

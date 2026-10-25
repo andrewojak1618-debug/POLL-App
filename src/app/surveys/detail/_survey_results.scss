@@ -128,7 +128,7 @@
     width: 15px;
     height: 8px;
     background: currentColor;
-    mask: url('/icons/arrow_drop_down.svg') center / contain no-repeat;
+    mask: url('../../../../public/icons/arrow_drop_down.svg') center / contain no-repeat;
   }
 
   .results_toggle[aria-expanded='true'] .results_toggle_icon::before {
