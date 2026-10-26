@@ -35,6 +35,7 @@ export class SurveyRealtime {
 
   readonly inserts: Observable<SurveyInsertTable> = this.insertEvents.asObservable();
 
+  /** Updated option, or null when a deletion or unknown change requires a full refresh. */
   readonly voteUpdates: Observable<SurveyOption | null> = this.voteEvents.asObservable();
 
   /** Releases the shared channel when its application injector is destroyed. */
@@ -61,9 +62,22 @@ export class SurveyRealtime {
       });
     }
     this.subscribeToVotes(this.channel);
+    this.subscribeToDeletes(this.channel);
     this.channel.subscribe((status: ChannelStatus): void => {
       if (!this.destroyed) this.statusState.set(status);
     });
+  }
+
+  /** Requests an authoritative refresh after deleting a survey or its children.
+   * @param channel - Shared channel configured before subscription.
+   */
+  private subscribeToDeletes(channel: RealtimeChannel): void {
+    const tables: readonly SurveyInsertTable[] = ['surveys', 'survey_questions', 'survey_options'];
+    for (const table of tables) {
+      channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table }, (): void => {
+        this.voteEvents.next(null);
+      });
+    }
   }
 
   /**

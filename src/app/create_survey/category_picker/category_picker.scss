@@ -1,4 +1,9 @@
-@use '../survey_fields';
+@use '../field_feedback';
+
+button:focus-visible {
+  outline: 2px solid var(--color-primary-orange);
+  outline-offset: 3px;
+}
 
 :host {
   display: block;
@@ -108,4 +113,13 @@
 
 .selected_category:empty {
   margin: 0;
+}
+
+.field_feedback {
+  min-height: 22px;
+}
+
+.field_feedback .field_error {
+  margin: 0;
+  line-height: 22px;
 }

@@ -13,7 +13,7 @@ import type { RepositoryResult } from '../../shared/data/repository_result';
 import type { SurveyDetail as SurveyData, SurveyQuestionDetail } from '../../shared/models/survey_detail';
 import type { SurveyOption } from '../../shared/models/survey_option';
 import { SurveyResults } from './survey_results';
-import { surveyAnswerLetter } from './survey_answer_letter';
+import { SurveyAnswerQuestion } from './survey_answer_question';
 import { PrimaryButton } from '../../shared/ui/primary_button/primary_button';
 
 const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('de-DE', {
@@ -25,12 +25,11 @@ type SurveyResult = RepositoryResult<SurveyData | null>;
 
 @Component({
   selector: 'app-survey-detail',
-  imports: [RouterLink, PrimaryButton, SurveyResults],
+  imports: [RouterLink, PrimaryButton, SurveyResults, SurveyAnswerQuestion],
   templateUrl: './survey_detail.html',
   styleUrl: './survey_detail.scss',
 })
 export class SurveyDetail {
-  readonly answerLetter: (index: number) => string = surveyAnswerLetter;
 
   private readonly router: Router = inject(Router);
   readonly isCompleting: WritableSignal<boolean> = signal(false);
@@ -166,9 +165,8 @@ export class SurveyDetail {
     const result: SurveyResult | null = this.loadResult();
     if (!result?.success || !result.data) return null;
     const stored: readonly SurveyData[] = this.store.surveys();
-    const live: SurveyData | undefined = stored !== this.initialStoreData()
-      ? stored.find((survey: SurveyData): boolean => survey.id === result.data?.id) : undefined;
-    return live ?? result.data;
+    if (stored === this.initialStoreData()) return result.data;
+    return stored.find((survey: SurveyData): boolean => survey.id === result.data?.id) ?? null;
   });
   /** Sums selected answers per question; multiple answers are not unique participants. */
   readonly questionVoteTotals: Signal<ReadonlyMap<string, number>> = computed((): ReadonlyMap<string, number> =>
@@ -219,7 +217,7 @@ export class SurveyDetail {
       this.savedQuestionIds.set([]);
       this.clearSelectionFeedback();
       this.announcementState.set('');
-    } else if (counts !== this.previousResultCounts && !untracked(this.isVoting)) {
+    } else if (survey && counts !== this.previousResultCounts && !untracked(this.isVoting)) {
       this.announcementState.set(this.describeResults(survey));
     }
     this.previousSurveyId = survey?.id ?? null;

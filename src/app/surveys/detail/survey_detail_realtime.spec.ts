@@ -59,6 +59,14 @@ it.each([0, 1])('refreshes Realtime results from %s initial votes while retainin
   expect(root.querySelector('input')).toBe(input);
   expect(input.checked).toBe(true);
   expect(voteForQuestion).not.toHaveBeenCalled();
+  loadSurveys.mockResolvedValue({ success: true, data: [] });
+  votes.next(null);
+  await vi.waitFor((): void => { expect(TestBed.inject(SurveyStore).surveys()).toEqual([]); });
+  fixture.detectChanges();
+  expect(fixture.componentInstance.survey()).toBeNull();
+  expect(root.querySelector('input')).toBeNull();
+  expect(root.textContent).toContain('Survey not found.');
+  expect(root.querySelector('.vote_status')?.textContent).toBe('');
   params.next(convertToParamMap({ id: 'other' }));
   fixture.detectChanges();
   expect(fixture.componentInstance.survey()).toBeNull();

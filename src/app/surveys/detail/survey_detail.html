@@ -45,72 +45,16 @@
         >
           <div class="survey_questions">
             @for (question of loadedSurvey.questions; track question.id; let index = $index) {
-              <section class="survey_question" [attr.aria-labelledby]="'question_' + question.id">
-                <h2 [id]="'question_' + question.id">
-                  <span class="question_number">{{ index + 1 }}.</span>&ngsp;<span>{{
-                    question.text
-                  }}</span>
-                </h2>
-
-                <fieldset
-                  class="answer_group"
-                  [attr.aria-describedby]="
-                    'answer_requirement_' +
-                    question.id +
-                    (invalidQuestionIds().includes(question.id)
-                      ? ' selection_error_' + question.id
-                      : '')
-                  "
-                >
-                  <legend class="visually_hidden">{{ index + 1 }}. {{ question.text }}</legend>
-                  <p
-                    class="answer_requirement"
-                    [class.visually_hidden]="!question.allowsMultipleAnswers"
-                    [id]="'answer_requirement_' + question.id"
-                  >
-                    {{
-                      question.allowsMultipleAnswers
-                        ? 'More than one answers are possible.'
-                        : 'Choose one answer.'
-                    }}
-                  </p>
-                  <ul class="answer_options">
-                    @for (option of question.options; track option.id; let answerIndex = $index) {
-                      <li>
-                        <label class="answer_label">
-                          <input
-                            [type]="question.allowsMultipleAnswers ? 'checkbox' : 'radio'"
-                            [name]="'question_' + question.id"
-                            [value]="option.id"
-                            [required]="!question.allowsMultipleAnswers"
-                            [disabled]="
-                              isEnded() ||
-                              isCompleting() ||
-                              savedQuestionIds().includes(question.id)
-                            "
-                          />
-                          <span class="answer_text"
-                            ><span class="option_letter">{{ answerLetter(answerIndex) }}.</span
-                            >&ngsp;<span>{{ option.text }}</span></span
-                          >
-                        </label>
-                      </li>
-                    }
-                  </ul>
-                </fieldset>
-                @if (savedQuestionIds().includes(question.id)) {
-                  <p>Answer saved.</p>
-                }
-                @if (invalidQuestionIds().includes(question.id)) {
-                  <p class="vote_error" [id]="'selection_error_' + question.id">
-                    {{
-                      question.allowsMultipleAnswers
-                        ? 'Please choose at least one answer.'
-                        : 'Please choose one answer.'
-                    }}
-                  </p>
-                }
-              </section>
+              <section
+                appSurveyAnswerQuestion
+                class="survey_question"
+                [question]="question"
+                [index]="index"
+                [saved]="savedQuestionIds().includes(question.id)"
+                [invalid]="invalidQuestionIds().includes(question.id)"
+                [disabled]="isEnded() || isCompleting() || savedQuestionIds().includes(question.id)"
+                [attr.aria-labelledby]="'question_' + question.id"
+              ></section>
             }
           </div>
           <div class="survey_completion">
@@ -154,7 +98,7 @@
             : 'Could not load this survey. Please try reloading the page.'
         }}
       </p>
-    } @else if (result.data === null) {
+    } @else if (!survey()) {
       <p class="detail_feedback" role="status">Survey not found. It may no longer be available.</p>
     }
   } @else {

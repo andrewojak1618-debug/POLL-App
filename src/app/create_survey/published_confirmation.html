@@ -1,0 +1,8 @@
+<dialog #dialog class="published_dialog" aria-labelledby="published_message" (close)="closed.emit()">
+  <p id="published_message">Your survey is now<br />published<span class="mobile_punctuation">!</span></p>
+  <form method="dialog">
+    <button type="submit" class="close_published" aria-label="Close confirmation and open survey" autofocus>
+      <span class="close_published_icon" aria-hidden="true"></span>
+    </button>
+  </form>
+</dialog>

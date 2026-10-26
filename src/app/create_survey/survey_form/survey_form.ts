@@ -47,11 +47,23 @@ export class SurveyForm {
     }
     const value: SurveyFormValue = this.form.getRawValue();
     try {
-      this.validatedSurvey.emit(toCreateSurveyData(value, resolveSurveyDeadline(value.endDate)));
+      this.emitValidSurvey(value);
     } catch {
       this.conversionError.set('Enter a valid end date.');
     }
   }
+  /** Rejects expired deadlines immediately before emitting creation data.
+   * @param value - Complete form snapshot whose inputs remain unchanged on failure.
+   */
+  private emitValidSurvey(value: SurveyFormValue): void {
+    const deadline: number | null = resolveSurveyDeadline(value.endDate);
+    if (deadline !== null && deadline <= Date.now()) {
+      this.conversionError.set('Choose today or a future end date.');
+      return;
+    }
+    this.validatedSurvey.emit(toCreateSurveyData(value, deadline));
+  }
+
   /** Restores the initial empty form after confirmed persistence. */
   resetAfterSave(): void {
     this.questions.clear();

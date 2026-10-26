@@ -1,4 +1,4 @@
-@use '../survey_fields';
+@use '../survey_fields' with ($include_textarea: false);
 @use 'multiple_answers_checkbox';
 :host { display: block; min-width: 0; max-width: 429px; }
 fieldset {
@@ -75,14 +75,6 @@ fieldset {
   color: var(--color-primary-orange);
 }
 
-.visually_hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
 
 @media (max-width: 600px) { .answers_heading { flex-wrap: wrap; } }
 @media (max-width: 600px) {

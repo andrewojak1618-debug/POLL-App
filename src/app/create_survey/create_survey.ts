@@ -7,10 +7,11 @@ import type { RepositoryResult } from '../shared/data/repository_result';
 import { SurveyStore } from '../shared/data/survey_store';
 import { PrimaryButton } from '../shared/ui/primary_button/primary_button';
 import { SurveyForm } from './survey_form/survey_form';
+import { PublishedConfirmation } from './published_confirmation';
 
 @Component({
   selector: 'app-create-survey',
-  imports: [RouterLink, SurveyForm, PrimaryButton],
+  imports: [RouterLink, SurveyForm, PrimaryButton, PublishedConfirmation],
   templateUrl: './create_survey.html',
   styleUrl: './create_survey.scss',
 })
@@ -20,7 +21,7 @@ export class CreateSurvey implements AfterViewInit {
   readonly store: SurveyStore = inject(SurveyStore);
   readonly saveResult: WritableSignal<RepositoryResult<string> | null> = signal<RepositoryResult<string> | null>(null);
 
-  private readonly publishedDialog: Signal<ElementRef<HTMLDialogElement>> = viewChild.required<ElementRef<HTMLDialogElement>>('publishedDialog');
+  private readonly publishedDialog: Signal<PublishedConfirmation> = viewChild.required(PublishedConfirmation);
 
   /** Persists content and shows confirmation only after confirmed success.
    * @param survey - Validated creation data from the form.
@@ -32,7 +33,7 @@ export class CreateSurvey implements AfterViewInit {
     this.saveResult.set(result);
     if (!result.success) return;
     this.surveyForm().resetAfterSave();
-    this.publishedDialog().nativeElement.showModal();
+    this.publishedDialog().show();
   }
 
   /** Opens the saved survey after the user dismisses the confirmation. */

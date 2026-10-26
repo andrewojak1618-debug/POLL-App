@@ -63,3 +63,24 @@ describe('Creation form mapping', (): void => {
     expect(toCreateSurveyData({ ...value, description: '  ' }, deadline).description).toBeNull();
   });
 });
+it.each([
+  ['2026-10-25', false], ['2026-10-26', true], ['2026-10-27', true], ['', true],
+])('validates end date %s at submission without losing inputs', (date: string, accepted: boolean): void => {
+  const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-26T10:00:00Z'));
+  try {
+    const form: SurveyForm = TestBed.runInInjectionContext((): SurveyForm => new SurveyForm());
+    form.fields.name.setValue('Meeting');
+    form.fields.category.setValue('category-id');
+    form.fields.endDate.setValue(date);
+    form.questions.at(0).controls.question.setValue('When?');
+    form.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
+    const emit = vi.spyOn(form.validatedSurvey, 'emit');
+    form.submit();
+    expect(emit).toHaveBeenCalledTimes(accepted ? 1 : 0);
+    expect(form.conversionError()).toBe(accepted ? null : 'Choose today or a future end date.');
+    expect(form.fields.name.value).toBe('Meeting');
+    expect(form.fields.endDate.value).toBe(date);
+  } finally {
+    clock.mockRestore();
+  }
+});

@@ -1,5 +1,5 @@
 import { Component, ElementRef, input, output, viewChildren } from '@angular/core';
-import type { Signal } from '@angular/core';
+import type { InputSignal, OutputEmitterRef, Signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { showFieldError } from '../show_field_error';
@@ -12,13 +12,13 @@ import { SurveyQuestion } from './survey_question_model';
   styleUrl: './survey_question.scss',
 })
 export class SurveyQuestionComponent {
-  readonly showError = showFieldError;
+  readonly showError: typeof showFieldError = showFieldError;
   private readonly answerInputs: Signal<readonly ElementRef<HTMLInputElement>[]> =
     viewChildren<ElementRef<HTMLInputElement>>('answerInput');
 
-  readonly question = input.required<SurveyQuestion>();
-  readonly number = input.required<number>();
-  readonly remove = output<void>();
+  readonly question: InputSignal<SurveyQuestion> = input.required<SurveyQuestion>();
+  readonly number: InputSignal<number> = input.required<number>();
+  readonly remove: OutputEmitterRef<void> = output<void>();
 
   /** Removes or clears an answer and focuses the nearest remaining input.
    * @param index - Position of the answer to remove or clear.

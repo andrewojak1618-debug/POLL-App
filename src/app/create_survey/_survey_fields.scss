@@ -1,3 +1,6 @@
+@use 'field_feedback';
+$include_textarea: true !default;
+
 label {
   display: block;
   margin-bottom: 4px;
@@ -13,8 +16,7 @@ label span {
   gap: 8px;
 }
 
-input:not([type='checkbox']),
-textarea {
+@mixin text_control {
   width: 100%;
   min-width: 0;
   height: 38px;
@@ -27,9 +29,21 @@ textarea {
   font-size: 16px;
 }
 
-textarea {
-  min-height: 108px;
-  resize: vertical;
+input:not([type='checkbox']) {
+  @include text_control;
+}
+
+@if $include_textarea {
+  textarea {
+    @include text_control;
+  }
+}
+
+@if $include_textarea {
+  textarea {
+    min-height: 108px;
+    resize: vertical;
+  }
 }
 
 .description_row {
@@ -55,53 +69,46 @@ textarea {
 }
 
 input[type='checkbox']:focus-visible,
-select:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--color-primary-orange);
   outline-offset: 3px;
 }
 
-
-textarea::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-textarea::-webkit-scrollbar-track {
-  margin-block: 10px 0;
-  border-radius: 10px;
-  background: var(--color-scrollbar-track);
-}
-
-textarea::-webkit-scrollbar-thumb {
-  min-height: 24px;
-  border-radius: 10px;
-  background: var(--color-primary-purple);
-  box-shadow: 3px 3px 3.2px rgb(0 0 0 / 25%);
-}
-
-textarea::-webkit-scrollbar-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-textarea::-webkit-scrollbar-corner {
-  background: var(--color-page-background);
-}
-
-@supports not selector(::-webkit-scrollbar) {
-  textarea {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-primary-purple) var(--color-scrollbar-track);
+@if $include_textarea {
+  textarea::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
-}
-.field_error {
-  margin: 6px 0 12px;
-  color: var(--color-primary-orange);
-  font-size: 14px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
+
+  textarea::-webkit-scrollbar-track {
+    margin-block: 10px 0;
+    border-radius: 10px;
+    background: var(--color-scrollbar-track);
+  }
+
+  textarea::-webkit-scrollbar-thumb {
+    min-height: 24px;
+    border-radius: 10px;
+    background: var(--color-primary-purple);
+    box-shadow: 3px 3px 3.2px rgb(0 0 0 / 25%);
+  }
+
+  textarea::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  textarea::-webkit-scrollbar-corner {
+    background: var(--color-page-background);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    textarea {
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-primary-purple) var(--color-scrollbar-track);
+    }
+  }
 }
 
 input::placeholder,
@@ -110,17 +117,8 @@ textarea::placeholder {
   opacity: 0.75;
 }
 
-.field_feedback {
-  min-height: 22px;
-}
-
-.field_feedback .field_error {
-  margin: 0;
-  line-height: 22px;
-}
-
-input:not([type="checkbox"]):hover,
-input:not([type="checkbox"]):focus,
+input:not([type='checkbox']):hover,
+input:not([type='checkbox']):focus,
 textarea:hover,
 textarea:focus {
   background: #fee9d4;
@@ -148,7 +146,7 @@ textarea:focus {
   opacity: 0;
 }
 
-.text_field input[aria-invalid="true"]:not(:focus)::placeholder {
+.text_field input[aria-invalid='true']:not(:focus)::placeholder {
   color: transparent;
 }
 

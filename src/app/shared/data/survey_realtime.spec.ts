@@ -51,7 +51,18 @@ describe('SurveyRealtime inserts', (): void => {
       expect(on).toHaveBeenCalledWith('postgres_changes', { event: 'INSERT', schema: 'public', table }, expect.any(Function));
     }
     expect(on).toHaveBeenCalledWith('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'survey_options' }, expect.any(Function));
-    expect(on).toHaveBeenCalledTimes(4);
+    expect(on).toHaveBeenCalledTimes(7);
+  });
+
+  it('requests a full refresh for deletions from every survey table', (): void => {
+    const refresh = vi.fn();
+    realtime.voteUpdates.subscribe(refresh);
+    realtime.start();
+    for (const table of ['surveys', 'survey_questions', 'survey_options']) {
+      callbacks.get('DELETE:' + table)!();
+    }
+    expect(refresh).toHaveBeenCalledTimes(3);
+    expect(refresh).toHaveBeenLastCalledWith(null);
   });
 
   it('forwards insert notifications from each table', (): void => {
@@ -182,7 +193,7 @@ describe('SurveyRealtime inserts', (): void => {
       expect(consumer.realtime).toBe(realtime);
       expect(createChannel).toHaveBeenCalledExactlyOnceWith('survey_changes');
       expect(subscribe).toHaveBeenCalledTimes(1);
-      expect(on).toHaveBeenCalledTimes(4);
+      expect(on).toHaveBeenCalledTimes(7);
       expect(removeChannel).not.toHaveBeenCalled();
     }
     TestBed.resetTestingModule();
@@ -196,7 +207,7 @@ describe('SurveyRealtime inserts', (): void => {
     expect(first.componentInstance.realtime).toBe(realtime);
     expect(createChannel).toHaveBeenCalledTimes(1);
     expect(subscribe).toHaveBeenCalledTimes(1);
-    expect(on).toHaveBeenCalledTimes(4);
+    expect(on).toHaveBeenCalledTimes(7);
     first.destroy();
     second.destroy();
     expect(removeChannel).not.toHaveBeenCalled();
