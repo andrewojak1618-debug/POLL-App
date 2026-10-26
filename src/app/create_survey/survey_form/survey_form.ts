@@ -1,5 +1,8 @@
 import { Component, input, output, signal, viewChild } from '@angular/core';
+import type { InputSignal, OutputEmitterRef, Signal, WritableSignal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
+
+import { CategoryPicker } from '../category_picker/category_picker';
 
 import { resolveSurveyDeadline } from '../survey_form_deadline';
 import { toCreateSurveyData } from '../survey_form_mapping';
@@ -10,26 +13,28 @@ import { SurveyQuestion } from '../survey_question/survey_question_model';
 import { SurveyQuestionComponent } from '../survey_question/survey_question';
 import type { SurveyCategoryData } from '../../shared/models/survey_category_data';
 
+type SurveyFields = Record<'name' | 'endDate' | 'category' | 'description', FormControl<string>>;
+
 @Component({
   selector: 'app-survey-form',
-  imports: [ReactiveFormsModule, SurveyQuestionComponent],
+  imports: [ReactiveFormsModule, SurveyQuestionComponent, CategoryPicker],
   templateUrl: './survey_form.html',
   styleUrl: './survey_form.scss',
 })
 export class SurveyForm {
-  private readonly formDirective = viewChild.required(FormGroupDirective);
-  readonly showError = showFieldError;
-  readonly validatedSurvey = output<CreateSurveyData>();
-  readonly conversionError = signal<string | null>(null);
-  readonly categories = input<readonly SurveyCategoryData[]>([]);
-  readonly fields = {
+  private readonly formDirective: Signal<FormGroupDirective> = viewChild.required(FormGroupDirective);
+  readonly showError: typeof showFieldError = showFieldError;
+  readonly validatedSurvey: OutputEmitterRef<CreateSurveyData> = output<CreateSurveyData>();
+  readonly conversionError: WritableSignal<string | null> = signal<string | null>(null);
+  readonly categories: InputSignal<readonly SurveyCategoryData[]> = input<readonly SurveyCategoryData[]>([]);
+  readonly fields: SurveyFields = {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)] }),
     endDate: new FormControl('', { nonNullable: true }),
     category: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     description: new FormControl('', { nonNullable: true }),
   };
-  readonly questions = new FormArray<SurveyQuestion>([new SurveyQuestion()]);
-  readonly form = new FormGroup({ ...this.fields, questions: this.questions });
+  readonly questions: FormArray<SurveyQuestion> = new FormArray<SurveyQuestion>([new SurveyQuestion()]);
+  readonly form: FormGroup<SurveyFields & { questions: FormArray<SurveyQuestion> }> = new FormGroup({ ...this.fields, questions: this.questions });
 
   /**
    * Marks invalid fields as touched; otherwise emits creation data or exposes a date conversion error.
@@ -55,9 +60,11 @@ export class SurveyForm {
     this.conversionError.set(null);
   }
 
-  /** Creates independent question controls so adding a question cannot change existing answers. */
+  /** Adds a question with three empty answers while preserving existing question controls. */
   addQuestion(): void {
-    this.questions.push(new SurveyQuestion());
+    const question: SurveyQuestion = new SurveyQuestion();
+    question.addAnswer();
+    this.questions.push(question);
   }
 
   /**

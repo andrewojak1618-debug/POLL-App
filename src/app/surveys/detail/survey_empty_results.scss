@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  // Figma: 855px content height minus 678px results height.
+  margin-top: 177px;
+  min-height: 678px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h2 {
+  margin: 0 0 24px;
+  font-family: 'Nerko One', cursive;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 39px;
+  color: var(--color-button-text);
+}
+
+h2 span {
+  color: var(--color-primary-orange);
+}
+
+p {
+  margin: 0;
+}
+
+.empty_message {
+  margin-top: 146px;
+  text-align: center;
+}
+
+@media (max-width: 800px) {
+  :host {
+    margin-top: 0;
+    min-height: 0;
+  }
+}

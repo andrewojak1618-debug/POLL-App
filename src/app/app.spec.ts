@@ -2,14 +2,28 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 
+import { EMPTY } from 'rxjs';
+import type { Provider } from '@angular/core';
+import { SurveyRealtime } from './shared/data/survey_realtime';
+import { SurveyRepository } from './shared/data/survey_repository';
+
 import { App } from './app';
 import { routes } from './app.routes';
+
+const DATA_PROVIDERS: Provider[] = [
+  { provide: SurveyRealtime, useValue: { inserts: EMPTY, voteUpdates: EMPTY, start: (): void => {} } },
+  { provide: SurveyRepository, useValue: {
+    loadSurveys: async (): Promise<unknown> => ({ success: true, data: [] }),
+    loadCategories: async (): Promise<unknown> => ({ success: true, data: [] }),
+    loadSurveyById: async (): Promise<unknown> => ({ success: true, data: null }),
+  } },
+];
 
 describe('App navigation', (): void => {
   beforeEach(async (): Promise<void> => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes)],
+      providers: [provideRouter(routes), ...DATA_PROVIDERS],
     }).compileComponents();
   });
 
@@ -68,7 +82,7 @@ describe('App navigation', (): void => {
 });
 
 it('focuses the Home heading after returning from a direct detail entry', async (): Promise<void> => {
-  TestBed.configureTestingModule({ providers: [provideRouter(routes)] });
+  TestBed.configureTestingModule({ providers: [provideRouter(routes), ...DATA_PROVIDERS] });
   const harness: RouterTestingHarness = await RouterTestingHarness.create('/surveys/invalid');
   harness.routeNativeElement?.querySelector<HTMLAnchorElement>('.home_link')?.click();
   await harness.fixture.whenStable();

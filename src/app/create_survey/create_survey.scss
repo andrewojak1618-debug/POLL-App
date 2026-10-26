@@ -1,3 +1,4 @@
+@use 'published_dialog';
 :host {
   display: block;
   background: var(--color-page-background);
@@ -95,29 +96,33 @@ h1:focus-visible {
 
 @media (max-width: 600px) {
   .create_survey {
-    padding: 24px 16px;
+    padding: 0 0 48px;
   }
 
   .survey_shell {
     min-height: calc(100dvh - 48px);
-    padding: 24px 16px;
+    padding: 40px 16px;
     border-top-right-radius: 60px;
   }
 
   .survey_header {
+    position: relative;
     align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 16px;
+    gap: 0;
+    padding-right: 18px;
   }
 
   h1 {
-    font-size: 40px;
-    line-height: 44px;
+    max-width: 294px;
+    font-size: 56px;
+    line-height: 42px;
   }
 
   .survey_form_surface {
-    min-height: 400px;
-    border-top-right-radius: 48px;
+    width: min(340px, 100%);
+    min-height: 0;
+    margin-inline: auto;
+    border-top-right-radius: 80px;
   }
 }
 
@@ -184,3 +189,35 @@ h1:focus-visible {
   outline-offset: 3px;
 }
 .save_feedback:empty { margin: 0; }
+
+.mobile_create_header { display: none; }
+
+@media (max-width: 600px) {
+  .mobile_create_header {
+    display: block;
+    padding: 48px 16px 54px;
+  }
+
+  .mobile_create_header img { display: block; }
+
+  .survey_heading { gap: 16px; }
+
+  .cancel_button {
+    position: absolute;
+    top: 0;
+    right: 18px;
+    width: 39px;
+    min-height: 32px;
+    padding: 8px 12px;
+  }
+
+  .cancel_label { display: none; }
+
+  .survey_actions { justify-content: center; }
+}
+
+@media (max-width: 600px) {
+  .survey_form_surface {
+    max-width: 340px;
+  }
+}

@@ -54,8 +54,7 @@ textarea {
   background: var(--color-delete-button-hover);
 }
 
-input:focus-visible,
-textarea:focus-visible,
+input[type='checkbox']:focus-visible,
 select:focus-visible,
 button:focus-visible {
   outline: 2px solid var(--color-primary-orange);
@@ -109,4 +108,59 @@ input::placeholder,
 textarea::placeholder {
   color: var(--color-primary-purple);
   opacity: 0.75;
+}
+
+.field_feedback {
+  min-height: 22px;
+}
+
+.field_feedback .field_error {
+  margin: 0;
+  line-height: 22px;
+}
+
+input:not([type="checkbox"]):hover,
+input:not([type="checkbox"]):focus,
+textarea:hover,
+textarea:focus {
+  background: #fee9d4;
+  outline: none;
+}
+
+.text_field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.text_field .inline_error {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--color-primary-purple);
+  font-size: 16px;
+  line-height: 22px;
+  pointer-events: none;
+}
+
+.text_field:focus-within .inline_error {
+  opacity: 0;
+}
+
+.text_field input[aria-invalid="true"]:not(:focus)::placeholder {
+  color: transparent;
+}
+
+@media (max-width: 600px) {
+  .input_row {
+    position: relative;
+    display: block;
+  }
+
+  .input_row > .clear_button {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 2px);
+  }
 }

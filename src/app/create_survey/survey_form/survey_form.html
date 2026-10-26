@@ -1,46 +1,79 @@
-<form id="create_survey_form" class="survey_form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+<form
+  id="create_survey_form"
+  class="survey_form"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  novalidate
+>
   <div class="survey_details">
     <div class="survey_basics">
-      <label for="survey_name">Survey name <span>(required)</span></label>
+      <label for="survey_name">Survey name</label>
       <div class="input_row">
-        <input #nameInput id="survey_name" formControlName="name" required [attr.aria-invalid]="showError(fields.name) ? true : null" [attr.aria-describedby]="showError(fields.name) ? 'survey_name_error' : null" />
-        <button type="button" class="clear_button" aria-label="Clear survey name" (click)="clear(fields.name, nameInput)">
+        <div class="text_field">
+          <input
+            #nameInput
+            (keydown.enter)="$event.preventDefault(); nameInput.blur()"
+            id="survey_name"
+            formControlName="name"
+            required
+            [attr.aria-invalid]="showError(fields.name) ? true : null"
+            [attr.aria-describedby]="showError(fields.name) ? 'survey_name_error' : null"
+          />
+          @if (showError(fields.name)) {
+            <p id="survey_name_error" class="field_error inline_error" role="status">
+              Enter a survey name.
+            </p>
+          }
+        </div>
+        <button
+          type="button"
+          class="clear_button"
+          aria-label="Clear survey name"
+          (click)="clear(fields.name, nameInput)"
+        >
           <img src="icons/delete.svg" width="18" height="20" alt="" />
         </button>
       </div>
-      @if (showError(fields.name)) {
-        <p id="survey_name_error" class="field_error" role="status">Enter a survey name. Spaces alone are not enough.</p>
-      }
       <div class="date_category">
         <div>
           <label for="survey_end_date">Set end date <span>(optional)</span></label>
           <div class="input_row">
-            <input #dateInput id="survey_end_date" type="date" formControlName="endDate" [attr.aria-invalid]="conversionError() ? true : null" [attr.aria-describedby]="conversionError() ? 'survey_end_date_error' : null" />
-            <button type="button" class="clear_button" aria-label="Clear end date" (click)="clear(fields.endDate, dateInput)">
+            <input
+              #dateInput
+              id="survey_end_date"
+              type="date"
+              formControlName="endDate"
+              [attr.aria-invalid]="conversionError() ? true : null"
+              [attr.aria-describedby]="conversionError() ? 'survey_end_date_error' : null"
+            />
+            <button
+              type="button"
+              class="clear_button"
+              aria-label="Clear end date"
+              (click)="clear(fields.endDate, dateInput)"
+            >
               <img src="icons/delete.svg" width="18" height="20" alt="" />
             </button>
           </div>
         </div>
-        <div class="category_field">
-        <label class="category_label" for="survey_category">Choose category</label>
-        <select id="survey_category" [attr.aria-describedby]="showError(fields.category) ? 'category_requirement survey_category_error' : 'category_requirement'" [attr.aria-invalid]="showError(fields.category) ? true : null" formControlName="category" required>
-          <option value="" disabled>Choose category</option>
-          @for (category of categories(); track category.id) {
-            <option [value]="category.id">{{ category.name }}</option>
-          }
-        </select>
-        <span id="category_requirement" class="category_requirement">(required)</span>
-        @if (showError(fields.category)) {
-          <p id="survey_category_error" class="field_error" role="status">Choose a category.</p>
-        }
-        </div>
+        <app-category-picker [categories]="categories()" [control]="fields.category" [invalid]="showError(fields.category)" />
       </div>
     </div>
     <div>
       <label for="survey_description">Describing text <span>(optional)</span></label>
       <div class="input_row description_row">
-        <textarea #descriptionInput id="survey_description" formControlName="description" rows="4"></textarea>
-        <button type="button" class="clear_button" aria-label="Clear description" (click)="clear(fields.description, descriptionInput)">
+        <textarea
+          #descriptionInput
+          id="survey_description"
+          formControlName="description"
+          rows="4"
+        ></textarea>
+        <button
+          type="button"
+          class="clear_button"
+          aria-label="Clear description"
+          (click)="clear(fields.description, descriptionInput)"
+        >
           <img src="icons/delete.svg" width="18" height="20" alt="" />
         </button>
       </div>
@@ -49,11 +82,17 @@
 
   <div class="question_section" [class.multiple_questions]="questions.length > 1">
     @for (question of questions.controls; track question; let index = $index) {
-      <app-survey-question [question]="question" [number]="index + 1" (remove)="removeQuestion(index)" />
+      <app-survey-question
+        [question]="question"
+        [number]="index + 1"
+        (remove)="removeQuestion(index)"
+      />
     }
     <button type="button" class="add_question" (click)="addQuestion()">
       Add next question
-      <span class="add_question_icon"><img src="icons/add_circle_white.svg" width="16" height="16" alt="" /></span>
+      <span class="add_question_icon"
+        ><img src="icons/add_circle_white.svg" width="16" height="16" alt=""
+      /></span>
     </button>
   </div>
   @if (conversionError()) {

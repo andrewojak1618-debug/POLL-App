@@ -1,0 +1,47 @@
+.multiple_answers { cursor: pointer; }
+
+input[type='checkbox'] {
+  appearance: none;
+  position: relative;
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  padding: 3px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='checkbox']::before {
+  content: '';
+  display: block;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid #fff;
+  border-radius: 3px;
+}
+
+@media (hover: hover) {
+  .multiple_answers:hover input:not(:checked):not(:disabled)::before {
+    background: rgb(255 207 161 / 60%);
+  }
+}
+
+input[type='checkbox']:checked::before {
+  background: var(--color-primary-orange);
+}
+
+input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  inset: 6px 5px;
+  background: var(--color-primary-purple);
+  mask: url('../../../../public/icons/check.svg') center / contain no-repeat;
+}
+
+@media (forced-colors: active) {
+  input[type='checkbox'] { appearance: auto; }
+  input[type='checkbox']::before,
+  input[type='checkbox']::after { display: none; }
+}

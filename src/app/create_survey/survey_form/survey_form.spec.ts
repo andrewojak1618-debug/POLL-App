@@ -51,12 +51,12 @@ describe('Survey name', (): void => {
     expect(survey.fields.name.invalid).toBe(true);
   });
 
-  it('marks the title as required visibly and semantically', async (): Promise<void> => {
+  it('keeps native required semantics without a visible marker', async (): Promise<void> => {
     await TestBed.configureTestingModule({ imports: [SurveyForm] }).compileComponents();
     const fixture = TestBed.createComponent(SurveyForm);
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('label[for="survey_name"]')?.textContent).toContain('(required)');
+    expect(element.querySelector('label[for="survey_name"]')?.textContent).not.toContain('*');
     expect(element.querySelector<HTMLInputElement>('#survey_name')?.required).toBe(true);
   });
 });
@@ -74,16 +74,16 @@ describe('Survey category', (): void => {
     expect(survey.form.invalid).toBe(true);
   });
 
-  it('keeps the required hint visible when a category is selected', async (): Promise<void> => {
+  it('keeps the category required without a visible marker', async (): Promise<void> => {
     await TestBed.configureTestingModule({ imports: [SurveyForm] }).compileComponents();
     const fixture = TestBed.createComponent(SurveyForm);
     fixture.componentInstance.fields.category.setValue('category-id');
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
-    const select: HTMLSelectElement | null = element.querySelector('#survey_category');
-    expect(select?.required).toBe(true);
-    expect(select?.getAttribute('aria-describedby')).toBe('category_requirement');
-    expect(element.querySelector('#category_requirement')?.textContent).toBe('(required)');
+    const trigger: HTMLButtonElement | null = element.querySelector('#survey_category');
+    expect(fixture.componentInstance.fields.category.valid).toBe(true);
+    expect(trigger?.getAttribute('aria-describedby')).toBe('selected_category');
+    expect(element.querySelector('#category_requirement')).toBeNull();
   });
 });
 describe('Validation feedback', (): void => {
@@ -113,7 +113,7 @@ describe('Validation feedback', (): void => {
     expect(root.querySelector('#survey_category_error')?.textContent).toContain('Choose a category');
     expect(root.querySelector('#question_error_2')?.textContent).toContain('Enter a question');
     expect(root.querySelector('#answer_error_2_1')?.textContent).toContain('Enter answer B');
-    expect(root.querySelectorAll('.field_error').length).toBe(8);
+    expect(root.querySelectorAll('.field_error').length).toBe(9);
     expect(fixture.componentInstance.form.invalid).toBe(true);
   });
 });

@@ -1,0 +1,20 @@
+<div class="category_picker" (focusout)="onFocusOut($event)" (keydown.escape)="close(trigger); $event.stopPropagation()">
+  <button #trigger id="survey_category" class="category_trigger" type="button"
+    aria-label="Choose category" [attr.aria-expanded]="isOpen()" aria-controls="create_category_options"
+    [attr.aria-invalid]="invalid() ? true : null"
+    [attr.aria-describedby]="invalid() ? 'survey_category_error' : (control().value ? 'selected_category' : null)"
+    [class.has_selection]="control().value !== ''" [class.is_open]="isOpen()" (click)="toggle()">
+    <span>Choose category</span><span class="category_arrow" aria-hidden="true"></span>
+  </button>
+  <div id="create_category_options" class="category_options" role="group" aria-label="Categories" [hidden]="!isOpen()">
+    @for (category of categories(); track category.id) {
+      <button type="button" [attr.aria-pressed]="control().value === category.id" (click)="select(category.id, trigger)">{{ category.name }}</button>
+    }
+  </div>
+  <p id="selected_category" class="selected_category" role="status">{{ control().value ? selectedName() : '' }}</p>
+  <div class="field_feedback">
+    @if (invalid()) {
+      <p id="survey_category_error" class="field_error" role="status">Choose a category.</p>
+    }
+  </div>
+</div>

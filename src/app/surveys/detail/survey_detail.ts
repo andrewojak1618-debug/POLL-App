@@ -12,6 +12,8 @@ import { REPOSITORY_ERROR } from '../../shared/data/repository_result';
 import type { RepositoryResult } from '../../shared/data/repository_result';
 import type { SurveyDetail as SurveyData, SurveyQuestionDetail } from '../../shared/models/survey_detail';
 import type { SurveyOption } from '../../shared/models/survey_option';
+import { SurveyResults } from './survey_results';
+import { surveyAnswerLetter } from './survey_answer_letter';
 import { PrimaryButton } from '../../shared/ui/primary_button/primary_button';
 
 const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('de-DE', {
@@ -19,30 +21,16 @@ const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('de-DE', {
 });
 
 
-/** Selected answer IDs belonging to one question. */
-export interface QuestionSubmission {
-  readonly questionId: string;
-  readonly optionIds: readonly string[];
-}
-
 type SurveyResult = RepositoryResult<SurveyData | null>;
 
 @Component({
   selector: 'app-survey-detail',
-  imports: [RouterLink, PrimaryButton],
+  imports: [RouterLink, PrimaryButton, SurveyResults],
   templateUrl: './survey_detail.html',
   styleUrl: './survey_detail.scss',
 })
 export class SurveyDetail {
-  /** Returns spreadsheet-style answer letters, continuing with AA after Z. */
-  answerLetter(index: number): string {
-    const alphabet: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let label: string = '';
-    for (let position: number = index + 1; position > 0; position = Math.floor((position - 1) / alphabet.length)) {
-      label = alphabet[(position - 1) % alphabet.length] + label;
-    }
-    return label;
-  }
+  readonly answerLetter: (index: number) => string = surveyAnswerLetter;
 
   private readonly router: Router = inject(Router);
   readonly isCompleting: WritableSignal<boolean> = signal(false);
@@ -50,7 +38,10 @@ export class SurveyDetail {
   readonly invalidQuestionIds: WritableSignal<readonly string[]> = signal([]);
   readonly selectionFeedback: WritableSignal<string> = signal('');
 
-  /** Validates all remaining questions before starting the sequential vote submission. */
+  /** Validates all remaining questions before starting submission.
+   * @param form - Form containing all answer controls.
+   * @param event - Submission whose native navigation is prevented.
+   */
   validateSurvey(form: HTMLFormElement, event: Event): void {
     event.preventDefault();
     if (!this.canSubmitVote() || this.isVoting() || this.isCompleting()) return;
@@ -65,23 +56,41 @@ export class SurveyDetail {
     if (!invalid.length) void this.completeSurvey(values);
   }
 
-  /** Locks the entire sequence, including the gaps between individual repository calls. */
+  /** Locks the complete sequence, including gaps between repository calls.
+   * @param values - Validated answers to save.
+   */
   private async completeSurvey(values: FormData): Promise<void> {
     const sourceId: string | null = this.surveyId();
-    const questions: readonly SurveyQuestionDetail[] = this.survey()?.questions ?? [];
     this.isCompleting.set(true);
     try {
-      for (const question of questions) {
-        if (this.surveyId() !== sourceId) return;
-        if (this.savedQuestionIds().includes(question.id)) continue;
-        if (!this.canSubmitVote() || !await this.saveSelectedQuestion(question, values, sourceId)) return;
-      }
+      if (!await this.submitRemainingQuestions(values, sourceId)) return;
       this.selectionFeedback.set('Your survey answers have been saved.');
       await this.router.navigate(['/'], { info: 'focus_home_heading' });
-    } finally { this.isCompleting.set(false); }
+    } finally {
+      this.isCompleting.set(false);
+    }
   }
 
-  /** Remembers only acknowledged writes; retries skip these questions within this view. */
+  /** Saves only questions that were not acknowledged on an earlier attempt.
+   * @param values - Selected answers from the complete form.
+   * @param sourceId - Route identity to protect against navigation during submission.
+   * @returns Whether all remaining questions were saved.
+   */
+  private async submitRemainingQuestions(values: FormData, sourceId: string | null): Promise<boolean> {
+    for (const question of this.survey()?.questions ?? []) {
+      if (this.surveyId() !== sourceId) return false;
+      if (this.savedQuestionIds().includes(question.id)) continue;
+      if (!this.canSubmitVote() || !await this.saveSelectedQuestion(question, values, sourceId)) return false;
+    }
+    return true;
+  }
+
+  /** Remembers only acknowledged writes so retries skip saved questions.
+   * @param question - Question being saved.
+   * @param values - Selected answers from the form.
+   * @param sourceId - Route identity at the start of submission.
+   * @returns Whether the question was saved on the original route.
+   */
   private async saveSelectedQuestion(question: SurveyQuestionDetail, values: FormData, sourceId: string | null): Promise<boolean> {
     const optionIds: string[] = values.getAll('question_' + question.id).filter(
       (value: FormDataEntryValue): value is string => typeof value === 'string');
@@ -93,7 +102,11 @@ export class SurveyDetail {
     return result.success;
   }
 
-  /** Validates cardinality and membership within the question's own answer options. */
+  /** Validates cardinality and membership within a question's answer options.
+   * @param question - Question defining valid options and selection count.
+   * @param values - Answers selected in the form.
+   * @returns Whether the selected answers satisfy the question.
+   */
   private hasValidSelection(question: SurveyQuestionDetail, values: FormData): boolean {
     const selected: FormDataEntryValue[] = values.getAll('question_' + question.id);
     return selected.length > 0 && (question.allowsMultipleAnswers || selected.length === 1)
@@ -108,7 +121,7 @@ export class SurveyDetail {
   }
 
   private readonly host: ElementRef<HTMLElement> = inject(ElementRef);
-  private readonly heading = viewChild<ElementRef<HTMLHeadingElement>>('surveyHeading');
+  private readonly heading: Signal<ElementRef<HTMLHeadingElement> | undefined> = viewChild<ElementRef<HTMLHeadingElement>>('surveyHeading');
   private focusedSurveyId: string | null | undefined = undefined;
   /** Registers route-heading focus without interrupting a user who already moved focus. */
   private registerInitialFocus(): void {
@@ -128,9 +141,6 @@ export class SurveyDetail {
   private readonly repository: SurveyRepository = inject(SurveyRepository);
   private readonly route: ActivatedRoute = inject(ActivatedRoute);
   private readonly initialStoreData: WritableSignal<readonly SurveyData[]> = signal([]);
-  private readonly votedSurvey: WritableSignal<{ source: SurveyData; data: SurveyData } | null> = signal(null);
-  private readonly failedQuestionState: WritableSignal<string | null> = signal(null);
-  readonly failedQuestionId: Signal<string | null> = this.failedQuestionState.asReadonly();
   private readonly announcementState: WritableSignal<string> = signal('');
   readonly announcement: Signal<string> = this.announcementState.asReadonly();
   readonly isVoting: Signal<boolean> = this.store.isVoting;
@@ -158,9 +168,7 @@ export class SurveyDetail {
     const stored: readonly SurveyData[] = this.store.surveys();
     const live: SurveyData | undefined = stored !== this.initialStoreData()
       ? stored.find((survey: SurveyData): boolean => survey.id === result.data?.id) : undefined;
-    if (live) return live;
-    const updated: { source: SurveyData; data: SurveyData } | null = this.votedSurvey();
-    return updated?.source === result.data ? updated.data : result.data;
+    return live ?? result.data;
   });
   /** Sums selected answers per question; multiple answers are not unique participants. */
   readonly questionVoteTotals: Signal<ReadonlyMap<string, number>> = computed((): ReadonlyMap<string, number> =>
@@ -168,6 +176,9 @@ export class SurveyDetail {
       question.id,
       question.options.reduce((total: number, option: SurveyOption): number => total + option.voteCount, 0),
     ])));
+  /** Shows the empty state until any question receives its first vote. */
+  readonly hasResults: Signal<boolean> = computed((): boolean =>
+    Array.from(this.questionVoteTotals().values()).some((total: number): boolean => total > 0));
   /** Derives each answer's rounded share of its question's selected answers. */
   readonly answerPercentages: Signal<ReadonlyMap<string, number>> = computed((): ReadonlyMap<string, number> =>
     new Map((this.survey()?.questions ?? []).flatMap((question: SurveyQuestionDetail): [string, number][] => {
@@ -189,65 +200,32 @@ export class SurveyDetail {
     };
   });
 
-  /** Loads shared data on direct entry and announces external vote changes without repeating own-vote feedback. */
+  private previousResultCounts: string = '';
+  private previousSurveyId: string | null = null;
+
+  /** Loads shared data and registers focus and result announcements. */
   constructor() {
     this.registerInitialFocus();
     void this.store.load();
-    let previous: string = '';
-    let previousId: string | null = null;
-    effect((): void => {
-      const survey: SurveyData | null = this.survey();
-      const counts: string = JSON.stringify(survey?.questions.map((question: SurveyQuestionDetail): number[] =>
-        question.options.map((option: SurveyOption): number => option.voteCount)) ?? []);
-      if (survey?.id !== previousId) {
-        this.savedQuestionIds.set([]);
-        this.clearSelectionFeedback();
-        this.announcementState.set('');
-        this.failedQuestionState.set(null);
-      }
-      else if (counts !== previous && !untracked(this.isVoting) && survey !== untracked(this.votedSurvey)?.data) {
-        this.announcementState.set(this.describeResults(survey));
-      }
-      previousId = survey?.id ?? null;
-      previous = counts;
-    });
+    effect((): void => this.updateResultAnnouncement());
   }
 
-  /**
-   * Submits the selected answers for one question through the shared store.
-   * @param question - Question whose answer selection is submitted.
-   * @param form - Form containing only this question's answer controls.
-   * @param event - Native submission whose page navigation is prevented.
-   * @returns Completion after the store has processed the vote.
-   */
-  async submitQuestion(question: SurveyQuestionDetail, form: HTMLFormElement, event: Event): Promise<void> {
-    event.preventDefault();
-    if (this.isVoting()) return;
-    const values: FormDataEntryValue[] = new FormData(form).getAll('question_' + question.id);
-    const optionIds: string[] = values.filter((value: FormDataEntryValue): value is string => typeof value === 'string');
-    if (optionIds.length === 0 || (!question.allowsMultipleAnswers && optionIds.length !== 1)) return;
-    if (!optionIds.every((id: string): boolean => question.options.some((option: SurveyOption): boolean => option.id === id))) return;
-    const submission: QuestionSubmission = { questionId: question.id, optionIds };
-    await this.saveVote(submission);
+  /** Announces external changes while keeping route and own-vote feedback separate. */
+  private updateResultAnnouncement(): void {
+    const survey: SurveyData | null = this.survey();
+    const counts: string = JSON.stringify(survey?.questions.map((question: SurveyQuestionDetail): number[] =>
+      question.options.map((option: SurveyOption): number => option.voteCount)) ?? []);
+    if ((survey?.id ?? null) !== this.previousSurveyId) {
+      this.savedQuestionIds.set([]);
+      this.clearSelectionFeedback();
+      this.announcementState.set('');
+    } else if (counts !== this.previousResultCounts && !untracked(this.isVoting)) {
+      this.announcementState.set(this.describeResults(survey));
+    }
+    this.previousSurveyId = survey?.id ?? null;
+    this.previousResultCounts = counts;
   }
-  /**
-   * Uses the store's refreshed server snapshot after a successful vote.
-   * @param submission - Selected answers belonging to one question.
-   * @returns Completion without replacing data from a different route load.
-   */
-  private async saveVote(submission: QuestionSubmission): Promise<void> {
-    if (!this.canSubmitVote()) return;
-    const source: SurveyResult | null = this.loadResult();
-    this.failedQuestionState.set(null);
-    this.announcementState.set('Submitting your vote…');
-    const result: RepositoryResult<void> = await this.store.voteForQuestion(submission.questionId, submission.optionIds);
-    if (this.loadResult() !== source) return;
-    this.failedQuestionState.set(result.success ? null : submission.questionId);
-    this.announcementState.set(result.success ? 'Your vote has been saved.' : 'Your vote could not be saved. Please try again.');
-    if (!result.success || !source?.success || !source.data) return;
-    const updated: SurveyData | undefined = this.store.surveys().find((survey: SurveyData): boolean => survey.id === source.data?.id);
-    if (updated) this.votedSurvey.set({ source: source.data, data: updated });
-  }
+
   /**
    * Summarizes updated totals without reading the entire answer list.
    * @param survey - Currently displayed survey, if available.
@@ -268,7 +246,6 @@ export class SurveyDetail {
     const survey: SurveyData | null = this.survey();
     if (!survey) return false;
     if (survey.endsAt !== null && survey.endsAt <= Date.now()) {
-      this.failedQuestionState.set(null);
       this.announcementState.set('Survey ended. Voting is no longer possible.');
       return false;
     }

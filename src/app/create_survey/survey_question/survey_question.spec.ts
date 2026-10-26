@@ -14,7 +14,7 @@ describe('Survey questions', (): void => {
     survey.questions.at(1).addAnswer();
     expect(survey.questions.at(0).answers.getRawValue()).toEqual(['Monday', '']);
     expect(survey.questions.at(0).controls.multipleAnswers.value).toBe(false);
-    expect(survey.questions.at(1).answers.length).toBe(3);
+    expect(survey.questions.at(1).answers.length).toBe(4);
   });
 
   it('removes an additional question while preserving other question content', (): void => {
@@ -106,7 +106,7 @@ describe('Question validation', (): void => {
     survey.addQuestion();
     expect(survey.form.invalid).toBe(true);
     survey.questions.at(1).controls.question.setValue('Where?');
-    survey.questions.at(1).answers.setValue(['Office', 'Online']);
+    survey.questions.at(1).answers.setValue(['Office', 'Online', 'Outside']);
     expect(survey.form.valid).toBe(true);
     survey.questions.at(1).answers.at(1).setValue('  ');
     expect(survey.form.invalid).toBe(true);
@@ -122,13 +122,13 @@ describe('Required question fields', (): void => {
     const groups: NodeListOf<HTMLFieldSetElement> = root.querySelectorAll('fieldset');
     expect(groups.length).toBe(2);
     groups.forEach((group: HTMLFieldSetElement): void => {
-      expect(group.querySelector('.question_heading label')?.textContent).toContain('(required)');
-      expect(group.querySelector('.answers_heading')?.textContent).toContain('Answers (required)');
+      expect(group.querySelector('.question_heading label')?.textContent).not.toContain('*');
+      expect(group.querySelector('.answers_heading')?.textContent).toContain('Answers');
       group.querySelectorAll<HTMLInputElement>('input:not([type="checkbox"])').forEach((input: HTMLInputElement): void => {
         expect(input.required).toBe(true);
       });
       expect(group.querySelector<HTMLInputElement>('input[type="checkbox"]')?.required).toBe(false);
     });
-    expect(root.querySelectorAll('.answer_row input').length).toBe(5);
+    expect(root.querySelectorAll('.answer_row input').length).toBe(6);
   });
 });

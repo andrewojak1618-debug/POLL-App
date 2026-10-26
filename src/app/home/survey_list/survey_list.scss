@@ -65,14 +65,6 @@
   padding-block: 24px;
 }
 
-@media (min-width: 901px) {
-  .survey_grid {
-    max-height: 422px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-primary-orange) transparent;
-  }
-}
 
 .survey_grid:focus-visible {
   outline: 2px solid var(--color-primary-orange);

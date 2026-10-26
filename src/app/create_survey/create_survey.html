@@ -1,3 +1,8 @@
+<header class="mobile_create_header">
+  <a routerLink="/" [info]="'focus_new_survey'" aria-label="Back to Home">
+    <img src="images/dark_logo.svg" width="119" height="50" alt="" />
+  </a>
+</header>
 <main class="create_survey" aria-labelledby="create_survey_title">
   <section class="survey_shell">
     <header class="survey_header">
@@ -5,8 +10,8 @@
         <span class="draft_badge">Draft</span>
         <h1 #surveyHeading id="create_survey_title" tabindex="-1">Create new survey</h1>
       </div>
-      <a class="cancel_button" routerLink="/" [info]="'focus_new_survey'">
-        Cancel
+      <a class="cancel_button" aria-label="Cancel" routerLink="/" [info]="'focus_new_survey'">
+        <span class="cancel_label">Cancel</span>
         <img src="icons/cancel.svg" width="14" height="14" alt="" />
       </a>
     </header>
@@ -14,7 +19,7 @@
       @if (store.isCreating()) {Publishing survey…}
       @else if (store.isLoading()) {Loading survey data and categories…}
       @else if (saveResult(); as result) {
-        {{ result.success ? 'Survey published.' : 'Could not publish the survey. Your entries have been kept. Please try again.' }}
+        {{ result.success ? '' : 'Could not publish the survey. Your entries have been kept. Please try again.' }}
       }
     </p>
     @if (!store.isCreating() && !store.isLoading() && store.error() && !saveResult()) {
@@ -23,7 +28,16 @@
     }
     <app-survey-form class="survey_form_surface" [categories]="store.categories()" (validatedSurvey)="saveSurvey($event)" />
     <div class="survey_actions">
-      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish</button>
+      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish<img buttonIcon src="icons/check.svg" width="18" height="16" alt="" /></button>
     </div>
   </section>
 </main>
+
+<dialog #publishedDialog class="published_dialog" aria-labelledby="published_message" (close)="openPublishedSurvey()">
+  <p id="published_message">Your survey is now<br />published<span class="mobile_punctuation">!</span></p>
+  <form method="dialog">
+    <button type="submit" class="close_published" aria-label="Close confirmation and open survey" autofocus>
+      <span class="close_published_icon" aria-hidden="true"></span>
+    </button>
+  </form>
+</dialog>

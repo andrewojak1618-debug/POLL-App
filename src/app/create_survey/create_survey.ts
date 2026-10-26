@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
-import type { AfterViewInit, Signal } from '@angular/core';
+import type { AfterViewInit, Signal, WritableSignal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import type { CreateSurveyData } from '../shared/models/create_survey_data';
@@ -16,21 +16,30 @@ import { SurveyForm } from './survey_form/survey_form';
 })
 export class CreateSurvey implements AfterViewInit {
   private readonly router: Router = inject(Router);
-  private readonly surveyForm = viewChild.required(SurveyForm);
+  private readonly surveyForm: Signal<SurveyForm> = viewChild.required(SurveyForm);
   readonly store: SurveyStore = inject(SurveyStore);
-  readonly saveResult = signal<RepositoryResult<string> | null>(null);
+  readonly saveResult: WritableSignal<RepositoryResult<string> | null> = signal<RepositoryResult<string> | null>(null);
 
-  /** Persists content, then resets and returns home only after confirmed success.
+  private readonly publishedDialog: Signal<ElementRef<HTMLDialogElement>> = viewChild.required<ElementRef<HTMLDialogElement>>('publishedDialog');
+
+  /** Persists content and shows confirmation only after confirmed success.
    * @param survey - Validated creation data from the form.
    */
   async saveSurvey(survey: CreateSurveyData): Promise<void> {
-    if (this.store.isCreating() || this.store.isLoading()) return;
+    if (this.store.isCreating() || this.store.isLoading() || this.saveResult()?.success) return;
     this.saveResult.set(null);
     const result: RepositoryResult<string> = await this.store.createSurvey(survey);
     this.saveResult.set(result);
     if (!result.success) return;
     this.surveyForm().resetAfterSave();
-    await this.router.navigate(['/'], { info: 'focus_home_heading' });
+    this.publishedDialog().nativeElement.showModal();
+  }
+
+  /** Opens the saved survey after the user dismisses the confirmation. */
+  async openPublishedSurvey(): Promise<void> {
+    const result: RepositoryResult<string> | null = this.saveResult();
+    if (!result?.success) return;
+    await this.router.navigate(['/surveys', result.data]);
   }
 
   /** Loads categories even when opening the creation route directly. */

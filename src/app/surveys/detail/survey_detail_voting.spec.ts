@@ -68,8 +68,8 @@ it('renders each question with only its own options in the loaded order', async 
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('.answer_label input');
   expect(Array.from(inputs, (input: HTMLInputElement): string => input.type)).toEqual(['radio', 'radio', 'checkbox', 'checkbox']);
   expect(Array.from(inputs, (input: HTMLInputElement): boolean => input.required)).toEqual([true, true, false, false]);
-  expect(sections[0].querySelector('.answer_requirement')?.textContent).toContain('Choose one answer (required).');
-  expect(sections[1].querySelector('.answer_requirement')?.textContent).toContain('Choose at least one answer (required).');
+  expect(sections[0].querySelector('.answer_requirement')?.textContent).toContain('Choose one answer.');
+  expect(sections[1].querySelector('.answer_requirement')?.textContent).toContain('More than one answers are possible.');
   expect(sections[1].querySelector('fieldset')?.getAttribute('aria-describedby')).toBe('answer_requirement_q2');
   expect(inputs[0].name).toBe(inputs[1].name);
   expect(inputs[0].name).not.toBe(inputs[2].name);
@@ -135,9 +135,9 @@ it.each([true, false])('blocks repeated submissions until the vote completes: su
   await fixture.whenStable();
   fixture.detectChanges();
   const root: HTMLElement = fixture.nativeElement;
-  expect(Array.from(root.querySelectorAll('.question_vote_total'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['Total votes: 0', 'Total votes: 0']);
-  expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['0 %', '0 %']);
-  expect(Array.from(root.querySelectorAll<HTMLElement>('.result_fill'), (item: HTMLElement): string => item.style.width)).toEqual(['0%', '0%']);
+  expect(root.querySelector('app-survey-empty-results')?.textContent).toContain('There are no answers yet.');
+  expect(root.querySelector('.answer_percentage')).toBeNull();
+  expect(Array.from(fixture.componentInstance.answerPercentages().values())).toEqual([0, 0]);
   const form: HTMLFormElement = root.querySelector('form')!;
   const button: HTMLButtonElement = root.querySelector('.complete_survey')!;
   const inputs: NodeListOf<HTMLInputElement> = root.querySelectorAll('input');

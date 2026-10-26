@@ -25,6 +25,9 @@ describe('Creation persistence', (): void => {
     form.questions.at(0).controls.question.setValue('When?');
     form.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
     const root: HTMLElement = fixture.nativeElement;
+    const dialog: HTMLDialogElement = root.querySelector<HTMLDialogElement>('dialog')!;
+    dialog.showModal = (): void => { dialog.setAttribute('open', ''); };
+    dialog.close = (): void => { dialog.removeAttribute('open'); dialog.dispatchEvent(new Event('close')); };
     root.querySelector<HTMLButtonElement>('.publish_button')!.click();
     expect(form.fields.name.value).toBe('Meeting');
     expect(navigate).not.toHaveBeenCalled();
@@ -37,16 +40,24 @@ describe('Creation persistence', (): void => {
     expect(fixture.componentInstance.saveResult()).toEqual(result);
     expect(form.fields.name.value).toBe(success ? '' : 'Meeting');
     if (success) {
-      expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
+      expect(navigate).not.toHaveBeenCalled();
+      expect(root.querySelector<HTMLDialogElement>('dialog')?.open).toBe(true);
+      expect(root.querySelector('#published_message')?.textContent).toContain('Your survey is now');
+      await fixture.componentInstance.saveSurvey({ categoryId: 'category-id', title: 'Meeting', description: null, endsAt: null, questions: [] });
+      expect(createSurvey).toHaveBeenCalledOnce();
+      root.querySelector<HTMLDialogElement>('dialog')!.close();
+      await fixture.whenStable();
+      expect(navigate).toHaveBeenCalledExactlyOnceWith(['/surveys', 'new-survey-id']);
       expect(form.form.pristine).toBe(true);
       expect(form.form.untouched).toBe(true);
       expect(form.questions.length).toBe(1);
       expect(form.questions.at(0).answers.getRawValue()).toEqual(['', '']);
     } else {
       expect(navigate).not.toHaveBeenCalled();
+      expect(root.querySelector<HTMLDialogElement>('dialog')?.open).toBe(false);
       expect(form.questions.at(0).answers.getRawValue()).toEqual(['Monday', 'Tuesday']);
     }
-    expect(root.querySelector('[role="status"]')?.textContent).toContain(success ? 'Survey published.' : 'Could not publish');
+    expect(root.querySelector('[role="status"]')?.textContent).toContain(success ? '' : 'Could not publish');
   });
 });
 it('blocks repeated UI submits while saving and permits a retry after failure', async (): Promise<void> => {

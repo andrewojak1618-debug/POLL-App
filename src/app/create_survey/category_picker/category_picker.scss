@@ -1,0 +1,111 @@
+@use '../survey_fields';
+
+:host {
+  display: block;
+  width: 206px;
+  max-width: 100%;
+}
+
+.category_picker {
+  position: relative;
+}
+
+.category_trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.category_trigger:hover,
+.category_trigger.is_open {
+  background: #d9d9d91f;
+}
+
+.category_arrow {
+  flex: 0 0 16px;
+  height: 8px;
+  background: var(--color-page-background);
+  mask: url('../../../../public/icons/arrow_drop_down.svg') center / contain no-repeat;
+}
+
+.category_trigger:hover .category_arrow,
+.has_selection .category_arrow,
+.is_open .category_arrow {
+  background: var(--color-primary-orange);
+}
+
+.is_open .category_arrow {
+  transform: rotate(180deg);
+}
+
+.category_options {
+  position: absolute;
+  z-index: 2;
+  top: 36px;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.category_options[hidden] {
+  display: none;
+}
+
+.category_options button {
+  width: 100%;
+  min-height: 26px;
+  padding: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-primary-purple);
+  font-family: 'Mulish', sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.02em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.category_options button[aria-pressed='true'] {
+  background: var(--color-page-background);
+}
+
+.category_options button:hover,
+.category_options button:focus-visible {
+  background: #f4e9fb;
+}
+
+.field_feedback {
+  padding-inline: 10px;
+}
+
+.selected_category {
+  margin: 4px 0 0;
+  padding-inline: 10px;
+  color: var(--color-primary-orange);
+  font-family: 'Mulish', sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.selected_category:empty {
+  margin: 0;
+}

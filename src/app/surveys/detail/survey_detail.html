@@ -46,7 +46,11 @@
           <div class="survey_questions">
             @for (question of loadedSurvey.questions; track question.id; let index = $index) {
               <section class="survey_question" [attr.aria-labelledby]="'question_' + question.id">
-                <h2 [id]="'question_' + question.id">{{ index + 1 }}. {{ question.text }}</h2>
+                <h2 [id]="'question_' + question.id">
+                  <span class="question_number">{{ index + 1 }}.</span>&ngsp;<span>{{
+                    question.text
+                  }}</span>
+                </h2>
 
                 <fieldset
                   class="answer_group"
@@ -59,11 +63,15 @@
                   "
                 >
                   <legend class="visually_hidden">{{ index + 1 }}. {{ question.text }}</legend>
-                  <p class="answer_requirement" [id]="'answer_requirement_' + question.id">
+                  <p
+                    class="answer_requirement"
+                    [class.visually_hidden]="!question.allowsMultipleAnswers"
+                    [id]="'answer_requirement_' + question.id"
+                  >
                     {{
                       question.allowsMultipleAnswers
-                        ? 'Choose at least one answer (required).'
-                        : 'Choose one answer (required).'
+                        ? 'More than one answers are possible.'
+                        : 'Choose one answer.'
                     }}
                   </p>
                   <ul class="answer_options">
@@ -82,7 +90,8 @@
                             "
                           />
                           <span class="answer_text"
-                            >{{ answerLetter(answerIndex) }}. {{ option.text }}</span
+                            ><span class="option_letter">{{ answerLetter(answerIndex) }}.</span
+                            >&ngsp;<span>{{ option.text }}</span></span
                           >
                         </label>
                       </li>
@@ -125,57 +134,15 @@
           <p class="completion_status" role="status">{{ selectionFeedback() }}</p>
         </form>
       </div>
-      <section class="results_panel" aria-labelledby="results_title">
-        <button
-          type="button"
-          class="results_toggle"
-          aria-controls="results_content"
-          [attr.aria-expanded]="resultsExpanded()"
-          (click)="resultsExpanded.set(!resultsExpanded())"
-        >
-          <span class="results_toggle_content">
-            {{ resultsExpanded() ? 'Close results' : 'Show results' }}
-            <span class="results_toggle_icon" aria-hidden="true"></span>
-          </span>
-        </button>
-        <div
-          id="results_content"
-          class="results_content"
-          [class.results_collapsed]="!resultsExpanded()"
-        >
-          <h2 id="results_title">Survey results <span class="results_live">LIVE</span></h2>
-          @for (question of loadedSurvey.questions; track question.id; let index = $index) {
-            <section class="question_results" [attr.aria-labelledby]="'result_' + question.id">
-              <h3 [id]="'result_' + question.id">{{ index + 1 }}. {{ question.text }}</h3>
-              <p class="question_vote_total visually_hidden">
-                Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}
-              </p>
-              <ul class="answer_results">
-                @for (option of question.options; track option.id; let answerIndex = $index) {
-                  <li>
-                    <span class="visually_hidden">{{ option.text }}</span>
-                    <span class="answer_votes visually_hidden">
-                      — {{ option.voteCount }} {{ option.voteCount === 1 ? 'vote' : 'votes' }}</span
-                    >
-                    <div class="result_bar_row">
-                      <span class="answer_letter">{{ answerLetter(answerIndex) }}</span>
-                      <span class="result_track" aria-hidden="true">
-                        <span
-                          class="result_fill"
-                          [style.width.%]="answerPercentages().get(option.id) ?? 0"
-                        ></span>
-                      </span>
-                      <span class="answer_percentage"
-                        >{{ answerPercentages().get(option.id) ?? 0 }} %</span
-                      >
-                    </div>
-                  </li>
-                }
-              </ul>
-            </section>
-          }
-        </div>
-      </section>
+      <app-survey-results
+        class="results_panel"
+        [style.align-self]="hasResults() ? null : 'start'"
+        [questions]="loadedSurvey.questions"
+        [hasResults]="hasResults()"
+        [questionVoteTotals]="questionVoteTotals()"
+        [answerPercentages]="answerPercentages()"
+        [(expanded)]="resultsExpanded"
+      />
     </div>
   }
   @if (loadResult(); as result) {

@@ -31,7 +31,7 @@ describe('Creation form mapping', (): void => {
     form.addQuestion();
     form.questions.at(1).controls.question.setValue('Where?');
     form.questions.at(1).controls.multipleAnswers.setValue(true);
-    form.questions.at(1).answers.setValue(['Office', 'Online']);
+    form.questions.at(1).answers.setValue(['Office', 'Online', 'Outside']);
     const read = vi.spyOn(form.form, 'getRawValue');
     const emit = vi.spyOn(form.validatedSurvey, 'emit');
     form.submit();
@@ -40,7 +40,7 @@ describe('Creation form mapping', (): void => {
       title: 'Meeting', categoryId: 'category-id', description: null, endsAt: null,
       questions: [
         { text: 'When?', allowsMultipleAnswers: false, options: [{ text: 'Monday' }, { text: 'Tuesday' }] },
-        { text: 'Where?', allowsMultipleAnswers: true, options: [{ text: 'Office' }, { text: 'Online' }] },
+        { text: 'Where?', allowsMultipleAnswers: true, options: [{ text: 'Office' }, { text: 'Online' }, { text: 'Outside' }] },
       ],
     });
     expect(form.fields.name.value).toBe('Meeting');

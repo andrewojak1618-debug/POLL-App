@@ -1,5 +1,5 @@
 <article>
-  <a class="survey_card" [routerLink]="['/surveys', survey().id]">
+  <a class="survey_card" [class.is_previewed]="isPreviewed()" [routerLink]="['/surveys', survey().id]">
     <div class="card_heading">
       <p class="category">{{ survey().category.name }}</p>
       <h3>{{ survey().title }}</h3>

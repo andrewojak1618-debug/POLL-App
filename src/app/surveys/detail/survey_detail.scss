@@ -1,6 +1,5 @@
 @use 'survey_questions';
 @use 'survey_completion';
-@use 'survey_results';
 
 :host {
   display: block;
@@ -25,9 +24,8 @@
 }
 
 .survey_detail {
-  background: var(--color-page-background);
   color: var(--color-primary-purple);
-  letter-spacing: 0;
+
 }
 
 .create_link {
@@ -41,7 +39,7 @@ h1 {
   font-size: 56px;
   font-weight: 400;
   line-height: 50px;
-  color: var(--color-survey-heading-on-light);
+  color: var(--color-survey-heading);
   overflow-wrap: anywhere;
 }
 
@@ -112,7 +110,7 @@ h1 {
 
 .detail_columns {
   display: grid;
-  grid-template-columns: 702px 315px;
+  grid-template-columns: minmax(0, 702px) 315px;
   gap: 42px;
   align-items: start;
 }
@@ -124,17 +122,7 @@ h1 {
   background: rgb(142 112 153 / 10%);
 }
 
-.survey_category {
-  margin: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1;
-  margin-left: auto;
-  color: var(--color-button-text);
-}
-
+.survey_category,
 .survey_deadline {
   margin: 0;
   max-width: 100%;
@@ -142,6 +130,11 @@ h1 {
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
+}
+
+.survey_category {
+  margin-left: auto;
+  color: var(--color-button-text);
 }
 
 .visually_hidden {
@@ -156,7 +149,7 @@ h1 {
   border: 0;
 }
 
-@media (max-width: 1106px) {
+@media (max-width: 800px) {
   .detail_columns {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -175,7 +168,7 @@ h1 {
   .detail_header {
     min-height: 49px;
     width: calc(100% - 32px);
-    flex-wrap: wrap;
+
     margin-bottom: 54px;
   }
 
@@ -184,10 +177,9 @@ h1 {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 8px;
   }
 
-  .survey_status_row .survey_status {
+  .survey_status {
     margin-bottom: 0;
   }
 
@@ -196,6 +188,7 @@ h1 {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    margin-right: 16px;
     width: 39px;
     height: 32px;
     border-radius: 10px;
@@ -227,7 +220,7 @@ h1 {
   }
 
   .voting_panel {
-    padding: 40px 12px;
+    padding: 40px 11.5px;
     border-top-right-radius: 100px;
   }
 
@@ -236,7 +229,13 @@ h1 {
     line-height: 42px;
   }
 
+  .survey_status_row,
+  .survey_metadata {
+    margin-bottom: 16px;
+  }
+
   .survey_description {
+    margin-top: 24px;
     line-height: 1.25;
   }
 }

@@ -1,0 +1,53 @@
+<button
+  type="button"
+  class="results_toggle"
+  aria-controls="results_content"
+  [attr.aria-expanded]="expanded()"
+  (click)="expanded.set(!expanded())"
+>
+  <span class="results_toggle_content">
+    {{ expanded() ? 'Close results' : 'Show results' }}
+    <span class="results_toggle_icon" aria-hidden="true"></span>
+  </span>
+</button>
+<div id="results_content" class="results_content" [class.results_collapsed]="!expanded()">
+  @if (!hasResults()) {
+    <app-survey-empty-results />
+  } @else {
+    <h2 id="results_title">Survey results <span class="results_live">LIVE</span></h2>
+    @for (question of questions(); track question.id; let index = $index) {
+      <section class="question_results" [attr.aria-labelledby]="'result_' + question.id">
+        <h3 [id]="'result_' + question.id">
+          <span class="question_number">{{ index + 1 }}.</span>&ngsp;<span>{{
+            question.text
+          }}</span>
+        </h3>
+        <p class="question_vote_total visually_hidden">
+          Total votes: {{ questionVoteTotals().get(question.id) ?? 0 }}
+        </p>
+        <ul class="answer_results">
+          @for (option of question.options; track option.id; let answerIndex = $index) {
+            <li>
+              <span class="visually_hidden">{{ option.text }}</span>
+              <span class="answer_votes visually_hidden">
+                — {{ option.voteCount }} {{ option.voteCount === 1 ? 'vote' : 'votes' }}</span
+              >
+              <div class="result_bar_row">
+                <span class="answer_letter">{{ answerLetter(answerIndex) }}</span>
+                <span class="result_track" aria-hidden="true">
+                  <span
+                    class="result_fill"
+                    [style.width.%]="answerPercentages().get(option.id) ?? 0"
+                  ></span>
+                </span>
+                <span class="answer_percentage"
+                  >{{ answerPercentages().get(option.id) ?? 0 }} %</span
+                >
+              </div>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+</div>

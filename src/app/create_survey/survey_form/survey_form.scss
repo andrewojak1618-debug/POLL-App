@@ -21,28 +21,10 @@
 
 .date_category {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 206px);
   align-items: start;
   gap: 16px;
   margin-top: 4px;
-}
-
-select {
-  width: 100%;
-  min-width: 0;
-  padding: 0 22px 4px 40px;
-  border: 0;
-  background: url('../../../../public/icons/arrow_drop_down.svg') right 6px no-repeat;
-  color: inherit;
-  font: inherit;
-  font-size: 16px;
-  appearance: none;
-  cursor: pointer;
-}
-
-option {
-  background: var(--color-primary-purple);
-  color: var(--color-text);
 }
 
 .question_section {
@@ -98,15 +80,21 @@ option {
 
 @media (max-width: 600px) {
   .survey_form {
-  min-width: 0;
-    padding: 32px 16px;
-    gap: 40px;
+    padding: 40px 10px;
+    gap: 48px;
     font-size: 16px;
   }
 
   .date_category {
     grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
+
+  .date_category app-category-picker { grid-row: 1; }
+
+  .survey_details { gap: 16px; }
+
+  .add_question { justify-self: center; margin-left: 0; }
 }
 @media (min-width: 1250px) {
   .survey_details {
@@ -122,19 +110,4 @@ option {
   .question_section {
     grid-template-columns: 470px 470px;
   }
-}
-.category_field {
-  min-width: 0;
-}
-
-.category_requirement {
-  display: block;
-  padding-left: 40px;
-  font-size: 16px;
-}
-
-.category_label {
-  display: block;
-  padding-left: 40px;
-  font-size: 16px;
 }

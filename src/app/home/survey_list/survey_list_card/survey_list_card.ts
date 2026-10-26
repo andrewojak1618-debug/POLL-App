@@ -14,6 +14,7 @@ type SurveyCardData = Pick<SurveyDetail, 'id' | 'category' | 'title' | 'endsAt'>
   styleUrl: './survey_list_card.scss',
 })
 export class SurveyListCard {
+  readonly isPreviewed: InputSignal<boolean> = input(false);
   readonly now: InputSignal<number> = input.required<number>();
   readonly deadlineLabel: Signal<string> = computed((): string => formatSurveyDeadline(this.survey().endsAt, this.now()));
   readonly survey: InputSignal<SurveyCardData> = input.required<SurveyCardData>();

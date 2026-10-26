@@ -27,12 +27,12 @@ it('keeps error references unique after removing and renumbering questions', asy
   fixture.detectChanges();
   await fixture.whenStable();
   const root: HTMLElement = fixture.nativeElement;
-  expectErrorLinks(root, 11);
+  expectErrorLinks(root, 13);
   root.querySelector<HTMLButtonElement>('[aria-label="Remove question 2"]')!.click();
   fixture.changeDetectorRef.markForCheck();
   fixture.detectChanges();
   await fixture.whenStable();
-  expectErrorLinks(root, 8);
+  expectErrorLinks(root, 9);
   expect(root.querySelector('#question_error_3')).toBeNull();
   form.fields.name.setValue('Team lunch');
   fixture.changeDetectorRef.markForCheck();

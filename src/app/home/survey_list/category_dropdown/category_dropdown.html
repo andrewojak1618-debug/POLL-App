@@ -1,10 +1,9 @@
 <div class="category_dropdown" (keydown.escape)="close(trigger)" (focusout)="onFocusOut($event)">
   <button #trigger class="category_trigger" type="button"
-    [class.is_active]="isOpen || selectedCategory !== null"
+    [class.is_active]="isOpen || selectedCategory !== null" [class.is_open]="isOpen"
     [attr.aria-expanded]="isOpen" aria-controls="survey_category_options" (click)="toggle()">
     <span>Sort by categories</span>
     <span class="arrow" [class.is_open]="isOpen" aria-hidden="true">
-      <img src="icons/arrow_drop_down.svg" width="15" height="8" alt="" />
     </span>
   </button>
   <p class="selected_category" role="status">{{ selectedCategoryName }}</p>
@@ -14,6 +13,8 @@
       (click)="select(null, trigger)">All Surveys</button>
     @for (category of categories; track category.id) {
       <button class="category_option" type="button" [attr.aria-pressed]="selectedCategory === category.id"
+        (pointerenter)="previewCategoryChange.emit(category.id)" (pointerleave)="previewCategoryChange.emit(null)"
+        (focus)="previewCategoryChange.emit(category.id)" (blur)="previewCategoryChange.emit(null)"
         (click)="select(category.id, trigger)">{{ category.name }}</button>
     }
   </div>

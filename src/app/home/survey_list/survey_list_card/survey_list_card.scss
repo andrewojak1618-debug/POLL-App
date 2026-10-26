@@ -57,6 +57,10 @@ h3 {
   line-height: 18px;
 }
 
+.survey_card.is_previewed {
+  background: var(--color-list-card-hover);
+}
+
 @media (hover: hover) {
   .survey_card:hover {
     background: var(--color-list-card-hover);

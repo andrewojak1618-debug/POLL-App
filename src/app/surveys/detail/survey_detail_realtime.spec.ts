@@ -9,7 +9,7 @@ import { SurveyStore } from '../../shared/data/survey_store';
 import type { SurveyDetail as SurveyData } from '../../shared/models/survey_detail';
 import type { SurveyOption } from '../../shared/models/survey_option';
 
-it('refreshes the current detail through shared Realtime while retaining selection', async (): Promise<void> => {
+it.each([0, 1])('refreshes Realtime results from %s initial votes while retaining selection', async (initialVotes: number): Promise<void> => {
   const votes: Subject<SurveyOption | null> = new Subject();
   const params = new BehaviorSubject(convertToParamMap({ id: 'survey' }));
   const survey: SurveyData = {
@@ -17,7 +17,7 @@ it('refreshes the current detail through shared Realtime while retaining selecti
     description: null, endsAt: null, createdAt: 0,
     questions: [{ id: 'q', surveyId: 'survey', text: 'Where?', position: 0, allowsMultipleAnswers: false,
       options: ['a', 'b'].map((id: string, position: number): SurveyOption => ({
-        id, questionId: 'q', text: id, position, voteCount: 1,
+        id, questionId: 'q', text: id, position, voteCount: initialVotes,
       })),
     }],
   };
@@ -44,16 +44,17 @@ it('refreshes the current detail through shared Realtime while retaining selecti
   const input: HTMLInputElement = root.querySelector('input')!;
   input.click();
   expect(root.querySelector('.vote_status')?.textContent).toBe('');
-  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: 2');
+  expect(root.querySelector('app-survey-empty-results') !== null).toBe(initialVotes === 0);
   loadSurveys.mockResolvedValue({ success: true, data: [updated] });
   votes.next(updated.questions[0].options[0]);
   await vi.waitFor((): void => {
     expect(TestBed.inject(SurveyStore).surveys()[0].questions[0].options[0].voteCount).toBe(2);
   });
   fixture.detectChanges();
-  expect(root.querySelector('.vote_status')?.textContent).toBe('Results updated. Question 1: 3 votes.');
-  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: 3');
-  expect(root.querySelector('.answer_percentage')?.textContent).toContain('67 %');
+  expect(root.querySelector('.vote_status')?.textContent).toBe('Results updated. Question 1: ' + (2 + initialVotes) + ' votes.');
+  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: ' + (2 + initialVotes));
+  expect(root.querySelector('.answer_percentage')?.textContent).toContain(initialVotes === 0 ? '100 %' : '67 %');
+  expect(root.querySelector('app-survey-empty-results')).toBeNull();
   expect(root.querySelector('.answer_votes')?.textContent).toContain('2 votes');
   expect(root.querySelector('input')).toBe(input);
   expect(input.checked).toBe(true);

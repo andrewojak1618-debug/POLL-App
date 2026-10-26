@@ -6,15 +6,17 @@
       <button appFilterButton type="button" [attr.aria-pressed]="filters.status() === 'active'" (click)="filters.status.set('active')">Active survey</button>
       <button appFilterButton type="button" [attr.aria-pressed]="filters.status() === 'past'" (click)="filters.status.set('past')">Past survey</button>
     </div>
-    <app-category-dropdown [categories]="store.categories()" [selectedCategory]="selectedCategoryId()" (selectedCategoryChange)="selectCategory($event)" />
+    <app-category-dropdown [categories]="store.categories()" [selectedCategory]="selectedCategoryId()" (selectedCategoryChange)="selectCategory($event)" (previewCategoryChange)="previewCategoryId.set($event)" />
   </div>
+  <app-survey-scroll-area>
   <ul class="survey_grid" tabindex="0" aria-label="Filtered surveys">
     @for (survey of visibleSurveys(); track survey.id) {
-      <li><app-survey-list-card [survey]="survey" [now]="store.now()" /></li>
+      <li><app-survey-list-card [survey]="survey" [isPreviewed]="previewCategoryId() === survey.category.id" [now]="store.now()" /></li>
     } @empty {
       <li class="empty_state" role="status">
         No {{ filters.status() === 'active' ? 'active' : 'past' }} surveys{{ selectedCategoryId() === null ? '' : ' in this category' }} yet.
       </li>
     }
   </ul>
+  </app-survey-scroll-area>
 </section>

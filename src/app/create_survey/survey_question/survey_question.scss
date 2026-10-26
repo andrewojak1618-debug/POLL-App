@@ -1,4 +1,5 @@
 @use '../survey_fields';
+@use 'multiple_answers_checkbox';
 :host { display: block; min-width: 0; max-width: 429px; }
 fieldset {
   min-height: 271px;
@@ -33,9 +34,7 @@ fieldset {
   font-size: 12px;
 }
 
-input[type='checkbox'] {
-  accent-color: var(--color-primary-orange);
-}
+
 
 .answer_row {
   margin-top: 8px;
@@ -86,3 +85,18 @@ input[type='checkbox'] {
 }
 
 @media (max-width: 600px) { .answers_heading { flex-wrap: wrap; } }
+@media (max-width: 600px) {
+  .answer_row label {
+    margin-bottom: 4px;
+    padding-right: 32px;
+  }
+
+  .answer_row > .clear_button {
+    top: -2px;
+    bottom: auto;
+  }
+
+  .add_answer {
+    margin-left: 0;
+  }
+}

@@ -42,6 +42,10 @@
 }
 
 @media (max-width: 600px) {
+  .survey_completion {
+    margin-top: 40px;
+  }
+
   .complete_survey {
     --primary-button-min-width: 142px;
     --primary-button-label-width: 110px;

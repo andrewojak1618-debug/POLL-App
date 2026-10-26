@@ -94,7 +94,7 @@ Ein `service_role`- oder Secret-Key darf niemals im Frontend oder Repository hin
 1. Auf Home zwischen **Active survey** und **Past survey** wechseln.
 2. Kategorien für beide Listen unabhängig auswählen; **All Surveys** setzt den jeweiligen Filter zurück.
 3. Über **New survey** das Formular öffnen, Titel und Kategorie wählen und Fragen mit mindestens zwei ausgefüllten Antworten anlegen. Beschreibung und Enddatum sind optional.
-4. Pro Frage Einfach- oder Mehrfachauswahl festlegen. **Publish** speichert die Umfrage und führt zurück zu Home; **Cancel** verlässt die Ansicht ohne Speicherung.
+4. Pro Frage Einfach- oder Mehrfachauswahl festlegen. **Publish** speichert die Umfrage und zeigt eine Erfolgsbestätigung. Nach dem Schließen öffnet sich die neu erstellte Umfrage; **Cancel** verlässt die Ansicht ohne Speicherung.
 5. Eine Umfrage öffnen und pro Frage Antworten auswählen. **Complete survey** prüft die Auswahl und speichert die Antworten pro Frage. Nach vollständigem Erfolg öffnet sich Home.
 6. Ergebnisse erscheinen auf Desktop rechts neben der Abstimmung. Mobil lassen sie sich über **Show results** und **Close results** ein- und ausblenden.
 

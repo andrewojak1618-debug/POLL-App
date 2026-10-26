@@ -1,0 +1,7 @@
+<div #viewport class="scroll_viewport" (scroll)="updateScroll()">
+  <div #content><ng-content /></div>
+</div>
+@if (maximum() > 0) {
+  <input #grip class="scroll_grip" type="range" min="0" [max]="maximum()" [value]="position()"
+    aria-label="Scroll surveys" aria-orientation="vertical" (input)="scrollTo(grip.value)" />
+}

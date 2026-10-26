@@ -1,38 +1,89 @@
-    <fieldset [formGroup]="question()">
-      <legend class="visually_hidden">Question {{ number() }} and answers</legend>
-      <div class="question_heading">
-        <label [for]="'survey_question_' + number()">{{ number() }}. Question <span>(required)</span></label>
-        <button type="button" class="clear_button" [attr.aria-label]="number() === 1 ? 'Clear first question' : 'Remove question ' + number()" (click)="remove.emit()">
-          <img src="icons/delete.svg" width="18" height="20" alt="" />
-        </button>
-      </div>
-      <input #questionInput [id]="'survey_question_' + number()" formControlName="question" required [attr.aria-invalid]="showError(question().controls.question) ? true : null" [attr.aria-describedby]="showError(question().controls.question) ? 'question_error_' + number() : null" [placeholder]="number() === 1 ? 'Which date would work best for you?' : 'Choose the activities you prefer?'" />
-      @if (showError(question().controls.question)) {
-        <p [id]="'question_error_' + number()" class="field_error" role="status">Enter a question. Spaces alone are not enough.</p>
-      }
-      <div class="answers_heading">
-        <span>Answers (required)</span>
-        <label class="multiple_answers">
-          <input type="checkbox" formControlName="multipleAnswers" />
-          Allow multiple answers.
-        </label>
-      </div>
-      @for (answer of question().answers.controls; track answer; let index = $index) {
-        <div class="input_row answer_row">
-          <label [for]="'survey_answer_' + number() + '_' + index">{{ question().answerLabel(index) }}.</label>
-          <input #answerInput [id]="'survey_answer_' + number() + '_' + index" [attr.aria-label]="'Answer ' + question().answerLabel(index)" [formControl]="answer" required [attr.aria-invalid]="showError(answer) ? true : null" [attr.aria-describedby]="showError(answer) ? 'answer_error_' + number() + '_' + index : null" />
-          <button type="button" class="clear_button"
-            [attr.aria-label]="(question().answers.length > 2 ? 'Remove answer ' : 'Clear answer ') + question().answerLabel(index)"
-            (click)="removeAnswer(index)">
-            <img src="icons/delete.svg" width="18" height="20" alt="" />
-          </button>
-        </div>
+<fieldset [formGroup]="question()">
+  <legend class="visually_hidden">Question {{ number() }} and answers</legend>
+  <div class="question_heading">
+    <label [for]="'survey_question_' + number()">{{ number() }}. Question</label>
+    <button
+      type="button"
+      class="clear_button"
+      [attr.aria-label]="number() === 1 ? 'Clear first question' : 'Remove question ' + number()"
+      (click)="remove.emit()"
+    >
+      <img src="icons/delete.svg" width="18" height="20" alt="" />
+    </button>
+  </div>
+  <div class="text_field">
+    <input
+      #questionInput
+      (keydown.enter)="$event.preventDefault(); questionInput.blur()"
+      [id]="'survey_question_' + number()"
+      formControlName="question"
+      required
+      [attr.aria-invalid]="showError(question().controls.question) ? true : null"
+      [attr.aria-describedby]="
+        showError(question().controls.question) ? 'question_error_' + number() : null
+      "
+      [placeholder]="
+        number() === 1 ? 'Which date would work best for you?' : 'Choose the activities you prefer?'
+      "
+    />
+    @if (showError(question().controls.question)) {
+      <p [id]="'question_error_' + number()" class="field_error inline_error" role="status">
+        Enter a question.
+      </p>
+    }
+  </div>
+  <div class="answers_heading">
+    <span>Answers</span>
+    <label class="multiple_answers">
+      <input type="checkbox" formControlName="multipleAnswers" />
+      Allow multiple answers.
+    </label>
+  </div>
+  @for (answer of question().answers.controls; track answer; let index = $index) {
+    <div class="input_row answer_row">
+      <label [for]="'survey_answer_' + number() + '_' + index"
+        >{{ question().answerLabel(index) }}.</label
+      >
+      <div class="text_field">
+        <input
+          #answerInput
+          (keydown.enter)="$event.preventDefault(); answerInput.blur()"
+          [id]="'survey_answer_' + number() + '_' + index"
+          [attr.aria-label]="'Answer ' + question().answerLabel(index)"
+          [formControl]="answer"
+          required
+          [attr.aria-invalid]="showError(answer) ? true : null"
+          [attr.aria-describedby]="
+            showError(answer) ? 'answer_error_' + number() + '_' + index : null
+          "
+        />
         @if (showError(answer)) {
-          <p [id]="'answer_error_' + number() + '_' + index" class="field_error" role="status">Enter answer {{ question().answerLabel(index) }}. Spaces alone are not enough.</p>
+          <p
+            [id]="'answer_error_' + number() + '_' + index"
+            class="field_error inline_error"
+            role="status"
+          >
+            Enter answer {{ question().answerLabel(index) }}.
+          </p>
         }
-      }
-      <button type="button" class="add_answer" (click)="question().addAnswer()">
-        Add answer
-        <span class="add_answer_icon"><img src="icons/add_circle_white.svg" width="16" height="16" alt="" /></span>
+      </div>
+      <button
+        type="button"
+        class="clear_button"
+        [attr.aria-label]="
+          (question().answers.length > 2 ? 'Remove answer ' : 'Clear answer ') +
+          question().answerLabel(index)
+        "
+        (click)="removeAnswer(index)"
+      >
+        <img src="icons/delete.svg" width="18" height="20" alt="" />
       </button>
-    </fieldset>
+    </div>
+  }
+  <button type="button" class="add_answer" (click)="question().addAnswer()">
+    Add answer
+    <span class="add_answer_icon"
+      ><img src="icons/add_circle_white.svg" width="16" height="16" alt=""
+    /></span>
+  </button>
+</fieldset>

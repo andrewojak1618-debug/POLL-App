@@ -14,6 +14,7 @@ export class CategoryDropdown {
   @Input({ required: true }) categories: readonly SurveyCategoryData[] = [];
   isOpen: boolean = false;
   @Input() selectedCategory: string | null = null;
+  readonly previewCategoryChange: OutputEmitterRef<string | null> = output<string | null>();
   readonly selectedCategoryChange: OutputEmitterRef<string | null> = output<string | null>();
 
   /** Returns the loaded name for the selected category ID.
@@ -26,6 +27,7 @@ export class CategoryDropdown {
   /** Changes menu visibility without committing a different category selection. */
   toggle(): void {
     this.isOpen = !this.isOpen;
+    this.previewCategoryChange.emit(null);
   }
 
   /**
@@ -44,6 +46,7 @@ export class CategoryDropdown {
    */
   close(trigger: HTMLButtonElement): void {
     this.isOpen = false;
+    this.previewCategoryChange.emit(null);
     trigger.focus();
   }
 
@@ -55,6 +58,7 @@ export class CategoryDropdown {
   onOutsideClick(event: MouseEvent): void {
     if (event.target instanceof Node && !this.host.nativeElement.contains(event.target)) {
       this.isOpen = false;
+      this.previewCategoryChange.emit(null);
     }
   }
 
@@ -65,6 +69,7 @@ export class CategoryDropdown {
   onFocusOut(event: FocusEvent): void {
     if (!(event.relatedTarget instanceof Node) || !this.host.nativeElement.contains(event.relatedTarget)) {
       this.isOpen = false;
+      this.previewCategoryChange.emit(null);
     }
   }
 }
