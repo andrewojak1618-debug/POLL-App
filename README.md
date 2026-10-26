@@ -170,11 +170,11 @@ Der normale lokale Start und `npm run build` behalten die Basisadresse `/`. Die 
 
 ## Bekannte Grenzen und Extras
 
-- Keine Anmeldung und keine Begrenzung auf eine Stimme pro Person.
+- Keine Anmeldung. Abgeschlossene Teilnahme wird in diesem Browser gespeichert; andere Geräte oder gelöschte Browserdaten können diesen Komfortschutz umgehen.
 - Antworten werden pro Frage gespeichert. Die gesamte Abgabe mehrerer Fragen ist keine gemeinsame Datenbanktransaktion.
 - Das Überspringen bereits gespeicherter Fragen beim erneuten Versuch gilt innerhalb der aktuellen Detailansicht; es ist keine dauerhafte Wiederholungssperre nach Neuladen.
-- Vereinbart nach Figma: **New survey** ist ein Navigationslink zur eigenen Route `/create-survey`; die Erstellung erfolgt in einer eigenen Ansicht.
-- Vereinbart nach Figma: Antwortklicks wählen aus, **Complete survey** speichert. Diese Auslegung ist bei der Abgabe gegenüber dem ursprünglichen Checklistenwortlaut zu berücksichtigen.
+- **New survey** öffnet unter `/#/create-survey` einen modalen Dialog über Home. Escape und Cancel führen zurück; der Hintergrund ist währenddessen nicht bedienbar.
+- Antwortklicks zeigen eine ausdrücklich gekennzeichnete lokale Ergebnisvorschau. **Complete survey** speichert; erst bestätigte Stimmen zählen für andere Sitzungen. Die Erfolgsbestätigung bleibt acht Sekunden sichtbar.
 
 ### Ergänzungen zum ursprünglichen Checklistenwortlaut
 
@@ -185,3 +185,11 @@ Mehrere Fragen pro Umfrage und Mehrfachauswahl je Frage gehören zum vereinbarte
 Die Gestaltung folgt dem [Figma-Design Poll-App](https://www.figma.com/design/yjKdGp9Z612bnRp2iayYe7/Poll-App-Design). Logos, Illustrationen und Icons sind als Projektdateien eingebunden. Die verwendeten Schriften sind Nerko One, Mulish und Nokora.
 
 Das Projekt vertieft Angular-Routing, Reactive Forms, Signals, getrennte Verantwortlichkeiten von Repository und Store, Supabase-Rechte, Realtime sowie responsive und zugängliche Bedienung.
+
+## Review-Abnahme vom 26.10.2026
+
+- Neue Umfragen ohne gewähltes Enddatum enden nach 24 Stunden. Bestehende Umfragen werden nicht rückwirkend verändert.
+- Alle sechs Figma-Kategorien sind in Migration und Seed enthalten.
+- Publish bleibt bei ungültigen Eingaben bedienbar, damit konkrete Feldmeldungen erscheinen. Während Laden oder Speichern ist die Aktion gesperrt.
+- Textmeldungen reservieren ihren Platz; ein ungültiges Formular fokussiert die erste notwendige Eingabe.
+- Gefüllte Antworten werden erst geleert, leere zusätzliche Antworten beim nächsten Klick entfernt.

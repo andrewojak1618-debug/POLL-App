@@ -25,7 +25,7 @@ export class SurveyQuestionComponent {
    */
   removeAnswer(index: number): void {
     const count: number = this.question().answers.length;
-    const targetIndex: number = count <= 2 ? index : index < count - 1 ? index + 1 : index - 1;
+    const targetIndex: number = count <= 2 || this.question().answers.at(index).value !== '' ? index : index < count - 1 ? index + 1 : index - 1;
     const target: HTMLInputElement = this.answerInputs()[targetIndex].nativeElement;
     this.question().removeAnswer(index);
     target.focus();

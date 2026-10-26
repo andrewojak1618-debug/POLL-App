@@ -52,10 +52,10 @@ it.each([0, 1])('refreshes Realtime results from %s initial votes while retainin
   });
   fixture.detectChanges();
   expect(root.querySelector('.vote_status')?.textContent).toBe('Results updated. Question 1: ' + (2 + initialVotes) + ' votes.');
-  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: ' + (2 + initialVotes));
-  expect(root.querySelector('.answer_percentage')?.textContent).toContain(initialVotes === 0 ? '100 %' : '67 %');
+  expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: ' + (3 + initialVotes));
+  expect(root.querySelector('.answer_percentage')?.textContent).toContain(initialVotes === 0 ? '100 %' : '75 %');
   expect(root.querySelector('app-survey-empty-results')).toBeNull();
-  expect(root.querySelector('.answer_votes')?.textContent).toContain('2 votes');
+  expect(root.querySelector('.answer_votes')?.textContent).toContain('3 votes');
   expect(root.querySelector('input')).toBe(input);
   expect(input.checked).toBe(true);
   expect(voteForQuestion).not.toHaveBeenCalled();

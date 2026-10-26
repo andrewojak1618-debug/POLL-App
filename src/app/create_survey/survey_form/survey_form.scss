@@ -96,15 +96,5 @@
 
   .add_question { justify-self: center; margin-left: 0; }
 }
-@media (min-width: 1250px) {
-  .survey_details {
-    width: 986px;
-    grid-template-columns: 470px 452px;
-    min-height: 134px;
-  }
 
-
-  .question_section {
-    grid-template-columns: 470px 470px;
-  }
-}
+.date_feedback { min-height: 54px; margin: 6px 0 0; font-size: 13px; line-height: 18px; color: var(--color-secondary-orange); }

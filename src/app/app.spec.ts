@@ -47,13 +47,13 @@ describe('App navigation', (): void => {
     link?.click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/create-survey');
-    expect(document.activeElement).toBe(harness.routeNativeElement?.querySelector('h1'));
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toBe('Create new survey');
+    expect(document.activeElement).toBe(harness.routeNativeElement?.querySelector('#create_survey_title'));
+    expect(harness.routeNativeElement?.querySelector('#create_survey_title')?.textContent).toBe('Create new survey');
   });
 
   it('should focus the heading when opening Create Survey directly', async (): Promise<void> => {
     const harness = await RouterTestingHarness.create('/create-survey');
-    const heading = harness.routeNativeElement?.querySelector('h1');
+    const heading = harness.routeNativeElement?.querySelector('#create_survey_title');
     expect(document.activeElement).toBe(heading);
     expect(heading?.getAttribute('tabindex')).toBe('-1');
   });

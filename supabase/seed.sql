@@ -8,7 +8,10 @@ insert into public.survey_categories (name, slug)
 values
   ('Team Activities', 'team_activities'),
   ('Gaming & Entertainment', 'gaming_entertainment'),
-  ('Health & Wellness', 'health_wellness')
+  ('Health & Wellness', 'health_wellness'),
+  ('Education & Learning', 'education_learning'),
+  ('Lifestyle & Preferences', 'lifestyle_preferences'),
+  ('Technology & Innovation', 'technology_innovation')
 on conflict (slug) do nothing;
 
 -- Active examples: deadlines are relative to the first insertion.

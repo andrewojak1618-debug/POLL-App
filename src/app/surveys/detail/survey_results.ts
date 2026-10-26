@@ -12,6 +12,7 @@ import { surveyAnswerLetter } from './survey_answer_letter';
   host: { role: 'region', 'aria-labelledby': 'results_title' },
 })
 export class SurveyResults {
+  readonly preview: InputSignal<boolean> = input(false);
   readonly questions: InputSignal<readonly SurveyQuestionDetail[]> = input.required<readonly SurveyQuestionDetail[]>();
   readonly hasResults: InputSignal<boolean> = input.required<boolean>();
   readonly questionVoteTotals: InputSignal<ReadonlyMap<string, number>> = input.required<ReadonlyMap<string, number>>();

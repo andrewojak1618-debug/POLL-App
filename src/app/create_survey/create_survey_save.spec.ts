@@ -1,3 +1,4 @@
+import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -25,7 +26,7 @@ describe('Creation persistence', (): void => {
     form.questions.at(0).controls.question.setValue('When?');
     form.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
     const root: HTMLElement = fixture.nativeElement;
-    const dialog: HTMLDialogElement = root.querySelector<HTMLDialogElement>('dialog')!;
+    const dialog: HTMLDialogElement = root.querySelector<HTMLDialogElement>('app-published-confirmation dialog')!;
     dialog.showModal = (): void => { dialog.setAttribute('open', ''); };
     dialog.close = (): void => { dialog.removeAttribute('open'); dialog.dispatchEvent(new Event('close')); };
     root.querySelector<HTMLButtonElement>('.publish_button')!.click();
@@ -34,30 +35,30 @@ describe('Creation persistence', (): void => {
     confirmSave();
     await fixture.whenStable();
     expect(createSurvey).toHaveBeenCalledExactlyOnceWith({
-      categoryId: 'category-id', title: 'Meeting', description: null, endsAt: null,
+      categoryId: 'category-id', title: 'Meeting', description: null, endsAt: expect.any(Number),
       questions: [{ text: 'When?', allowsMultipleAnswers: false, options: [{ text: 'Monday' }, { text: 'Tuesday' }] }],
     });
     expect(fixture.componentInstance.saveResult()).toEqual(result);
-    expect(form.fields.name.value).toBe(success ? '' : 'Meeting');
+    expect(form.fields.name.value).toBe('Meeting');
     if (success) {
       expect(navigate).not.toHaveBeenCalled();
-      expect(root.querySelector<HTMLDialogElement>('dialog')?.open).toBe(true);
+      expect(root.querySelector<HTMLDialogElement>('app-published-confirmation dialog')?.open).toBe(true);
       expect(root.querySelector('#published_message')?.textContent).toContain('Your survey is now');
       await fixture.componentInstance.saveSurvey({ categoryId: 'category-id', title: 'Meeting', description: null, endsAt: null, questions: [] });
       expect(createSurvey).toHaveBeenCalledOnce();
-      root.querySelector<HTMLDialogElement>('dialog')!.close();
+      root.querySelector<HTMLDialogElement>('app-published-confirmation dialog')!.close();
       await fixture.whenStable();
       expect(navigate).toHaveBeenCalledExactlyOnceWith(['/surveys', 'new-survey-id']);
       expect(form.form.pristine).toBe(true);
       expect(form.form.untouched).toBe(true);
       expect(form.questions.length).toBe(1);
-      expect(form.questions.at(0).answers.getRawValue()).toEqual(['', '']);
+      expect(form.questions.at(0).answers.getRawValue()).toEqual(['Monday', 'Tuesday']);
     } else {
       expect(navigate).not.toHaveBeenCalled();
-      expect(root.querySelector<HTMLDialogElement>('dialog')?.open).toBe(false);
+      expect(root.querySelector<HTMLDialogElement>('app-published-confirmation dialog')?.open).toBe(false);
       expect(form.questions.at(0).answers.getRawValue()).toEqual(['Monday', 'Tuesday']);
     }
-    expect(root.querySelector('[role="status"]')?.textContent).toContain(success ? '' : 'Could not publish');
+    expect(root.querySelector('.save_feedback')?.textContent).toContain(success ? '' : 'Could not publish');
   });
 });
 it('blocks repeated UI submits while saving and permits a retry after failure', async (): Promise<void> => {
@@ -106,3 +107,4 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
   finish();
   await fixture.whenStable();
 });
+beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '', imports: [] } }); });

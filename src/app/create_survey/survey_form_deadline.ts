@@ -7,11 +7,11 @@ const BERLIN_DATE: Intl.DateTimeFormat = new Intl.DateTimeFormat('en-GB', {
 });
 
 /** Resolves the final millisecond of the selected calendar day in Berlin.
- * @param date - Date input value in YYYY-MM-DD format, or empty for no deadline.
- * @returns Unix milliseconds at Berlin day end, or null without a date.
+ * @param date - Date input value in YYYY-MM-DD format, or empty for a 24-hour default.
+ * @returns Unix milliseconds at Berlin day end, or 24 hours from now without a date.
  */
-export function resolveSurveyDeadline(date: string): number | null {
-  if (date === '') return null;
+export function resolveSurveyDeadline(date: string): number {
+  if (date === '') return Date.now() + DAY_IN_MS;
   const midnight: number = Date.parse(date + 'T00:00:00.000Z');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(midnight)
     || new Date(midnight).toISOString().slice(0, 10) !== date) {

@@ -1,5 +1,5 @@
 import type { Observable } from 'rxjs';
-import { afterRenderEffect, Component, computed, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
+import { afterRenderEffect, Component, computed, DestroyRef, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
 import type { Signal, WritableSignal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -16,6 +16,10 @@ import { SurveyResults } from './survey_results';
 import { SurveyAnswerQuestion } from './survey_answer_question';
 import { PrimaryButton } from '../../shared/ui/primary_button/primary_button';
 
+import { SurveyParticipation } from './survey-participation';
+import { previewSurveyResults } from './survey-result-preview';
+
+const COMPLETION_FEEDBACK_MS: number = 8000;
 const DEADLINE_FORMAT: Intl.DateTimeFormat = new Intl.DateTimeFormat('de-DE', {
   timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit',
 });
@@ -31,6 +35,7 @@ type SurveyResult = RepositoryResult<SurveyData | null>;
 })
 export class SurveyDetail {
 
+  private readonly destroyRef: DestroyRef = inject(DestroyRef);
   private readonly router: Router = inject(Router);
   readonly isCompleting: WritableSignal<boolean> = signal(false);
   readonly savedQuestionIds: WritableSignal<readonly string[]> = signal([]);
@@ -64,7 +69,7 @@ export class SurveyDetail {
     try {
       if (!await this.submitRemainingQuestions(values, sourceId)) return;
       this.selectionFeedback.set('Your survey answers have been saved.');
-      await this.router.navigate(['/'], { info: 'focus_home_heading' });
+      this.rememberCompletion(sourceId);
     } finally {
       this.isCompleting.set(false);
     }
@@ -77,7 +82,7 @@ export class SurveyDetail {
    */
   private async submitRemainingQuestions(values: FormData, sourceId: string | null): Promise<boolean> {
     for (const question of this.survey()?.questions ?? []) {
-      if (this.surveyId() !== sourceId) return false;
+      if (this.destroyRef.destroyed || this.surveyId() !== sourceId) return false;
       if (this.savedQuestionIds().includes(question.id)) continue;
       if (!this.canSubmitVote() || !await this.saveSelectedQuestion(question, values, sourceId)) return false;
     }
@@ -95,7 +100,7 @@ export class SurveyDetail {
       (value: FormDataEntryValue): value is string => typeof value === 'string');
     this.selectionFeedback.set('Saving your answers…');
     const result: RepositoryResult<void> = await this.store.voteForQuestion(question.id, optionIds);
-    if (this.surveyId() !== sourceId) return false;
+    if (this.destroyRef.destroyed || this.surveyId() !== sourceId) return false;
     if (result.success) this.savedQuestionIds.update((ids: readonly string[]): readonly string[] => [...ids, question.id]);
     else this.selectionFeedback.set('Could not save all answers. Your selection is still here. Press Complete survey to retry the remaining questions.');
     return result.success;
@@ -135,6 +140,37 @@ export class SurveyDetail {
     });
   }
 
+  private readonly participation: SurveyParticipation = inject(SurveyParticipation);
+  private completionTimer: ReturnType<typeof setTimeout> | undefined;
+  readonly selectedAnswers: WritableSignal<ReadonlyMap<string, readonly string[]>> = signal(new Map());
+  readonly previewQuestions: Signal<readonly SurveyQuestionDetail[]> = computed((): readonly SurveyQuestionDetail[] =>
+    previewSurveyResults(this.survey()?.questions ?? [], this.isCompleting() ? new Map() : this.selectedAnswers(), this.savedQuestionIds()));
+  readonly hasPreview: Signal<boolean> = computed((): boolean => !this.isCompleting() &&
+    Array.from(this.selectedAnswers()).some(([id, values]: [string, readonly string[]]): boolean =>
+      values.length > 0 && !this.savedQuestionIds().includes(id)));
+
+  /** Updates the local result preview without sending any votes.
+   * @param form - Form containing the current selections.
+   */
+  previewSelection(form: HTMLFormElement): void {
+    const values: FormData = new FormData(form);
+    this.selectedAnswers.set(new Map(this.previewQuestions().map((question: SurveyQuestionDetail): [string, string[]] =>
+      [question.id, values.getAll('question_' + question.id).filter((value: FormDataEntryValue): value is string => typeof value === 'string')])));
+    this.clearSelectionFeedback();
+  }
+
+  /** Keeps success feedback visible before returning Home.
+   * @param surveyId - Survey successfully completed on the current route.
+   */
+  private rememberCompletion(surveyId: string | null): void {
+    if (!surveyId) return;
+    this.participation.complete(surveyId);
+    this.selectedAnswers.set(new Map());
+    this.completionTimer = setTimeout((): void => {
+      if (this.surveyId() === surveyId) void this.router.navigate(['/'], { info: 'focus_home_heading' });
+    }, COMPLETION_FEEDBACK_MS);
+  }
+
   readonly resultsExpanded: WritableSignal<boolean> = signal(true);
   private readonly store: SurveyStore = inject(SurveyStore);
   private readonly repository: SurveyRepository = inject(SurveyRepository);
@@ -170,7 +206,7 @@ export class SurveyDetail {
   });
   /** Sums selected answers per question; multiple answers are not unique participants. */
   readonly questionVoteTotals: Signal<ReadonlyMap<string, number>> = computed((): ReadonlyMap<string, number> =>
-    new Map((this.survey()?.questions ?? []).map((question: SurveyQuestionDetail): [string, number] => [
+    new Map(this.previewQuestions().map((question: SurveyQuestionDetail): [string, number] => [
       question.id,
       question.options.reduce((total: number, option: SurveyOption): number => total + option.voteCount, 0),
     ])));
@@ -179,7 +215,7 @@ export class SurveyDetail {
     Array.from(this.questionVoteTotals().values()).some((total: number): boolean => total > 0));
   /** Derives each answer's rounded share of its question's selected answers. */
   readonly answerPercentages: Signal<ReadonlyMap<string, number>> = computed((): ReadonlyMap<string, number> =>
-    new Map((this.survey()?.questions ?? []).flatMap((question: SurveyQuestionDetail): [string, number][] => {
+    new Map(this.previewQuestions().flatMap((question: SurveyQuestionDetail): [string, number][] => {
       const total: number = this.questionVoteTotals().get(question.id) ?? 0;
       return question.options.map((option: SurveyOption): [string, number] => [
         option.id, total === 0 ? 0 : Math.round((option.voteCount / total) * 100),
@@ -203,6 +239,7 @@ export class SurveyDetail {
 
   /** Loads shared data and registers focus and result announcements. */
   constructor() {
+    this.destroyRef.onDestroy((): void => clearTimeout(this.completionTimer));
     this.registerInitialFocus();
     void this.store.load();
     effect((): void => this.updateResultAnnouncement());
@@ -214,14 +251,25 @@ export class SurveyDetail {
     const counts: string = JSON.stringify(survey?.questions.map((question: SurveyQuestionDetail): number[] =>
       question.options.map((option: SurveyOption): number => option.voteCount)) ?? []);
     if ((survey?.id ?? null) !== this.previousSurveyId) {
-      this.savedQuestionIds.set([]);
-      this.clearSelectionFeedback();
-      this.announcementState.set('');
+      this.restoreParticipation(survey);
     } else if (survey && counts !== this.previousResultCounts && !untracked(this.isVoting)) {
       this.announcementState.set(this.describeResults(survey));
     }
     this.previousSurveyId = survey?.id ?? null;
     this.previousResultCounts = counts;
+  }
+
+  /** Restores browser-local participation and clears the previous route's pending state.
+   * @param survey - Newly loaded survey, or null while changing routes.
+   */
+  private restoreParticipation(survey: SurveyData | null): void {
+    clearTimeout(this.completionTimer);
+    this.selectedAnswers.set(new Map());
+    const completed: boolean = survey !== null && this.participation.hasCompleted(survey.id);
+    this.savedQuestionIds.set(completed && survey ? survey.questions.map((question: SurveyQuestionDetail): string => question.id) : []);
+    this.clearSelectionFeedback();
+    if (completed) this.selectionFeedback.set('You have already completed this survey on this browser.');
+    this.announcementState.set('');
   }
 
   /**
@@ -243,6 +291,10 @@ export class SurveyDetail {
   private canSubmitVote(): boolean {
     const survey: SurveyData | null = this.survey();
     if (!survey) return false;
+    if (this.participation.hasCompleted(survey.id)) {
+      this.restoreParticipation(survey);
+      return false;
+    }
     if (survey.endsAt !== null && survey.endsAt <= Date.now()) {
       this.announcementState.set('Survey ended. Voting is no longer possible.');
       return false;

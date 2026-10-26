@@ -65,6 +65,6 @@ it('links an invalid end date to its message and removes the link after a valid 
   fixture.detectChanges();
   await fixture.whenStable();
   expect(root.querySelector('#survey_end_date')?.hasAttribute('aria-invalid')).toBe(false);
-  expect(root.querySelector('#survey_end_date')?.hasAttribute('aria-describedby')).toBe(false);
-  expect(root.querySelector('#survey_end_date_error')).toBeNull();
+  expect(root.querySelector('#survey_end_date')?.getAttribute('aria-describedby')).toBe('survey_end_date_error');
+  expect(root.querySelector('#survey_end_date_error')?.textContent).toContain('24 hours');
 });

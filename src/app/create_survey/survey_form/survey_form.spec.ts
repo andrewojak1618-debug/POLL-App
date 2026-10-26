@@ -16,6 +16,8 @@ describe('Survey answers', (): void => {
     survey.addAnswer();
     survey.answers.setValue(['Monday', 'Tuesday', 'Wednesday']);
     survey.removeAnswer(1);
+    expect(survey.answers.getRawValue()).toEqual(['Monday', '', 'Wednesday']);
+    survey.removeAnswer(1);
     expect(survey.answers.getRawValue()).toEqual(['Monday', 'Wednesday']);
   });
 

@@ -33,11 +33,11 @@ export class SurveyQuestion extends FormGroup<{
   }
 
   /**
-   * Entfernt eine Antwort; bei zwei verbleibenden Feldern wird nur der Inhalt geleert.
+   * Clears populated answers first; removes empty answers above the minimum of two.
    * @param index - Zero-based answer position to remove or clear.
    */
   removeAnswer(index: number): void {
-    if (this.answers.length <= 2) {
+    if (this.answers.length <= 2 || this.answers.at(index).value !== '') {
       this.answers.at(index).setValue('');
       return;
     }

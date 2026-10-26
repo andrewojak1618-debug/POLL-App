@@ -28,7 +28,7 @@
     />
     @if (showError(question().controls.question)) {
       <p [id]="'question_error_' + number()" class="field_error inline_error" role="status">
-        Enter a question.
+        Enter a question, not just spaces.
       </p>
     }
   </div>
@@ -63,7 +63,7 @@
             class="field_error inline_error"
             role="status"
           >
-            Enter answer {{ question().answerLabel(index) }}.
+            Enter answer {{ question().answerLabel(index) }}, not just spaces.
           </p>
         }
       </div>
@@ -71,7 +71,7 @@
         type="button"
         class="clear_button"
         [attr.aria-label]="
-          (question().answers.length > 2 ? 'Remove answer ' : 'Clear answer ') +
+          (question().answers.length > 2 && answer.value === '' ? 'Remove answer ' : 'Clear answer ') +
           question().answerLabel(index)
         "
         (click)="removeAnswer(index)"

@@ -20,6 +20,7 @@ export class SurveyScrollArea {
 
   /** Keeps the grip synchronized when filtering or resizing changes the content. */
   private observeSize(): void {
+    if (typeof ResizeObserver === 'undefined') return;
     const observer: ResizeObserver = new ResizeObserver((): void => this.updateScroll());
     observer.observe(this.viewport().nativeElement);
     observer.observe(this.content().nativeElement);

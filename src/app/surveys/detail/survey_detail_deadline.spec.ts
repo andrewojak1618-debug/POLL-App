@@ -10,7 +10,8 @@ import type { SurveyDetail as SurveyData } from '../../shared/models/survey_deta
 
 afterEach((): void => { vi.restoreAllMocks(); });
 
-it.each([null, 2001, 2000, 1999, 0])('checks real time before voting with deadline %s', async (endsAt: number | null): Promise<void> => {
+it.each([null, 2001, 2000, 1999, 0, 'completed'])('checks current eligibility before voting: %s', async (deadline: number | null | string): Promise<void> => {
+  const endsAt: number | null = typeof deadline === 'string' ? null : deadline;
   vi.spyOn(Date, 'now').mockReturnValue(2000);
   const params = new BehaviorSubject(convertToParamMap({ id: 'survey' }));
   const vote = vi.fn().mockResolvedValue({ success: true, data: undefined });
@@ -36,10 +37,14 @@ it.each([null, 2001, 2000, 1999, 0])('checks real time before voting with deadli
   const root: HTMLElement = fixture.nativeElement;
   expect(fixture.componentInstance.isEnded()).toBe(false);
   root.querySelector<HTMLInputElement>('input')!.click();
+  if (deadline === 'completed') localStorage.setItem('poll_app_completed_survey', 'true');
   root.querySelector<HTMLButtonElement>('.complete_survey')!.click();
   await fixture.whenStable();
   fixture.detectChanges();
-  if (endsAt === null || endsAt > 2000) {
+  if (deadline === 'completed') {
+    expect(vote).not.toHaveBeenCalled();
+    expect(fixture.componentInstance.savedQuestionIds()).toEqual(['q']);
+  } else if (endsAt === null || endsAt > 2000) {
     expect(vote).toHaveBeenCalledExactlyOnceWith('q', ['a']);
   } else {
     expect(vote).not.toHaveBeenCalled();

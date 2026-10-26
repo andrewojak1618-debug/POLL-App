@@ -15,7 +15,9 @@ describe('Berlin deadline', (): void => {
     expect(resolveSurveyDeadline(date)).toBe(Date.parse(expected));
   });
   it('supports no deadline and rejects invalid calendar dates', (): void => {
-    expect(resolveSurveyDeadline('')).toBeNull();
+    const now: number = Date.now();
+    expect(resolveSurveyDeadline('')).toBeGreaterThanOrEqual(now + 86400000);
+    expect(resolveSurveyDeadline('')).toBeLessThanOrEqual(Date.now() + 86400000);
     expect((): number | null => resolveSurveyDeadline('2026-02-30')).toThrow();
     expect((): number | null => resolveSurveyDeadline('invalid')).toThrow();
   });
@@ -37,7 +39,7 @@ describe('Creation form mapping', (): void => {
     form.submit();
     expect(read).toHaveBeenCalledOnce();
     expect(emit).toHaveBeenCalledExactlyOnceWith({
-      title: 'Meeting', categoryId: 'category-id', description: null, endsAt: null,
+      title: 'Meeting', categoryId: 'category-id', description: null, endsAt: expect.any(Number),
       questions: [
         { text: 'When?', allowsMultipleAnswers: false, options: [{ text: 'Monday' }, { text: 'Tuesday' }] },
         { text: 'Where?', allowsMultipleAnswers: true, options: [{ text: 'Office' }, { text: 'Online' }, { text: 'Outside' }] },

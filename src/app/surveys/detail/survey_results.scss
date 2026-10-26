@@ -148,3 +148,6 @@ h2 {
 .question_number {
   flex-shrink: 0;
 }
+
+.preview_notice { font-size: 14px; line-height: 1.4; }
+.preview_notice:empty { display: none; }

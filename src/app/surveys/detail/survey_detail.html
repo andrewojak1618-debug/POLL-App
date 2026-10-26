@@ -41,7 +41,7 @@
           #surveyForm
           novalidate
           (submit)="validateSurvey(surveyForm, $event)"
-          (change)="clearSelectionFeedback()"
+          (change)="previewSelection(surveyForm)"
         >
           <div class="survey_questions">
             @for (question of loadedSurvey.questions; track question.id; let index = $index) {
@@ -81,7 +81,8 @@
       <app-survey-results
         class="results_panel"
         [style.align-self]="hasResults() ? null : 'start'"
-        [questions]="loadedSurvey.questions"
+        [questions]="previewQuestions()"
+        [preview]="hasPreview()"
         [hasResults]="hasResults()"
         [questionVoteTotals]="questionVoteTotals()"
         [answerPercentages]="answerPercentages()"

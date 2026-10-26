@@ -129,25 +129,17 @@ textarea:focus {
   position: relative;
   flex: 1;
   min-width: 0;
+  padding-bottom: 42px;
 }
 
 .text_field .inline_error {
   position: absolute;
-  inset: 0;
+  inset: auto 0 0;
+  min-height: 36px;
   margin: 0;
-  padding: 8px 12px;
-  color: var(--color-primary-purple);
-  font-size: 16px;
-  line-height: 22px;
-  pointer-events: none;
-}
-
-.text_field:focus-within .inline_error {
-  opacity: 0;
-}
-
-.text_field input[aria-invalid='true']:not(:focus)::placeholder {
-  color: transparent;
+  color: var(--color-secondary-orange);
+  font-size: 13px;
+  line-height: 18px;
 }
 
 @media (max-width: 600px) {
@@ -162,3 +154,5 @@ textarea:focus {
     bottom: calc(100% + 2px);
   }
 }
+
+.input_row:has(.text_field) > .clear_button { align-self: flex-start; margin-top: 8px; }

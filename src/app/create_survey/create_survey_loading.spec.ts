@@ -1,3 +1,4 @@
+import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -44,3 +45,4 @@ it('shows loading, retry and saving feedback without discarding entered values',
   expect(root.textContent).not.toContain('Could not load');
   expect(title.value).toBe('My draft');
 });
+beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '', imports: [] } }); });

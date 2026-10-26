@@ -1,4 +1,5 @@
 <form
+  #formElement
   id="create_survey_form"
   class="survey_form"
   [formGroup]="form"
@@ -21,7 +22,7 @@
           />
           @if (showError(fields.name)) {
             <p id="survey_name_error" class="field_error inline_error" role="status">
-              Enter a survey name.
+              Enter a survey name, not just spaces.
             </p>
           }
         </div>
@@ -42,9 +43,12 @@
               #dateInput
               id="survey_end_date"
               type="date"
+              [min]="minimumDate"
+              (blur)="validateEndDate()"
+              (input)="validateEndDate()"
               formControlName="endDate"
               [attr.aria-invalid]="conversionError() ? true : null"
-              [attr.aria-describedby]="conversionError() ? 'survey_end_date_error' : null"
+              aria-describedby="survey_end_date_error"
             />
             <button
               type="button"
@@ -55,6 +59,7 @@
               <img src="assets/icons/delete.svg" width="18" height="20" alt="" />
             </button>
           </div>
+          <p id="survey_end_date_error" class="date_feedback" [attr.role]="conversionError() ? 'alert' : null">{{ conversionError() || 'Without a date, this survey ends in 24 hours.' }}</p>
         </div>
         <app-category-picker [categories]="categories()" [control]="fields.category" [invalid]="showError(fields.category)" />
       </div>
@@ -95,7 +100,4 @@
       /></span>
     </button>
   </div>
-  @if (conversionError()) {
-    <p id="survey_end_date_error" class="field_error" role="alert">{{ conversionError() }}</p>
-  }
 </form>

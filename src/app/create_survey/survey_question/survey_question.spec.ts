@@ -53,6 +53,9 @@ describe('Answer removal focus', (): void => {
     fixture.detectChanges();
     const root: HTMLElement = fixture.nativeElement;
     root.querySelectorAll<HTMLButtonElement>('.answer_row button')[removed].click();
+    expect(question.answers.at(removed).value).toBe('');
+    expect(question.answers.length).toBe(count);
+    if (count > 2) root.querySelectorAll<HTMLButtonElement>('.answer_row button')[removed].click();
     fixture.detectChanges();
     await fixture.whenStable();
     expect(question.answers.getRawValue()).toEqual(values);
@@ -88,6 +91,7 @@ describe('Question validation', (): void => {
     expect(question.invalid).toBe(true);
     question.answers.at(2).setValue('  ');
     expect(question.invalid).toBe(true);
+    question.removeAnswer(2);
     question.removeAnswer(2);
     expect(question.valid).toBe(true);
     expect(question.answers.at(0).value).toBe(' Monday ');

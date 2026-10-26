@@ -19,11 +19,11 @@ export interface SurveyFormValue {
 /**
  * Converts validated form content using the separately resolved deadline.
  * @param value - A single raw form snapshot.
- * @param endsAt - Explicitly resolved deadline; null is allowed only for an empty date field.
+ * @param endsAt - Explicitly resolved deadline; including the default deadline for an empty date field.
  * @returns Creation data with question and answer order preserved.
  */
 export function toCreateSurveyData(value: SurveyFormValue, endsAt: number | null): CreateSurveyData {
-  if ((value.endDate === '') !== (endsAt === null) || (endsAt !== null && !Number.isFinite(endsAt))) {
+  if (endsAt === null || (endsAt !== null && !Number.isFinite(endsAt))) {
     throw new Error('The selected end date needs an explicitly resolved deadline.');
   }
   return {

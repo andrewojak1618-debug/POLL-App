@@ -241,7 +241,8 @@ it('retries only unsaved questions after a partial failure', async (): Promise<v
   await harness.fixture.whenStable();
   expect(vote.mock.calls.map((call): string => call[0])).toEqual(['q1', 'q2', 'q2']);
   expect(component.savedQuestionIds()).toEqual(['q1', 'q2']);
-  expect(navigate).toHaveBeenCalledExactlyOnceWith(['/'], { info: 'focus_home_heading' });
+  expect(navigate).not.toHaveBeenCalled();
+  expect(component.selectionFeedback()).toContain('saved');
 });
 
 

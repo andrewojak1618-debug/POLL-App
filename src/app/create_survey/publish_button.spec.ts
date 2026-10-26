@@ -1,3 +1,4 @@
+import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -53,3 +54,4 @@ it('loads categories on direct creation entry and stores the selected ID', (): v
   expect(root.querySelector('#selected_category')?.textContent).toContain('Renamed team');
   expect(form.fields.category.value).toBe('team-id');
 });
+beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '', imports: [] } }); });
