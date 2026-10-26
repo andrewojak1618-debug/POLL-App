@@ -54,4 +54,7 @@ it('loads categories on direct creation entry and stores the selected ID', (): v
   expect(root.querySelector('#selected_category')?.textContent).toContain('Renamed team');
   expect(form.fields.category.value).toBe('team-id');
 });
-beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } }); });
+beforeEach(async (): Promise<void> => {
+  await TestBed.configureTestingModule({ imports: [CreateSurvey] }).compileComponents();
+  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
+});

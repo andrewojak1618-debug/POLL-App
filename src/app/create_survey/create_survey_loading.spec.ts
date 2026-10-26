@@ -45,4 +45,7 @@ it('shows loading, retry and saving feedback without discarding entered values',
   expect(root.textContent).not.toContain('Could not load');
   expect(title.value).toBe('My draft');
 });
-beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } }); });
+beforeEach(async (): Promise<void> => {
+  await TestBed.configureTestingModule({ imports: [CreateSurvey] }).compileComponents();
+  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
+});
