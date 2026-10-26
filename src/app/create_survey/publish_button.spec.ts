@@ -1,4 +1,3 @@
-import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -10,11 +9,10 @@ import { SurveyForm } from './survey_form/survey_form';
 
 describe('Publish button', (): void => {
   it('submits the associated form and displays errors without leaving the page', (): void => {
-    TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
-    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { isLoading: signal(false), error: signal(null), isCreating: signal(false), categories: signal([]), load: vi.fn().mockResolvedValue(undefined) } }] });
+    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { endingSoonSurveys: signal([]), filteredActiveSurveys: signal([]), filteredPastSurveys: signal([]), activeCategoryId: signal(null), pastCategoryId: signal(null), isLoading: signal(false), error: signal(null), isCreating: signal(false), categories: signal([]), load: vi.fn().mockResolvedValue(undefined) } }] });
     const fixture = TestBed.createComponent(CreateSurvey);
     fixture.detectChanges();
-    const root: HTMLElement = fixture.nativeElement;
+    const root: HTMLElement = fixture.nativeElement.querySelector('dialog');
     const button: HTMLButtonElement = root.querySelector<HTMLButtonElement>('.publish_button')!;
     const survey: SurveyForm = fixture.debugElement.query(By.directive(SurveyForm)).componentInstance;
     const submit = vi.spyOn(survey, 'submit');
@@ -30,13 +28,12 @@ describe('Publish button', (): void => {
 it('loads categories on direct creation entry and stores the selected ID', (): void => {
   const categories = signal([{ id: 'team-id', name: 'Team', slug: 'team' }]);
   const load = vi.fn().mockResolvedValue(undefined);
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
   TestBed.configureTestingModule({ providers: [provideRouter([]), {
-    provide: SurveyStore, useValue: { categories, load, isLoading: signal(false), error: signal(null), isCreating: signal(false) },
+    provide: SurveyStore, useValue: { endingSoonSurveys: signal([]), filteredActiveSurveys: signal([]), filteredPastSurveys: signal([]), activeCategoryId: signal(null), pastCategoryId: signal(null), categories, load, isLoading: signal(false), error: signal(null), isCreating: signal(false) },
   }] });
   const fixture = TestBed.createComponent(CreateSurvey);
   fixture.detectChanges();
-  const root: HTMLElement = fixture.nativeElement;
+  const root: HTMLElement = fixture.nativeElement.querySelector('dialog');
   const trigger: HTMLButtonElement = root.querySelector<HTMLButtonElement>('#survey_category')!;
   expect(load).toHaveBeenCalledOnce();
   expect(trigger.getAttribute('aria-label')).toBe('Choose category');

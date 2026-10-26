@@ -1,4 +1,3 @@
-import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -14,8 +13,7 @@ describe('Creation persistence', (): void => {
     let confirmSave!: () => void;
     const pending = new Promise<typeof result>((resolve: (value: typeof result | PromiseLike<typeof result>) => void): void => { confirmSave = (): void => resolve(result); });
     const createSurvey = vi.fn().mockReturnValue(pending);
-    TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
-    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { endingSoonSurveys: signal([]), filteredActiveSurveys: signal([]), filteredPastSurveys: signal([]), activeCategoryId: signal(null), pastCategoryId: signal(null),
       categories: signal([]), isLoading: signal(false), error: signal(null), isCreating: signal(false), load: vi.fn().mockResolvedValue(undefined), createSurvey,
     } }] });
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
@@ -26,7 +24,7 @@ describe('Creation persistence', (): void => {
     form.fields.category.setValue('category-id');
     form.questions.at(0).controls.question.setValue('When?');
     form.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
-    const root: HTMLElement = fixture.nativeElement;
+    const root: HTMLElement = fixture.nativeElement.querySelector('dialog');
     const dialog: HTMLDialogElement = root.querySelector<HTMLDialogElement>('app-published-confirmation dialog')!;
     dialog.showModal = (): void => { dialog.setAttribute('open', ''); };
     dialog.close = (): void => { dialog.removeAttribute('open'); dialog.dispatchEvent(new Event('close')); };
@@ -74,8 +72,7 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
       };
     });
   });
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
-  TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
+  TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { endingSoonSurveys: signal([]), filteredActiveSurveys: signal([]), filteredPastSurveys: signal([]), activeCategoryId: signal(null), pastCategoryId: signal(null),
     categories: signal([]), isLoading: signal(false), error: signal(null), isCreating,
     load: vi.fn().mockResolvedValue(undefined), createSurvey,
   } }] });
@@ -86,7 +83,7 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
   form.fields.category.setValue('category-id');
   form.questions.at(0).controls.question.setValue('When?');
   form.questions.at(0).answers.setValue(['Monday', 'Tuesday']);
-  const root: HTMLElement = fixture.nativeElement;
+  const root: HTMLElement = fixture.nativeElement.querySelector('dialog');
   const button: HTMLButtonElement = root.querySelector<HTMLButtonElement>('.publish_button')!;
   const nativeForm: HTMLFormElement = root.querySelector<HTMLFormElement>('form')!;
   button.click();

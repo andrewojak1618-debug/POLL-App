@@ -1,4 +1,3 @@
-import { Home } from '../home/home';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -11,13 +10,12 @@ it('shows loading, retry and saving feedback without discarding entered values',
   const isCreating = signal(false);
   const error = signal<string | null>(null);
   const load = vi.fn().mockResolvedValue(undefined);
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
-  TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
+  TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { endingSoonSurveys: signal([]), filteredActiveSurveys: signal([]), filteredPastSurveys: signal([]), activeCategoryId: signal(null), pastCategoryId: signal(null),
     categories: signal([]), isLoading, isCreating, error, load,
   } }] });
   const fixture = TestBed.createComponent(CreateSurvey);
   fixture.detectChanges();
-  const root: HTMLElement = fixture.nativeElement;
+  const root: HTMLElement = fixture.nativeElement.querySelector('dialog');
   const status: Element | null = root.querySelector('[role="status"]');
   const title: HTMLInputElement = root.querySelector<HTMLInputElement>('#survey_name')!;
   title.value = 'My draft';
