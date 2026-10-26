@@ -2,7 +2,7 @@ import { Component, ElementRef, input, output, viewChildren } from '@angular/cor
 import type { InputSignal, OutputEmitterRef, Signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { MAX_QUESTION_LENGTH } from '../../shared/models/survey-text-limits';
+import { MAX_ANSWER_LENGTH, MAX_QUESTION_LENGTH } from '../../shared/models/survey-text-limits';
 import { showFieldError } from '../show_field_error';
 import { SurveyQuestion } from './survey_question_model';
 
@@ -13,6 +13,7 @@ import { SurveyQuestion } from './survey_question_model';
   styleUrl: './survey_question.scss',
 })
 export class SurveyQuestionComponent {
+  readonly answerLimit: number = MAX_ANSWER_LENGTH;
   readonly questionLimit: number = MAX_QUESTION_LENGTH;
   readonly showError: typeof showFieldError = showFieldError;
   private readonly answerInputs: Signal<readonly ElementRef<HTMLInputElement>[]> =

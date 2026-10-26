@@ -53,19 +53,21 @@
           [id]="'survey_answer_' + number() + '_' + index"
           [attr.aria-label]="'Answer ' + question().answerLabel(index)"
           [formControl]="answer"
+          [maxlength]="answerLimit"
           required
           [attr.aria-invalid]="showError(answer) ? true : null"
           [attr.aria-describedby]="
-            showError(answer) ? 'answer_error_' + number() + '_' + index : null
+            'answer_limit_' + number() + '_' + index + (showError(answer) ? ' answer_error_' + number() + '_' + index : '')
           "
         />
+        <p class="text_limit" [id]="'answer_limit_' + number() + '_' + index">{{ answer.value.length }} / {{ answerLimit }} characters</p>
         @if (showError(answer)) {
           <p
             [id]="'answer_error_' + number() + '_' + index"
             class="field_error inline_error"
             role="status"
           >
-            Enter answer {{ question().answerLabel(index) }}, not just spaces.
+            {{ answer.hasError('maxlength') ? 'Use at most ' + answerLimit + ' characters.' : 'Enter answer ' + question().answerLabel(index) + ', not just spaces.' }}
           </p>
         }
       </div>

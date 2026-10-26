@@ -69,7 +69,7 @@ h2 {
 
 .answer_label input:disabled,
 .answer_label:has(input:disabled) {
-  cursor: default;
+  cursor: not-allowed;
 }
 
 .answer_text {

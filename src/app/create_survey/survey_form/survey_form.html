@@ -16,13 +16,15 @@
             (keydown.enter)="$event.preventDefault(); nameInput.blur()"
             id="survey_name"
             formControlName="name"
+            [maxlength]="nameLimit"
             required
             [attr.aria-invalid]="showError(fields.name) ? true : null"
-            [attr.aria-describedby]="showError(fields.name) ? 'survey_name_error' : null"
+            [attr.aria-describedby]="'survey_name_limit' + (showError(fields.name) ? ' survey_name_error' : '')"
           />
+          <p id="survey_name_limit" class="text_limit">{{ fields.name.value.length }} / {{ nameLimit }} characters</p>
           @if (showError(fields.name)) {
             <p id="survey_name_error" class="field_error inline_error" role="status">
-              Enter a survey name, not just spaces.
+              {{ fields.name.hasError('maxlength') ? 'Use at most ' + nameLimit + ' characters.' : 'Enter a survey name, not just spaces.' }}
             </p>
           }
         </div>

@@ -149,5 +149,12 @@ h2 {
   flex-shrink: 0;
 }
 
-.preview_notice { font-size: 14px; line-height: 1.4; }
-.preview_notice:empty { display: none; }
+.preview_notice {
+  display: grid;
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.preview_notice p { grid-area: 1 / 1; margin: 0; }
+.preview_notice [aria-hidden] { visibility: hidden; }

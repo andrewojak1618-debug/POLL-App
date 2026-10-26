@@ -1,4 +1,7 @@
-<p class="preview_notice" role="status">{{ preview() ? "Preview includes your selection. Submit to save your answers." : "" }}</p>
+<div class="preview_notice">
+  <p aria-hidden="true">Preview includes your selection. Submit to save your answers.</p>
+  <p role="status" aria-atomic="true">{{ preview() ? "Preview includes your selection. Submit to save your answers." : "" }}</p>
+</div>
 <button
   type="button"
   class="results_toggle"

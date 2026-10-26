@@ -39,7 +39,7 @@ it('keeps error references unique after removing and renumbering questions', asy
   fixture.detectChanges();
   await fixture.whenStable();
   expect(root.querySelector('#survey_name')?.hasAttribute('aria-invalid')).toBe(false);
-  expect(root.querySelector('#survey_name')?.hasAttribute('aria-describedby')).toBe(false);
+  expect(root.querySelector('#survey_name')?.getAttribute('aria-describedby')).toBe('survey_name_limit');
   expect(root.querySelector('#survey_name_error')).toBeNull();
 });
 

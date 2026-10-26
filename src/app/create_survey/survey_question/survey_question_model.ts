@@ -1,6 +1,6 @@
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { MAX_QUESTION_LENGTH } from '../../shared/models/survey-text-limits';
+import { MAX_ANSWER_LENGTH, MAX_QUESTION_LENGTH } from '../../shared/models/survey-text-limits';
 
 const ALPHABET_LENGTH: number = 26;
 const FIRST_LETTER_CODE: number = 65;
@@ -67,6 +67,6 @@ export class SurveyQuestion extends FormGroup<{
 function createRequiredTextControl(): FormControl<string> {
   return new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required, Validators.pattern(/\S/)],
+    validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(MAX_ANSWER_LENGTH)],
   });
 }

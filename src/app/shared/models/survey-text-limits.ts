@@ -1,5 +1,7 @@
-import type { CreateSurveyData, CreateSurveyQuestionData } from './create_survey_data';
+import type { CreateSurveyData, CreateSurveyOptionData, CreateSurveyQuestionData } from './create_survey_data';
 
+export const MAX_SURVEY_NAME_LENGTH: number = 100;
+export const MAX_ANSWER_LENGTH: number = 200;
 export const MAX_QUESTION_LENGTH: number = 200;
 export const MAX_DESCRIPTION_LENGTH: number = 1000;
 
@@ -8,6 +10,8 @@ export const MAX_DESCRIPTION_LENGTH: number = 1000;
  * @returns Whether every limited field fits its maximum length.
  */
 export function hasValidSurveyTextLengths(survey: CreateSurveyData): boolean {
-  return (survey.description?.length ?? 0) <= MAX_DESCRIPTION_LENGTH
-    && survey.questions.every((question: CreateSurveyQuestionData): boolean => question.text.length <= MAX_QUESTION_LENGTH);
+  return survey.title.length <= MAX_SURVEY_NAME_LENGTH
+    && (survey.description?.length ?? 0) <= MAX_DESCRIPTION_LENGTH
+    && survey.questions.every((question: CreateSurveyQuestionData): boolean => question.text.length <= MAX_QUESTION_LENGTH
+      && question.options.every((option: CreateSurveyOptionData): boolean => option.text.length <= MAX_ANSWER_LENGTH));
 }

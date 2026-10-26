@@ -2,7 +2,7 @@ import { Component, ElementRef, input, output, signal, viewChild } from '@angula
 import type { InputSignal, OutputEmitterRef, Signal, WritableSignal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { MAX_DESCRIPTION_LENGTH } from '../../shared/models/survey-text-limits';
+import { MAX_DESCRIPTION_LENGTH, MAX_SURVEY_NAME_LENGTH } from '../../shared/models/survey-text-limits';
 import { CategoryPicker } from '../category_picker/category_picker';
 
 import { resolveSurveyDeadline } from '../survey_form_deadline';
@@ -23,6 +23,7 @@ type SurveyFields = Record<'name' | 'endDate' | 'category' | 'description', Form
   styleUrl: './survey_form.scss',
 })
 export class SurveyForm {
+  readonly nameLimit: number = MAX_SURVEY_NAME_LENGTH;
   readonly descriptionLimit: number = MAX_DESCRIPTION_LENGTH;
   private readonly formElement: Signal<ElementRef<HTMLFormElement> | undefined> = viewChild('formElement');
   private readonly dateInput: Signal<ElementRef<HTMLInputElement> | undefined> = viewChild('dateInput');
@@ -34,7 +35,7 @@ export class SurveyForm {
   readonly conversionError: WritableSignal<string | null> = signal<string | null>(null);
   readonly categories: InputSignal<readonly SurveyCategoryData[]> = input<readonly SurveyCategoryData[]>([]);
   readonly fields: SurveyFields = {
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)] }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(MAX_SURVEY_NAME_LENGTH)] }),
     endDate: new FormControl('', { nonNullable: true }),
     category: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     description: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(MAX_DESCRIPTION_LENGTH)] }),
