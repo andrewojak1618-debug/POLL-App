@@ -107,4 +107,4 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
   finish();
   await fixture.whenStable();
 });
-beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '', imports: [] } }); });
+beforeEach((): void => { TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } }); });
