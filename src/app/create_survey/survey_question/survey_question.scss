@@ -78,14 +78,23 @@ fieldset {
 
 @media (max-width: 600px) { .answers_heading { flex-wrap: wrap; } }
 @media (max-width: 600px) {
-  .answer_row label {
-    margin-bottom: 4px;
-    padding-right: 32px;
+  .input_row.answer_row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 26px;
+    align-items: center;
+    gap: 4px 8px;
   }
 
-  .answer_row > .clear_button {
-    top: -2px;
-    bottom: auto;
+  .answer_row .text_field {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .input_row.answer_row > .clear_button {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
   }
 
   .add_answer {
