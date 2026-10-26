@@ -11,6 +11,7 @@ it('shows loading, retry and saving feedback without discarding entered values',
   const isCreating = signal(false);
   const error = signal<string | null>(null);
   const load = vi.fn().mockResolvedValue(undefined);
+  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
   TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
     categories: signal([]), isLoading, isCreating, error, load,
   } }] });
@@ -44,8 +45,4 @@ it('shows loading, retry and saving feedback without discarding entered values',
   expect(root.textContent).toContain('Could not publish');
   expect(root.textContent).not.toContain('Could not load');
   expect(title.value).toBe('My draft');
-});
-beforeEach(async (): Promise<void> => {
-  await TestBed.configureTestingModule({ imports: [CreateSurvey] }).compileComponents();
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
 });

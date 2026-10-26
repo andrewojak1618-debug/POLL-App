@@ -10,6 +10,7 @@ import { SurveyForm } from './survey_form/survey_form';
 
 describe('Publish button', (): void => {
   it('submits the associated form and displays errors without leaving the page', (): void => {
+    TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
     TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: { isLoading: signal(false), error: signal(null), isCreating: signal(false), categories: signal([]), load: vi.fn().mockResolvedValue(undefined) } }] });
     const fixture = TestBed.createComponent(CreateSurvey);
     fixture.detectChanges();
@@ -29,6 +30,7 @@ describe('Publish button', (): void => {
 it('loads categories on direct creation entry and stores the selected ID', (): void => {
   const categories = signal([{ id: 'team-id', name: 'Team', slug: 'team' }]);
   const load = vi.fn().mockResolvedValue(undefined);
+  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
   TestBed.configureTestingModule({ providers: [provideRouter([]), {
     provide: SurveyStore, useValue: { categories, load, isLoading: signal(false), error: signal(null), isCreating: signal(false) },
   }] });
@@ -53,8 +55,4 @@ it('loads categories on direct creation entry and stores the selected ID', (): v
   expect(trigger.textContent).toContain('Choose category');
   expect(root.querySelector('#selected_category')?.textContent).toContain('Renamed team');
   expect(form.fields.category.value).toBe('team-id');
-});
-beforeEach(async (): Promise<void> => {
-  await TestBed.configureTestingModule({ imports: [CreateSurvey] }).compileComponents();
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
 });

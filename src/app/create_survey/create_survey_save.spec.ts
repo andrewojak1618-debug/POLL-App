@@ -14,6 +14,7 @@ describe('Creation persistence', (): void => {
     let confirmSave!: () => void;
     const pending = new Promise<typeof result>((resolve: (value: typeof result | PromiseLike<typeof result>) => void): void => { confirmSave = (): void => resolve(result); });
     const createSurvey = vi.fn().mockReturnValue(pending);
+    TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
     TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
       categories: signal([]), isLoading: signal(false), error: signal(null), isCreating: signal(false), load: vi.fn().mockResolvedValue(undefined), createSurvey,
     } }] });
@@ -73,6 +74,7 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
       };
     });
   });
+  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
   TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
     categories: signal([]), isLoading: signal(false), error: signal(null), isCreating,
     load: vi.fn().mockResolvedValue(undefined), createSurvey,
@@ -106,8 +108,4 @@ it('blocks repeated UI submits while saving and permits a retry after failure', 
   expect(createSurvey).toHaveBeenCalledTimes(2);
   finish();
   await fixture.whenStable();
-});
-beforeEach(async (): Promise<void> => {
-  await TestBed.configureTestingModule({ imports: [CreateSurvey] }).compileComponents();
-  TestBed.overrideComponent(Home, { set: { template: '<!-- Home content is outside this test. -->', templateUrl: undefined, imports: [] } });
 });
