@@ -16,8 +16,8 @@ const SURVEYS: readonly SurveyListItem[] = [
 ];
 
 describe('ending soon surveys', (): void => {
-  it('includes exactly 24 hours, excludes expired and unlimited surveys, and sorts by deadline', (): void => {
-    expect(getEndingSoonSurveys(SURVEYS, NOW).map((survey: SurveyListItem): string => survey.id)).toEqual(['soon', 'limit']);
+  it('includes later deadlines while excluding expired and unlimited surveys', (): void => {
+    expect(getEndingSoonSurveys(SURVEYS, NOW).map((survey: SurveyListItem): string => survey.id)).toEqual(['soon', 'limit', 'too-late']);
     expect(SURVEYS[0].id).toBe('limit');
   });
 
@@ -29,4 +29,12 @@ describe('ending soon surveys', (): void => {
     expect(getEndingSoonSurveys([], NOW)).toEqual([]);
     expect(getEndingSoonSurveys(SURVEYS, NOW + 2 * DAY)).toEqual([]);
   });
+});
+
+it('shows at most four upcoming deadlines even when all are beyond tomorrow', (): void => {
+  const surveys: readonly SurveyListItem[] = [6, 2, 5, 3, 4].map((days: number): SurveyListItem => ({
+    ...BASE, id: String(days), endsAt: NOW + days * DAY,
+  }));
+  expect(getEndingSoonSurveys(surveys, NOW).map((survey: SurveyListItem): string => survey.id)).toEqual(['2', '3', '4', '5']);
+  expect(surveys[0].id).toBe('6');
 });

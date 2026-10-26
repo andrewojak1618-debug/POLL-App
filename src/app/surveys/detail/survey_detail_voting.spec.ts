@@ -236,7 +236,7 @@ it.each([true, false])('updates displayed results only after a successful own vo
   await vi.waitFor((): void => { expect(fixture.componentInstance.isCompleting()).toBe(false); });
   await fixture.whenStable();
   fixture.detectChanges();
-  expect(root.querySelector('.completion_status')?.getAttribute('role')).toBe('status');
+  expect(root.querySelector('.completion_status [role]')?.getAttribute('role')).toBe('status');
   expect(root.querySelector('.question_vote_total')?.textContent?.trim()).toBe('Total votes: 3');
   expect(Array.from(root.querySelectorAll('.answer_percentage'), (item: Element): string | undefined => item.textContent?.trim())).toEqual(['67 %', '33 %']);
   expect(root.querySelector<HTMLInputElement>('input')?.checked).toBe(true);

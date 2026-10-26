@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { CreateSurveyData } from '../models/create_survey_data';
+import { hasValidSurveyTextLengths } from '../models/survey-text-limits';
 import { writeTimestamp } from './survey_dates';
 import type { SurveyDetail } from '../models/survey_detail';
 import { mapNestedSurvey } from './survey_nested_mapper';
@@ -130,6 +131,7 @@ export class SurveyRepository {
    * @returns The generated survey UUID or a typed error; requests are not retried.
    */
   async createSurvey(survey: CreateSurveyData): Promise<RepositoryResult<string>> {
+    if (!hasValidSurveyTextLengths(survey)) return { success: false, error: REPOSITORY_ERROR.INVALID_INPUT };
     let deadline: string | null;
     try {
       deadline = writeTimestamp(survey.endsAt);

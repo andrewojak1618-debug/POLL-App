@@ -105,7 +105,7 @@ Bei einem Speicherfehler bleibt die Auswahl erhalten. Ein erneuter Versuch über
 | Funktion | Verhalten |
 | --- | --- |
 | Active / Past | Ohne Deadline aktiv; ab Erreichen der Deadline vergangen |
-| Ending soon | Aktive Umfragen mit Deadline innerhalb der nächsten 24 Stunden, frühestes Ende zuerst |
+| Next surveys to end | Bis zu vier aktive Umfragen mit Deadline, frühestes Ende zuerst; auch außerhalb von 24 Stunden |
 | Kategorien | Team Activities, Gaming & Entertainment, Health & Wellness |
 | Dynamisches Formular | Mehrere Fragen und Antwortoptionen, Pflichtfeldprüfung einschließlich Leerzeichen |
 | Optionale Deadline | Ende des gewählten Tages in Europe/Berlin einschließlich Sommer-/Winterzeit |
@@ -193,3 +193,12 @@ Das Projekt vertieft Angular-Routing, Reactive Forms, Signals, getrennte Verantw
 - Publish bleibt bei ungültigen Eingaben bedienbar, damit konkrete Feldmeldungen erscheinen. Während Laden oder Speichern ist die Aktion gesperrt.
 - Textmeldungen reservieren ihren Platz; ein ungültiges Formular fokussiert die erste notwendige Eingabe.
 - Gefüllte Antworten werden erst geleert, leere zusätzliche Antworten beim nächsten Klick entfernt.
+
+### Zweite Feedbackrunde (lokaler Stand)
+
+- Der Erstellungsdialog hebt sich mit einem schwarzen Hintergrundschleier ab.
+- Neue Fragen sind auf 200 Zeichen, Beschreibungen auf 1.000 Zeichen begrenzt. Zähler und Validierung zeigen die Grenzen; die Repository-Prüfung verhindert überlange Schreibanfragen aus der App. Bestehende Inhalte werden nicht gekürzt. Dies ersetzt keine serverseitige Datenbankvalidierung.
+- Ergebnisse beginnen auf Desktop oben neben dem Fragenbereich, unabhängig von dessen Länge.
+- Rückmeldungen zur Stimmabgabe bleiben im sichtbaren Bildschirmbereich und werden als Status angekündigt.
+- Die Veröffentlichungsbestätigung schließt nach acht Sekunden; manuelles Schließen bleibt möglich. Der Timer wird beim Schließen oder Verlassen aufgeräumt.
+- Für FTP im Domain-Hauptverzeichnis mit `npm run build -- --base-href /` bauen. Der GitHub-Pages-Build mit `/POLL-App/` gehört nicht ins FTP-Hauptverzeichnis.

@@ -156,3 +156,5 @@ textarea:focus {
 }
 
 .input_row:has(.text_field) > .clear_button { align-self: flex-start; margin-top: 8px; }
+
+.text_limit { margin: 4px 0 0; color: var(--color-secondary-orange); font-size: 13px; line-height: 18px; }

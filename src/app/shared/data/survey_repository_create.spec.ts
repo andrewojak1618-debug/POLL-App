@@ -27,6 +27,14 @@ describe('SurveyRepository creation', (): void => {
     repository = TestBed.inject(SurveyRepository);
   });
 
+  it.each(['question', 'description'])('rejects an oversized %s before requesting persistence', async (field: string): Promise<void> => {
+    const oversized: CreateSurveyData = field === 'description'
+      ? { ...survey, description: 'D'.repeat(1001) }
+      : { ...survey, questions: [{ ...survey.questions[0], text: 'Q'.repeat(201) }] };
+    expect(await repository.createSurvey(oversized)).toEqual({ success: false, error: 'invalid_input' });
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it('sends the complete model and UTC deadline through the RPC only', async (): Promise<void> => {
     rpc.mockResolvedValue({ data: SURVEY_ID, error: null });
     expect(await repository.createSurvey(survey)).toEqual({ success: true, data: SURVEY_ID });

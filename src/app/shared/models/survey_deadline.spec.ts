@@ -38,9 +38,9 @@ describe('Survey model deadline rules', (): void => {
     expect(ids(filterSurveysByStatus(SURVEYS, 'past', NOW))).toEqual(['now', 'past']);
   });
 
-  it('sorts highlights and includes exactly 24 hours without mutating input', (): void => {
+  it('sorts upcoming deadlines without mutating input', (): void => {
     const highlights: readonly Survey[] = getEndingSoonSurveys(SURVEYS, NOW);
-    expect(ids(highlights)).toEqual(['next', 'limit']);
+    expect(ids(highlights)).toEqual(['next', 'limit', 'outside']);
     expect(highlights[0]).toBe(SURVEYS[5]);
     expect(ids(SURVEYS)).toEqual(['unlimited', 'outside', 'limit', 'now', 'past', 'next']);
   });

@@ -75,12 +75,11 @@
               /></span>
             </button>
           </div>
-          <p class="completion_status" role="status">{{ selectionFeedback() }}</p>
+          <app-completion-notice class="completion_status" [message]="selectionFeedback()" />
         </form>
       </div>
       <app-survey-results
         class="results_panel"
-        [style.align-self]="hasResults() ? null : 'start'"
         [questions]="previewQuestions()"
         [preview]="hasPreview()"
         [hasResults]="hasResults()"

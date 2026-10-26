@@ -1,0 +1,15 @@
+p { margin: 0; }
+p.visible {
+  position: fixed;
+  inset: auto 24px 24px auto;
+  z-index: 10;
+  width: min(440px, calc(100vw - 48px));
+  padding: 16px 20px;
+  border: 2px solid var(--color-primary-orange);
+  border-radius: 12px;
+  background: var(--color-primary-purple);
+  color: var(--color-page-background);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}

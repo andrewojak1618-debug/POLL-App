@@ -71,6 +71,9 @@
           #descriptionInput
           id="survey_description"
           formControlName="description"
+          [maxlength]="descriptionLimit"
+          [attr.aria-invalid]="showError(fields.description) ? true : null"
+          aria-describedby="description_limit description_error"
           rows="4"
         ></textarea>
         <button
@@ -82,6 +85,8 @@
           <img src="assets/icons/delete.svg" width="18" height="20" alt="" />
         </button>
       </div>
+      <p id="description_limit" class="text_limit">{{ fields.description.value.length }} / {{ descriptionLimit }} characters</p>
+      <p id="description_error" class="date_feedback" role="status">{{ showError(fields.description) ? 'Use at most ' + descriptionLimit + ' characters.' : '' }}</p>
     </div>
   </div>
 

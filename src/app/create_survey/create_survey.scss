@@ -231,7 +231,7 @@ h1:focus-visible {
   overflow: hidden;
 
 }
-.creation_dialog::backdrop { background: rgb(53 39 58 / 55%); }
+.creation_dialog::backdrop { background: rgb(0 0 0 / 55%); }
 @media (max-width: 600px) {
   .creation_dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border-top-right-radius: 60px; }
   .mobile_create_header { display: none; }

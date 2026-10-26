@@ -2,6 +2,7 @@ import { Component, ElementRef, input, output, signal, viewChild } from '@angula
 import type { InputSignal, OutputEmitterRef, Signal, WritableSignal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
+import { MAX_DESCRIPTION_LENGTH } from '../../shared/models/survey-text-limits';
 import { CategoryPicker } from '../category_picker/category_picker';
 
 import { resolveSurveyDeadline } from '../survey_form_deadline';
@@ -22,6 +23,7 @@ type SurveyFields = Record<'name' | 'endDate' | 'category' | 'description', Form
   styleUrl: './survey_form.scss',
 })
 export class SurveyForm {
+  readonly descriptionLimit: number = MAX_DESCRIPTION_LENGTH;
   private readonly formElement: Signal<ElementRef<HTMLFormElement> | undefined> = viewChild('formElement');
   private readonly dateInput: Signal<ElementRef<HTMLInputElement> | undefined> = viewChild('dateInput');
   readonly minimumDate: string = new Intl.DateTimeFormat('en-CA', {
@@ -35,7 +37,7 @@ export class SurveyForm {
     name: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.pattern(/\S/)] }),
     endDate: new FormControl('', { nonNullable: true }),
     category: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-    description: new FormControl('', { nonNullable: true }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(MAX_DESCRIPTION_LENGTH)] }),
   };
   readonly questions: FormArray<SurveyQuestion> = new FormArray<SurveyQuestion>([new SurveyQuestion()]);
   readonly form: FormGroup<SurveyFields & { questions: FormArray<SurveyQuestion> }> = new FormGroup({ ...this.fields, questions: this.questions });

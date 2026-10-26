@@ -8,14 +8,6 @@
   display: none;
 }
 
-.completion_status {
-  margin: 0;
-}
-
-.completion_status:not(:empty) {
-  margin-top: 16px;
-}
-
 .complete_survey {
   --primary-button-min-width: 159px;
   --primary-button-label-width: 135px;

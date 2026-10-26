@@ -17,10 +17,11 @@
       (keydown.enter)="$event.preventDefault(); questionInput.blur()"
       [id]="'survey_question_' + number()"
       formControlName="question"
+      [maxlength]="questionLimit"
       required
       [attr.aria-invalid]="showError(question().controls.question) ? true : null"
       [attr.aria-describedby]="
-        showError(question().controls.question) ? 'question_error_' + number() : null
+        'question_limit_' + number() + (showError(question().controls.question) ? ' question_error_' + number() : '')
       "
       [placeholder]="
         number() === 1 ? 'Which date would work best for you?' : 'Choose the activities you prefer?'
@@ -28,10 +29,11 @@
     />
     @if (showError(question().controls.question)) {
       <p [id]="'question_error_' + number()" class="field_error inline_error" role="status">
-        Enter a question, not just spaces.
+        {{ question().controls.question.hasError('maxlength') ? 'Use at most ' + questionLimit + ' characters.' : 'Enter a question, not just spaces.' }}
       </p>
     }
   </div>
+  <p class="text_limit" [id]="'question_limit_' + number()">{{ question().controls.question.value.length }} / {{ questionLimit }} characters</p>
   <div class="answers_heading">
     <span>Answers</span>
     <label class="multiple_answers">

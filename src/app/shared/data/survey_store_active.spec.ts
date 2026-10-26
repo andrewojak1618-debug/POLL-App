@@ -82,14 +82,14 @@ describe('SurveyStore survey status', (): void => {
     expect(store.pastSurveys()).toEqual([]);
   });
 
-  it('derives the sorted 24-hour window without changing the source list', async (): Promise<void> => {
+  it('derives the next upcoming deadlines without changing the source list', async (): Promise<void> => {
     const day: number = 24 * 60 * 60 * 1000;
     const rows: readonly SurveyDetail[] = [survey('boundary', NOW + day), survey('open', null),
       survey('expired', NOW), survey('soon', NOW + 1000), survey('outside', NOW + day + 1000)];
     loadSurveys.mockResolvedValue({ success: true, data: rows });
     expect(store.endingSoonSurveys()).toEqual([]);
     await store.load();
-    expect(store.endingSoonSurveys().map((item: SurveyDetail): string => item.id)).toEqual(['soon', 'boundary']);
+    expect(store.endingSoonSurveys().map((item: SurveyDetail): string => item.id)).toEqual(['soon', 'boundary', 'outside']);
     expect(store.surveys()).toEqual(rows);
     vi.advanceTimersByTime(1000);
     expect(store.endingSoonSurveys().map((item: SurveyDetail): string => item.id)).toEqual(['boundary', 'outside']);

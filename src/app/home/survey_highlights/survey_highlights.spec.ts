@@ -27,6 +27,6 @@ describe('store-backed highlights', (): void => {
     surveys.set([]);
     await fixture.whenStable();
     expect(element.querySelector('app-highlight-card')).toBeNull();
-    expect(element.querySelector('[role="status"]')?.textContent).toContain('No surveys ending within the next 24 hours.');
+    expect(element.querySelector('[role="status"]')?.textContent).toContain('No active surveys with a deadline.');
   });
 });

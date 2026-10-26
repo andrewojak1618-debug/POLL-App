@@ -12,6 +12,7 @@ import { REPOSITORY_ERROR } from '../../shared/data/repository_result';
 import type { RepositoryResult } from '../../shared/data/repository_result';
 import type { SurveyDetail as SurveyData, SurveyQuestionDetail } from '../../shared/models/survey_detail';
 import type { SurveyOption } from '../../shared/models/survey_option';
+import { CompletionNotice } from './completion-notice';
 import { SurveyResults } from './survey_results';
 import { SurveyAnswerQuestion } from './survey_answer_question';
 import { PrimaryButton } from '../../shared/ui/primary_button/primary_button';
@@ -29,7 +30,7 @@ type SurveyResult = RepositoryResult<SurveyData | null>;
 
 @Component({
   selector: 'app-survey-detail',
-  imports: [RouterLink, PrimaryButton, SurveyResults, SurveyAnswerQuestion],
+  imports: [RouterLink, PrimaryButton, SurveyResults, SurveyAnswerQuestion, CompletionNotice],
   templateUrl: './survey_detail.html',
   styleUrl: './survey_detail.scss',
 })
