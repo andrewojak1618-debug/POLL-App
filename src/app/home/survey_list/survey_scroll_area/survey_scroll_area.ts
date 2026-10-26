@@ -1,12 +1,15 @@
-import { afterNextRender, Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
-import type { Signal, WritableSignal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import type { InputSignal, Signal, WritableSignal } from '@angular/core';
 
 @Component({
   selector: 'app-survey-scroll-area',
+  host: { '[class.dialog_scroll]': 'dialog()' },
   templateUrl: './survey_scroll_area.html',
   styleUrl: './survey_scroll_area.scss',
 })
 export class SurveyScrollArea {
+  readonly dialog: InputSignal<boolean> = input(false);
+  readonly scrollLabel: InputSignal<string> = input('Scroll surveys');
   private readonly viewport: Signal<ElementRef<HTMLElement>> = viewChild.required('viewport');
   private readonly content: Signal<ElementRef<HTMLElement>> = viewChild.required('content');
   private readonly destroyRef: DestroyRef = inject(DestroyRef);

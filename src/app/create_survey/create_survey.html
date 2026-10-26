@@ -1,40 +1,42 @@
 <app-home />
 <dialog #createDialog class="creation_dialog" aria-labelledby="create_survey_title" (cancel)="cancelCreation($event)">
-<header class="mobile_create_header">
-  <a routerLink="/" [info]="'focus_new_survey'" aria-label="Back to Home">
-    <img src="images/dark_logo.svg" width="119" height="50" alt="" />
-  </a>
-</header>
-<div class="create_survey">
-  <section class="survey_shell">
-    <header class="survey_header">
-      <div class="survey_heading">
-        <span class="draft_badge">Draft</span>
-        <h1 #surveyHeading id="create_survey_title" tabindex="-1">Create new survey</h1>
-      </div>
-      <a class="cancel_button" aria-label="Cancel" routerLink="/" [info]="'focus_new_survey'">
-        <span class="cancel_label">Cancel</span>
-        <img src="assets/icons/cancel.svg" width="14" height="14" alt="" />
+  <app-survey-scroll-area [dialog]="true" scrollLabel="Scroll survey form">
+    <header class="mobile_create_header">
+      <a routerLink="/" [info]="'focus_new_survey'" aria-label="Back to Home">
+        <img src="images/dark_logo.svg" width="119" height="50" alt="" />
       </a>
     </header>
-    <p class="save_feedback" role="status">
-      @if (store.isCreating()) {Publishing survey…}
-      @else if (store.isLoading()) {Loading survey data and categories…}
-      @else if (saveResult(); as result) {
-        {{ result.success ? '' : 'Could not publish the survey. Your entries have been kept. Please try again.' }}
-      }
-    </p>
-    @if (!store.isCreating() && !store.isLoading() && store.error() && !saveResult()) {
-      <p class="save_feedback" role="alert">Could not load survey data and categories. Your entries have been kept. Please try again.</p>
-      <button type="button" class="retry_button" (click)="store.load()">Try again</button>
-    }
-    <app-survey-form class="survey_form_surface" [categories]="store.categories()" (validatedSurvey)="saveSurvey($event)" />
-    <div class="survey_actions">
-      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish<img buttonIcon src="assets/icons/check.svg" width="18" height="16" alt="" /></button>
+    <div class="create_survey">
+      <section class="survey_shell">
+        <header class="survey_header">
+          <div class="survey_heading">
+            <span class="draft_badge">Draft</span>
+            <h1 #surveyHeading id="create_survey_title" tabindex="-1">Create new survey</h1>
+          </div>
+          <a class="cancel_button" aria-label="Cancel" routerLink="/" [info]="'focus_new_survey'">
+            <span class="cancel_label">Cancel</span>
+            <img src="assets/icons/cancel.svg" width="14" height="14" alt="" />
+          </a>
+        </header>
+        <p class="save_feedback" role="status">
+          @if (store.isCreating()) {Publishing survey…}
+          @else if (store.isLoading()) {Loading survey data and categories…}
+          @else if (saveResult(); as result) {
+            {{ result.success ? '' : 'Could not publish the survey. Your entries have been kept. Please try again.' }}
+          }
+        </p>
+        @if (!store.isCreating() && !store.isLoading() && store.error() && !saveResult()) {
+          <p class="save_feedback" role="alert">Could not load survey data and categories. Your entries have been kept. Please try again.</p>
+          <button type="button" class="retry_button" (click)="store.load()">Try again</button>
+        }
+        <app-survey-form class="survey_form_surface" [categories]="store.categories()" (validatedSurvey)="saveSurvey($event)" />
+        <div class="survey_actions">
+          <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish<img buttonIcon src="assets/icons/check.svg" width="18" height="16" alt="" /></button>
+        </div>
+      </section>
     </div>
-  </section>
-</div>
 
-<app-published-confirmation (closed)="openPublishedSurvey()" />
+  </app-survey-scroll-area>
+  <app-published-confirmation (closed)="openPublishedSurvey()" />
 
 </dialog>

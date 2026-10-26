@@ -8,11 +8,12 @@ import { SurveyStore } from '../shared/data/survey_store';
 import { PrimaryButton } from '../shared/ui/primary_button/primary_button';
 import { SurveyForm } from './survey_form/survey_form';
 import { Home } from '../home/home';
+import { SurveyScrollArea } from '../home/survey_list/survey_scroll_area/survey_scroll_area';
 import { PublishedConfirmation } from './published_confirmation';
 
 @Component({
   selector: 'app-create-survey',
-  imports: [RouterLink, SurveyForm, PrimaryButton, PublishedConfirmation, Home],
+  imports: [RouterLink, SurveyForm, PrimaryButton, PublishedConfirmation, Home, SurveyScrollArea],
   templateUrl: './create_survey.html',
   styleUrl: './create_survey.scss',
 })
