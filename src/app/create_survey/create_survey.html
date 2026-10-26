@@ -12,7 +12,7 @@
       </div>
       <a class="cancel_button" aria-label="Cancel" routerLink="/" [info]="'focus_new_survey'">
         <span class="cancel_label">Cancel</span>
-        <img src="icons/cancel.svg" width="14" height="14" alt="" />
+        <img src="assets/icons/cancel.svg" width="14" height="14" alt="" />
       </a>
     </header>
     <p class="save_feedback" role="status">
@@ -28,7 +28,7 @@
     }
     <app-survey-form class="survey_form_surface" [categories]="store.categories()" (validatedSurvey)="saveSurvey($event)" />
     <div class="survey_actions">
-      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish<img buttonIcon src="icons/check.svg" width="18" height="16" alt="" /></button>
+      <button appPrimaryButton class="publish_button" type="submit" form="create_survey_form" [disabled]="store.isCreating() || store.isLoading()">Publish<img buttonIcon src="assets/icons/check.svg" width="18" height="16" alt="" /></button>
     </div>
   </section>
 </main>

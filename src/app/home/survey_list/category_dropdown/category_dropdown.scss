@@ -35,7 +35,7 @@
   flex: 0 0 16px;
   height: 8px;
   background: var(--color-page-background);
-  mask: url('../../../../../public/icons/arrow_drop_down.svg') center / contain no-repeat;
+  mask: url('../../../../../public/assets/icons/arrow_drop_down.svg') center / contain no-repeat;
 
   &.is_open {
     transform: rotate(180deg);
