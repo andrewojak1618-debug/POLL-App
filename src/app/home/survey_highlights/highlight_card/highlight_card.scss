@@ -4,6 +4,9 @@
 }
 
 .highlight_card {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
   min-height: 310px;
   padding: 40px 18px;
   border-top-right-radius: 80px;
@@ -87,4 +90,9 @@ h4 {
     font-size: 12px;
     line-height: 16px;
   }
+}
+
+.highlight_card:focus-visible {
+  outline: 3px solid var(--color-primary-orange);
+  outline-offset: -3px;
 }

@@ -1,4 +1,4 @@
-<article class="highlight_card">
+<a class="highlight_card" [routerLink]="['/surveys', survey().id]">
   <div class="card_content">
     <div class="card_heading">
       <p class="category">{{ survey().category.name }}</p>
@@ -6,4 +6,4 @@
     </div>
     <p class="deadline">{{ deadlineLabel() }}</p>
   </div>
-</article>
+</a>

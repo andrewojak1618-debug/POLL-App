@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import type { InputSignal, Signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import type { SurveyDetail } from '../../../shared/models/survey_detail';
 import { formatSurveyDeadline } from '../../../shared/data/survey_deadline';
@@ -8,6 +9,7 @@ type HighlightData = Pick<SurveyDetail, 'id' | 'title' | 'category' | 'endsAt'>;
 
 @Component({
   selector: 'app-highlight-card',
+  imports: [RouterLink],
   templateUrl: './highlight_card.html',
   styleUrl: './highlight_card.scss',
 })

@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { SurveyHighlights } from './survey_highlights';
 import { SurveyStore } from '../../shared/data/survey_store';
@@ -15,12 +16,13 @@ const SURVEY: SurveyDetail = {
 describe('store-backed highlights', (): void => {
   it('renders loaded category and deadline, then reacts to an empty store list', async (): Promise<void> => {
     const surveys = signal<readonly SurveyDetail[]>([SURVEY]);
-    TestBed.configureTestingModule({ providers: [{ provide: SurveyStore, useValue: {
+    TestBed.configureTestingModule({ providers: [provideRouter([]), { provide: SurveyStore, useValue: {
       endingSoonSurveys: surveys.asReadonly(), now: signal(NOW).asReadonly(),
     } }] });
     const fixture = TestBed.createComponent(SurveyHighlights);
     await fixture.whenStable();
     const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('a.highlight_card')?.getAttribute('href')).toBe('/surveys/highlight-id');
     expect(element.querySelector('h4')?.textContent).toBe('Loaded highlight');
     expect(element.querySelector('.category')?.textContent).toBe('Loaded category');
     expect(element.querySelector('.deadline')?.textContent).toBe('Ends in 1 Day');
